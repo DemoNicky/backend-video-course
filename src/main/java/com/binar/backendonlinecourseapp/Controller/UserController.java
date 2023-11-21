@@ -6,6 +6,7 @@ import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Entity.User;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,4 +52,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody LoginRequest updateRequest) {
+        try {
+            User updatedUser = userService.updateUser(userId, updateRequest);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            ResponseHandling<Object> response = ResponseHandling.builder()
+                    .data(null)
+                    .message("cant update data")
+                    .errors(true)
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 }

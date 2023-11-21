@@ -158,6 +158,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return kode;
     }
 
+    @Override
+    public User updateUser(String userId, LoginRequest updateRequest) {
+//        logic untuk update user
+//        ...
 
-
+        return null;
+    }
 }

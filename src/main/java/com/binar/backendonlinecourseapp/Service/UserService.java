@@ -6,6 +6,7 @@ import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Entity.User;
 
 public interface UserService {
 
@@ -14,4 +15,6 @@ public interface UserService {
     ResponseHandling<LoginResponse> createJwtToken(LoginRequest jwtRequest) throws Exception;
 
     ResponseGetUser getUser();
+
+    User updateUser(String userId, LoginRequest updateRequest);
 }
