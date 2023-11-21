@@ -1,0 +1,54 @@
+package com.binar.backendonlinecourseapp.Controller;
+
+import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
+import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
+import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
+import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
+import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping(
+            path = "/register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<RegisterResponse>>register(@RequestBody RegisterRequest registerRequest) throws Exception {
+        ResponseHandling<RegisterResponse> response = userService.register(registerRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(path = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<LoginResponse>> login(@RequestBody LoginRequest jwtRequest) throws Exception {
+        ResponseHandling<LoginResponse> response = userService.createJwtToken(jwtRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseGetUser> getData(){
+        ResponseGetUser response = userService.getUser();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+}
