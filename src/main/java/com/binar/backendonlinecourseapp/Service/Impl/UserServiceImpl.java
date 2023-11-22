@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -81,8 +82,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         responseGetUser.setTelp(user1.getTelp());
         return responseGetUser;
     }
-
-
 
     @Transactional
     @Override
@@ -156,6 +155,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setNama(registerRequest.getNama());
         user.setEmail(registerRequest.getEmail());
         user.setTelp(registerRequest.getTelp());
+      
         String password = encodePasswordMethod(registerRequest.getPassword());
         user.setPassword(password);
 

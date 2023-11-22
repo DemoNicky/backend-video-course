@@ -1,5 +1,4 @@
 package com.binar.backendonlinecourseapp.Controller;
-
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -53,6 +52,7 @@ public class UserController {
         ResponseGetUser response = userService.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
 
     @PutMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
