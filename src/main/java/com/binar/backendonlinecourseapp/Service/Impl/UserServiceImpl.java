@@ -2,10 +2,8 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
+import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Role;
 import com.binar.backendonlinecourseapp.Entity.User;
 import com.binar.backendonlinecourseapp.Repository.RoleRepository;
@@ -25,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -73,8 +72,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public ResponseGetUser getUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
         User user1 = user.get();
         ResponseGetUser responseGetUser = new ResponseGetUser();
@@ -82,6 +80,69 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         responseGetUser.setEmail(user1.getEmail());
         responseGetUser.setTelp(user1.getTelp());
         return responseGetUser;
+    }
+
+
+
+    @Transactional
+    @Override
+    public ResponseHandling<UpdateDataResponse> updateUser(UpdateDataRequest updateDataRequest) throws Exception {
+        ResponseHandling<UpdateDataResponse> response = new ResponseHandling<>();
+        String email = getAuth();
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())){
+            User changeUser = user.get();
+            changeUser.setNama(updateDataRequest.getNama());
+            if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
+                if (updateDataRequest.getEmail().equals(user.get().getEmail()) || updateDataRequest.getEmail() == user.get().getEmail()){
+                    changeUser.setEmail(updateDataRequest.getEmail());
+                }else {
+                    response.setMessage("email is already exists");
+                    response.setErrors(true);
+                    return response;
+                }
+            }
+            System.out.println(user.get().getEmail());
+            System.out.println(changeUser.getEmail());
+            if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
+                if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
+                    changeUser.setTelp(updateDataRequest.getTelp());
+                }else {
+                    response.setMessage("telp is already exists");
+                    response.setErrors(true);
+                    return response;
+                }
+            }
+            System.out.println(user.get().getTelp());
+            System.out.println(changeUser.getTelp());
+            String encodePasswordd = encodePasswordMethod(updateDataRequest.getNewpassword());
+            changeUser.setPassword(encodePasswordd);
+
+            userRepository.save(changeUser);
+
+            UpdateDataResponse updateDataResponse = new UpdateDataResponse();
+            updateDataResponse.setNama(updateDataRequest.getNama());
+            updateDataResponse.setEmail(updateDataRequest.getEmail());
+            updateDataResponse.setTelp(updateDataRequest.getTelp());
+
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setEmail(updateDataRequest.getEmail());
+            loginRequest.setPassword(updateDataRequest.getNewpassword());
+
+            updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+
+            response.setData(updateDataResponse);
+            response.setMessage("success update data");
+            response.setErrors(false);
+
+            return response;
+
+        }else {
+            response.setMessage("cant update data, wrong old password");
+            response.setErrors(true);
+            return response;
+        }
     }
 
     @Override
@@ -99,7 +160,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setNama(registerRequest.getNama());
         user.setEmail(registerRequest.getEmail());
         user.setTelp(registerRequest.getTelp());
-        String password = passwordEncoder.encode(registerRequest.getPassword());
+        String password = encodePasswordMethod(registerRequest.getPassword());
         user.setPassword(password);
 
         Role role = roleRepository.findByRoleName("USER");
@@ -112,11 +173,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(registerRequest.getEmail());
         loginRequest.setPassword(registerRequest.getPassword());
+
         registerResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+
         response.setData(registerResponse);
         response.setMessage("success register");
         response.setErrors(false);
         return response;
+    }
+
+    private String encodePasswordMethod(String password) {
+        String passsword = passwordEncoder.encode(password);
+        return passsword;
     }
 
     public void authenticate(String username, String password) throws Exception {
@@ -158,6 +226,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return kode;
     }
 
-
+    private String getAuth() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return email;
+    }
 
 }

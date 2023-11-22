@@ -2,10 +2,8 @@ package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
+import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,6 +46,18 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResponseGetUser> getData(){
         ResponseGetUser response = userService.getUser();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<UpdateDataResponse>>updateData(@RequestBody UpdateDataRequest updateDataRequest) throws Exception {
+        ResponseHandling<UpdateDataResponse> response = userService.updateUser(updateDataRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

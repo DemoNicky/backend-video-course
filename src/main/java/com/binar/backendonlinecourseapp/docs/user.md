@@ -108,7 +108,8 @@ Response Body (Success):
   "data": {
     "nama" : "broo",
     "email" : "broo@gmail.com",
-    "telp" : "08123123123"
+    "telp" : "08123123123",
+    "token" : "123132131"
   },
   "message": "success update data",
   "errors": false
