@@ -103,8 +103,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     return response;
                 }
             }
-            System.out.println(user.get().getEmail());
-            System.out.println(changeUser.getEmail());
             if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
                 if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
                     changeUser.setTelp(updateDataRequest.getTelp());
@@ -114,8 +112,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     return response;
                 }
             }
-            System.out.println(user.get().getTelp());
-            System.out.println(changeUser.getTelp());
             String encodePasswordd = encodePasswordMethod(updateDataRequest.getNewpassword());
             changeUser.setPassword(encodePasswordd);
 
