@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return response;
 
         }else {
-            response.setMessage("cant update data, wrong old password");
+            response.setMessage("cant update data wrong old password");
             response.setErrors(true);
             return response;
         }
