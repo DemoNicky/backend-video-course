@@ -20,7 +20,7 @@ Response Body (Success) :
   "data": {
     "token": "1231231321"
   },
-  "message": "Authentication successful",
+  "message": "success register",
   "errors": false
 }
 ```
@@ -110,7 +110,6 @@ Response Body (Success):
     "email" : "broo@gmail.com",
     "telp" : "08123123123",
     "token" : "123132131"
-
   },
   "message": "success update data",
   "errors": false

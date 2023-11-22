@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             updateDataResponse.setTelp(updateDataRequest.getTelp());
 
             LoginRequest loginRequest = new LoginRequest();
-            loginRequest.setEmail(updateDataRequest.getEmail());
+            loginRequest.setEmail(changeUser.getEmail());
             loginRequest.setPassword(updateDataRequest.getNewpassword());
 
             updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setNama(registerRequest.getNama());
         user.setEmail(registerRequest.getEmail());
         user.setTelp(registerRequest.getTelp());
-      
+
         String password = encodePasswordMethod(registerRequest.getPassword());
         user.setPassword(password);
 
