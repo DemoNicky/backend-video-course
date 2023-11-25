@@ -3,7 +3,6 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseCreateCategory;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseDeleteCategory;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
-import com.binar.backendonlinecourseapp.DTO.Response.TokenResponse;
 import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Repository.CategoryRepository;
 import com.binar.backendonlinecourseapp.Service.CategoryService;
@@ -37,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(id);
         response.setMessage("succes delete category id");
         response.setErrors(false);
-        return null;
+        return response;
     }
 
 }
