@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterResponse {
+public class TokenResponse {
 
-    private String email;
+    private String Token;
+
 }

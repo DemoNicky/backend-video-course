@@ -29,6 +29,10 @@ public class User {
     @Column(nullable = false, length = 60)
     private String password;
 
+    private Boolean active;
+
+    private Boolean deleted;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_ROLE", joinColumns = {
             @JoinColumn(name = "USER_ID")

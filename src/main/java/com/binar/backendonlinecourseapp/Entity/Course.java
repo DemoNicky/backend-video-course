@@ -43,4 +43,5 @@ public class Course {
 
     @OneToMany
     private List<Video> videos;
+
 }

@@ -18,9 +18,9 @@ Response Body (Success) :
 ```json
 {
   "data": {
-    "token": "1231231321"
+    "email": "edotank47@gmail.com"
   },
-  "message": "success register",
+  "message": "success register, token already sent",
   "errors": false
 }
 ```
