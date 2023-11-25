@@ -2,6 +2,7 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.CourseCreateResponse;
+import com.binar.backendonlinecourseapp.DTO.Response.CourseGetResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
 import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Entity.Course;
@@ -13,6 +14,8 @@ import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Repository.VideoRepository;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,8 +46,17 @@ public class CourseServiceImpl implements CourseService {
         ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
         Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
         Optional<User> user = userRepository.findByEmail(getAuth());
-
-        if (!category.isPresent()){
+        Optional<Course> courseCodeCheck = courseRepository.findByCourseCode(courseRequest.getKodeKelas());
+        Optional<Course> courseNameCheck = courseRepository.findByClassName(courseRequest.getNamaKelas());
+        if (courseCodeCheck.isPresent()){
+            response.setMessage("course code already exists");
+            response.setErrors(true);
+            return response;
+        }else if (courseNameCheck.isPresent()){
+            response.setMessage("course name already exists");
+            response.setErrors(true);
+            return response;
+        }else if (!category.isPresent()){
             response.setMessage("category not found");
             response.setErrors(true);
             return response;
@@ -82,6 +94,32 @@ public class CourseServiceImpl implements CourseService {
         courseCreateResponse.setMateri(courseRequest.getMateri());
         response.setData(courseCreateResponse);
         response.setMessage("sucess create new course");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<CourseGetResponse>> getCourse(Pageable pageable) {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+        Page<Course> course = courseRepository.findAll(pageable);
+        if (course.isEmpty() || course == null){
+            response.setMessage("course data is null");
+            response.setErrors(true);
+            return response;
+        }
+        List<CourseGetResponse> courseGetResponses = course.stream().map((p)-> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setTeacher(p.getTeacher());
+            courseGetResponse.setTipeKelas(p.getClassType());
+            return courseGetResponse;
+        }).collect(Collectors.toList());
+        response.setData(courseGetResponses);
+        response.setMessage("success get data");
         response.setErrors(false);
         return response;
     }
