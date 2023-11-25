@@ -33,7 +33,7 @@ public class Video {
     private String Chapter;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "course_id")
     private Course course;
 
 }
