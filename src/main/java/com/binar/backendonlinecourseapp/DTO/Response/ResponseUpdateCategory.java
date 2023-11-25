@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ResponseCreateCategory {
+public class ResponseUpdateCategory {
     private String categoryName;
 }

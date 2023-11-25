@@ -12,12 +12,11 @@ import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
-import jdk.jpackage.internal.Log;
+//import jdk.jpackage.internal.Log; // error ditempatku :v
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
