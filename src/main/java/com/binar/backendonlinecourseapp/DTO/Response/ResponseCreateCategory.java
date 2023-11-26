@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterResponse {
+public class ResponseCreateCategory {
 
-    private String email;
+    private String categoryName;
 }
