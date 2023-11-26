@@ -26,7 +26,6 @@ public class CategoryController {
     }
 
     @PutMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<ResponseHandling<ResponseUpdateCategory>>updateCategory(@RequestParam String categoryName) {
