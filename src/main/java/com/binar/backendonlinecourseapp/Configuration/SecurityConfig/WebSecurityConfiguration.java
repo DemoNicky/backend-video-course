@@ -45,6 +45,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/otp/{code}/{email}").permitAll()
                 .antMatchers("/api/users/resend-otp/{email}").permitAll()
                 .antMatchers("/api/course/{page}").permitAll()
+                .antMatchers("/api/course/search/{page}/{course}").permitAll()
+                .antMatchers("/api/course/get/{course}").permitAll()
 
                 .antMatchers("/api/category").hasAuthority("ADMIN")
                 .antMatchers("/api/course/create").hasAuthority("ADMIN")

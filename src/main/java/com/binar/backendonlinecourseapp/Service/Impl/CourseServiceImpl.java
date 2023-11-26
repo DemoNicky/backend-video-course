@@ -1,9 +1,7 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseCreateResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseGetResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Entity.Course;
 import com.binar.backendonlinecourseapp.Entity.User;
@@ -120,6 +118,69 @@ public class CourseServiceImpl implements CourseService {
         }).collect(Collectors.toList());
         response.setData(courseGetResponses);
         response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName, Pageable pageable) {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+        Page<Course> courses = courseRepository.findByClassNameOrTeacherJPQL(courseName, pageable);
+        if (courses.isEmpty()){
+            response.setMessage("course not found");
+            response.setErrors(true);
+            return response;
+        }
+        List<CourseGetResponse> courseGetResponses = courses.stream().map((p) -> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setTeacher(p.getTeacher());
+            courseGetResponse.setTipeKelas(p.getClassType());
+            return courseGetResponse;
+        }).collect(Collectors.toList());
+        response.setData(courseGetResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode) {
+        ResponseHandling<GetCourseResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(courseCode);
+        if (!course.isPresent()){
+            response.setMessage("fail hit data");
+            response.setErrors(true);
+            return response;
+        }
+        Course courseGet = course.get();
+        GetCourseResponse getCourseResponse = new GetCourseResponse();
+        getCourseResponse.setKodeKelas(courseGet.getCourseCode());
+        getCourseResponse.setNamaKelas(courseGet.getClassName());
+        getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
+        getCourseResponse.setLevel(courseGet.getLevel());
+        getCourseResponse.setHarga(courseGet.getPrice());
+        getCourseResponse.setTeacher(courseGet.getTeacher());
+        getCourseResponse.setDeskripsi(courseGet.getMateri());
+        List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
+            GetVideoResponse getVideoResponse = new GetVideoResponse();
+            getVideoResponse.setVideoCode(p.getVideoCode());
+            getVideoResponse.setJudulVideo(p.getVideoTitle());
+            getVideoResponse.setLinkVideo(p.getVideoLink());
+            getVideoResponse.setPremium(p.getPremium());
+            getVideoResponse.setChapter(p.getChapter());
+            return getVideoResponse;
+        }).collect(Collectors.toList());
+
+        getCourseResponse.setGetVideoResponses(getVideoResponses);
+
+        response.setData(getCourseResponse);
+        response.setMessage("successfully get data");
         response.setErrors(false);
         return response;
     }

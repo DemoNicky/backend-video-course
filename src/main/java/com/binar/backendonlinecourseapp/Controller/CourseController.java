@@ -3,6 +3,7 @@ package com.binar.backendonlinecourseapp.Controller;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.CourseCreateResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.CourseGetResponse;
+import com.binar.backendonlinecourseapp.DTO.Response.GetCourseResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +46,29 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping(path = "/search/{page}/{course}",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName, @PathVariable("page")int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName, pageable);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @GetMapping(path = "/get/{course}")
+    public ResponseEntity<ResponseHandling<GetCourseResponse>>hitGetCourse(@PathVariable("course")String courseCode){
+        ResponseHandling<GetCourseResponse> response = courseService.hitGetCourse(courseCode);
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    
 
 }
