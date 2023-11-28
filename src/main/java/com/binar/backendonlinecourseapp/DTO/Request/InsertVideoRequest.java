@@ -13,7 +13,7 @@ public class InsertVideoRequest {
 
     private String desc;
 
-    private boolean isPremium;
+    private Boolean isPremium;
 
     private String chapter;
 

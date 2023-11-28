@@ -2,14 +2,8 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
-import com.binar.backendonlinecourseapp.Entity.Category;
-import com.binar.backendonlinecourseapp.Entity.Course;
-import com.binar.backendonlinecourseapp.Entity.User;
-import com.binar.backendonlinecourseapp.Entity.Video;
-import com.binar.backendonlinecourseapp.Repository.CategoryRepository;
-import com.binar.backendonlinecourseapp.Repository.CourseRepository;
-import com.binar.backendonlinecourseapp.Repository.UserRepository;
-import com.binar.backendonlinecourseapp.Repository.VideoRepository;
+import com.binar.backendonlinecourseapp.Entity.*;
+import com.binar.backendonlinecourseapp.Repository.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,6 +27,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -78,7 +75,7 @@ public class CourseServiceImpl implements CourseService {
             video.setVideoTitle(p.getJudulVideo());
             video.setVideoLink(p.getLinkVideo());
             video.setDescription(p.getDesc());
-            video.setPremium(p.isPremium());
+            video.setPremium(p.getIsPremium());
             video.setChapter(p.getChapter());
             video.setCourse(course);
             videoRepository.save(video);
@@ -163,12 +160,46 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode) {
         ResponseHandling<GetCourseResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
         if (!course.isPresent()){
             response.setMessage("fail hit data");
             response.setErrors(true);
             return response;
         }
+        Optional<Order> order = orderRepository.findOrdersByUserAndCourse(user.get(), course.get());
+        if (!order.isPresent() || order.get().getCompletePaid() == false){
+            Course courseGet = course.get();
+            GetCourseResponse getCourseResponse = new GetCourseResponse();
+            getCourseResponse.setKodeKelas(courseGet.getCourseCode());
+            getCourseResponse.setNamaKelas(courseGet.getClassName());
+            getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
+            getCourseResponse.setLevel(courseGet.getLevel());
+            getCourseResponse.setHarga(courseGet.getPrice());
+            getCourseResponse.setAuthor(courseGet.getAuthor());
+            getCourseResponse.setDeskripsi(courseGet.getMateri());
+            List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
+                GetVideoResponse getVideoResponse = new GetVideoResponse();
+                getVideoResponse.setVideoCode(p.getVideoCode());
+                getVideoResponse.setJudulVideo(p.getVideoTitle());
+                if (p.getPremium()==true){
+                    getVideoResponse.setLinkVideo(null);
+                }else {
+                    getVideoResponse.setLinkVideo(p.getVideoLink());
+                }
+                getVideoResponse.setPremium(p.getPremium());
+                getVideoResponse.setChapter(p.getChapter());
+                return getVideoResponse;
+            }).collect(Collectors.toList());
+
+            getCourseResponse.setGetVideoResponses(getVideoResponses);
+
+            response.setData(getCourseResponse);
+            response.setMessage("successfully get data");
+            response.setErrors(false);
+            return response;
+        }
+
         Course courseGet = course.get();
         GetCourseResponse getCourseResponse = new GetCourseResponse();
         getCourseResponse.setKodeKelas(courseGet.getCourseCode());
