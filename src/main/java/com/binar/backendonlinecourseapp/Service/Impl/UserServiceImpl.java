@@ -109,53 +109,40 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
 
-        if (passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())){
-            User changeUser = user.get();
-            changeUser.setNama(updateDataRequest.getNama());
-            if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
-                if (updateDataRequest.getEmail().equals(user.get().getEmail()) || updateDataRequest.getEmail() == user.get().getEmail()){
-                    changeUser.setEmail(updateDataRequest.getEmail());
-                }else {
-                    response.setMessage("email is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
-                if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
-                    changeUser.setTelp(updateDataRequest.getTelp());
-                }else {
-                    response.setMessage("telp is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            String encodePasswordd = encodePasswordMethod(updateDataRequest.getNewpassword());
-            changeUser.setPassword(encodePasswordd);
-            userRepository.save(changeUser);
-
-            UpdateDataResponse updateDataResponse = new UpdateDataResponse();
-            updateDataResponse.setNama(updateDataRequest.getNama());
-            updateDataResponse.setEmail(updateDataRequest.getEmail());
-            updateDataResponse.setTelp(updateDataRequest.getTelp());
-
-            LoginRequest loginRequest = new LoginRequest();
-            loginRequest.setEmail(changeUser.getEmail());
-            loginRequest.setPassword(updateDataRequest.getNewpassword());
-
-            updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
-
-            response.setData(updateDataResponse);
-            response.setMessage("success update data");
-            response.setErrors(false);
-
-            return response;
-
-        }else {
-            response.setMessage("cant update data wrong old password");
+        if (!passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())) {
+            response.setMessage("Cant update data wrong old password");
             response.setErrors(true);
             return response;
         }
+
+        if (!updateUserData(user.get(), updateDataRequest)) {
+            response.setMessage("Failed update data");
+            response.setErrors(true);
+            return response;
+        }
+
+        if (!updatePassword(user.get(), updateDataRequest)) {
+            response.setMessage("Failed update password");
+            response.setErrors(true);
+            return response;
+        }
+
+        UpdateDataResponse updateDataResponse = new UpdateDataResponse();
+        updateDataResponse.setNama(updateDataRequest.getNama());
+        updateDataResponse.setEmail(updateDataRequest.getEmail());
+        updateDataResponse.setTelp(updateDataRequest.getTelp());
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(updateDataRequest.getEmail());
+        loginRequest.setPassword(updateDataRequest.getNewpassword());
+
+        updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+
+        response.setData(updateDataResponse);
+        response.setMessage("Success update data");
+        response.setErrors(false);
+
+        return response;
     }
 
     @Transactional
@@ -298,6 +285,43 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private String encodePasswordMethod(String password) {
         String passsword = passwordEncoder.encode(password);
         return passsword;
+    }
+
+    private boolean updatePassword(User user, UpdateDataRequest updateDataRequest) {
+        if(passwordEncoder.matches(user.getPassword(), updateDataRequest.getNewpassword())) {
+            String encodePassword = encodePasswordMethod(updateDataRequest.getNewpassword());
+            user.setPassword(encodePassword);
+            userRepository.save(user);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean updateUserData(User user, UpdateDataRequest updateDataRequest) {
+        user.setNama(updateDataRequest.getNama());
+
+        if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
+            if (updateDataRequest.getEmail().equals(user.getEmail()) || updateDataRequest.getEmail() == user.getEmail()){
+                user.setEmail(updateDataRequest.getEmail());
+            }
+            else {
+                return false;
+            }
+        }
+
+        if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
+            if (updateDataRequest.getTelp().equals(user.getTelp()) ||updateDataRequest.getTelp() == user.getTelp()){
+                user.setTelp(updateDataRequest.getTelp());
+            }
+            else {
+                return false;
+            }
+        }
+
+        userRepository.save(user);
+        return true;
     }
 
     public void authenticate(String username, String password) throws Exception {
