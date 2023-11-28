@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -21,8 +22,10 @@ public class CourseGetResponse {
 
     private BigDecimal harga;
 
-    private String teacher;
+    private String author;
 
     private ClassType tipeKelas;
+
+    private String publish;
 
 }

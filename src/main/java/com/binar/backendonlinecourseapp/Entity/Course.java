@@ -33,7 +33,7 @@ public class Course {
     private BigDecimal price;
 
     @Column(name = "teacher", nullable = false, length = 40)
-    private String teacher;
+    private String author;
 
     @Column(name = "materi", nullable = false, length = 500)
     private String materi;

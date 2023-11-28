@@ -47,11 +47,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/{page}").permitAll()
                 .antMatchers("/api/course/search/{page}/{course}").permitAll()
                 .antMatchers("/api/course/get/{course}").permitAll()
+                .antMatchers("/api/category/{category}").permitAll()
 
                 .antMatchers("/api/category").hasAuthority("ADMIN")
                 .antMatchers("/api/course/create").hasAuthority("ADMIN")
 
                 .antMatchers("/api/users").hasAuthority("USER")
+                .antMatchers("/api/course/get/{course}").hasAuthority("USER")
+                .antMatchers("/api/order").hasAuthority("USER")
+
+
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()

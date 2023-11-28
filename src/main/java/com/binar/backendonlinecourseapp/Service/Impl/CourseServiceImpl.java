@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class CourseServiceImpl implements CourseService {
         course.setClassName(courseRequest.getNamaKelas());
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getHarga());
-        course.setTeacher(user.get().getNama());
+        course.setAuthor(user.get().getNama());
         course.setMateri(courseRequest.getMateri());
         course.setPublish(new Date());
         course.setClassType(courseRequest.getTipeKelas());
@@ -112,8 +113,13 @@ public class CourseServiceImpl implements CourseService {
             courseGetResponse.setKategori(p.getCategories().getCategoryName());
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
-            courseGetResponse.setTeacher(p.getTeacher());
+            courseGetResponse.setAuthor(p.getAuthor());
             courseGetResponse.setTipeKelas(p.getClassType());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+
+            courseGetResponse.setPublish(outputDate);
             return courseGetResponse;
         }).collect(Collectors.toList());
         response.setData(courseGetResponses);
@@ -138,8 +144,13 @@ public class CourseServiceImpl implements CourseService {
             courseGetResponse.setKategori(p.getCategories().getCategoryName());
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
-            courseGetResponse.setTeacher(p.getTeacher());
+            courseGetResponse.setAuthor(p.getAuthor());
             courseGetResponse.setTipeKelas(p.getClassType());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+
+            courseGetResponse.setPublish(outputDate);
             return courseGetResponse;
         }).collect(Collectors.toList());
         response.setData(courseGetResponses);
@@ -165,7 +176,7 @@ public class CourseServiceImpl implements CourseService {
         getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
         getCourseResponse.setLevel(courseGet.getLevel());
         getCourseResponse.setHarga(courseGet.getPrice());
-        getCourseResponse.setTeacher(courseGet.getTeacher());
+        getCourseResponse.setAuthor(courseGet.getAuthor());
         getCourseResponse.setDeskripsi(courseGet.getMateri());
         List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
             GetVideoResponse getVideoResponse = new GetVideoResponse();
