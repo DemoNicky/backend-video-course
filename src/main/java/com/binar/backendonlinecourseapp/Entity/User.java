@@ -26,6 +26,12 @@ public class User {
     @Column(nullable = false, length = 20)
     private String telp;
 
+    @Column(nullable = false, length = 30)
+    private String country;
+
+    @Column(nullable = false, length = 40)
+    private String city;
+
     @Column(nullable = false, length = 60)
     private String password;
 

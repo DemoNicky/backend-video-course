@@ -5,12 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateDataRequest {
+public class ChangePasswordRequest {
 
-    private String nama;
+    private String oldpassword;
 
-    private String negara;
-
-    private String kota;
-
+    private String newpassword;
 }

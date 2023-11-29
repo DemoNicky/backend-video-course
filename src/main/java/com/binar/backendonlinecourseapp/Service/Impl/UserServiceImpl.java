@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -12,8 +13,6 @@ import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
-//import jdk.jpackage.internal.Log; // error ditempatku :v
-import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,6 +21,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -76,11 +77,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             final UserDetails userDetails = loadUserByUsername(username);
 
-
-
             String newToken = jwtUtil.generateToken(userDetails);
 
-            response.setData(new LoginResponse(newToken));
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+            Set<String> authorityStrings = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+
+            String authoritiesString = String.join(",", authorityStrings);
+
+            response.setData(new LoginResponse(newToken, authoritiesString));
             response.setMessage("Authentication successful");
             response.setErrors(false);
         }catch (Exception e){
@@ -109,40 +116,52 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
 
-        if (!passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())) {
-            response.setMessage("Cant update data wrong old password");
-            response.setErrors(true);
-            return response;
-        }
-
-        if (!updateUserData(user.get(), updateDataRequest)) {
-            response.setMessage("Failed update data");
-            response.setErrors(true);
-            return response;
-        }
-
-        if (!updatePassword(user.get(), updateDataRequest)) {
-            response.setMessage("Failed update password");
-            response.setErrors(true);
-            return response;
-        }
+        User changeUser = user.get();
+        changeUser.setNama(updateDataRequest.getNama());
+        changeUser.setCountry(updateDataRequest.getNegara());
+        changeUser.setCity(updateDataRequest.getKota());
 
         UpdateDataResponse updateDataResponse = new UpdateDataResponse();
         updateDataResponse.setNama(updateDataRequest.getNama());
-        updateDataResponse.setEmail(updateDataRequest.getEmail());
-        updateDataResponse.setTelp(updateDataRequest.getTelp());
-
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(updateDataRequest.getEmail());
-        loginRequest.setPassword(updateDataRequest.getNewpassword());
-
-        updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+        updateDataResponse.setNegara(updateDataRequest.getNegara());
+        updateDataResponse.setKota(updateDataRequest.getKota());
 
         response.setData(updateDataResponse);
-        response.setMessage("Success update data");
+        response.setMessage("success update data");
         response.setErrors(false);
 
         return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception {
+        ResponseHandling<ChangePasswordResponse> response = new ResponseHandling<>();
+        String email = getAuth();
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (passwordEncoder.matches(changePasswordRequest.getOldpassword(), user.get().getPassword())) {
+            User changeUser = user.get();
+            String encodePassword = encodePasswordMethod(changePasswordRequest.getNewpassword());
+            changeUser.setPassword(encodePassword);
+            userRepository.save(changeUser);
+
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setEmail(changeUser.getEmail());
+            loginRequest.setPassword(changePasswordRequest.getNewpassword());
+
+            ChangePasswordResponse changePasswordResponse = new ChangePasswordResponse();
+            changePasswordResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+            response.setData(changePasswordResponse);
+            response.setMessage("success update password");
+            response.setErrors(false);
+            return response;
+        }
+        else {
+            response.setMessage("old Password is wrong");
+            response.setErrors(true);
+            return response;
+        }
     }
 
     @Transactional
@@ -285,43 +304,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private String encodePasswordMethod(String password) {
         String passsword = passwordEncoder.encode(password);
         return passsword;
-    }
-
-    private boolean updatePassword(User user, UpdateDataRequest updateDataRequest) {
-        if(passwordEncoder.matches(user.getPassword(), updateDataRequest.getNewpassword())) {
-            String encodePassword = encodePasswordMethod(updateDataRequest.getNewpassword());
-            user.setPassword(encodePassword);
-            userRepository.save(user);
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    private boolean updateUserData(User user, UpdateDataRequest updateDataRequest) {
-        user.setNama(updateDataRequest.getNama());
-
-        if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
-            if (updateDataRequest.getEmail().equals(user.getEmail()) || updateDataRequest.getEmail() == user.getEmail()){
-                user.setEmail(updateDataRequest.getEmail());
-            }
-            else {
-                return false;
-            }
-        }
-
-        if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
-            if (updateDataRequest.getTelp().equals(user.getTelp()) ||updateDataRequest.getTelp() == user.getTelp()){
-                user.setTelp(updateDataRequest.getTelp());
-            }
-            else {
-                return false;
-            }
-        }
-
-        userRepository.save(user);
-        return true;
     }
 
     public void authenticate(String username, String password) throws Exception {

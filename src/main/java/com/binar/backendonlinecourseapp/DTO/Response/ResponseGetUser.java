@@ -13,4 +13,8 @@ public class ResponseGetUser {
 
     private String telp;
 
+    private String negara;
+
+    private String kota;
+
 }

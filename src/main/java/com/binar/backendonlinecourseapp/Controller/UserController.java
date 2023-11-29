@@ -1,4 +1,5 @@
 package com.binar.backendonlinecourseapp.Controller;
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -82,6 +83,19 @@ public class UserController {
     public ResponseEntity<ResponseHandling<UpdateDataResponse>>updateData(@RequestBody UpdateDataRequest updateDataRequest) throws Exception {
         ResponseHandling<UpdateDataResponse> response = userService.updateUser(updateDataRequest);
         if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            path = "/change-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<ChangePasswordResponse>>changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
+        ResponseHandling<ChangePasswordResponse> response = userService.changePassword(changePasswordRequest);
+        if(response.getData() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
