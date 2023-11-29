@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.Service;
 
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -22,4 +23,6 @@ public interface UserService {
     ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception;
 
     ResponseHandling<TokenResendResponse> resendToken(String email);
+
+    ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception;
 }

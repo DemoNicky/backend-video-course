@@ -1,4 +1,5 @@
 package com.binar.backendonlinecourseapp.Controller;
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -14,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/users")
@@ -76,6 +80,12 @@ public class UserController {
     }
 
 
+    /**
+     * ini nanti di kasih image
+     * @param updateDataRequest
+     * @return
+     * @throws Exception
+     */
     @PutMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -86,6 +96,20 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            path = "/change-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<ChangePasswordResponse>>changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
+        ResponseHandling<ChangePasswordResponse> response = userService.changePassword(changePasswordRequest);
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
     }
 
 }
