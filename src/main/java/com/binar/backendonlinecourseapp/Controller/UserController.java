@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -110,6 +111,17 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
+    }
+
+    @PostMapping(
+            path = "/update-profil-pic"
+    )
+    public ResponseEntity<ResponseHandling<ChangeProfilePictureResponse>>changePicture(@RequestHeader MultipartFile multipartFile){
+        ResponseHandling<ChangeProfilePictureResponse> response = userService.insertPicture(multipartFile);
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

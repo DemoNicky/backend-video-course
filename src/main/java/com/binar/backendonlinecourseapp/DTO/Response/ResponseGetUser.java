@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class ResponseGetUser {
 
+    private String urlPicture;
+
     private String nama;
 
     private String email;

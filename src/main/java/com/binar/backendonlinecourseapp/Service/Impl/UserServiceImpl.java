@@ -13,6 +13,9 @@ import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,13 +33,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
@@ -59,6 +65,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final Cloudinary cloudinary;
 
     public ResponseHandling<LoginResponse> createJwtToken(LoginRequest jwtRequest) throws Exception {
         ResponseHandling<LoginResponse> response = new ResponseHandling<>();
@@ -102,6 +110,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Optional<User> user = userRepository.findByEmail(email);
         User user1 = user.get();
         ResponseGetUser responseGetUser = new ResponseGetUser();
+        responseGetUser.setUrlPicture(user1.getPictureUrl());
         responseGetUser.setNama(user1.getNama());
         responseGetUser.setEmail(user1.getEmail());
         responseGetUser.setTelp(user1.getTelp());
@@ -117,63 +126,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
         User changeUser = user.get();
-//        if (userTelp.isPresent() && updateDataRequest.getTelp() == userTelp.get().getTelp()){
-//            changeUser.setNama(updateDataRequest.getNama());
-//            changeUser.setNama(updateDataRequest.getNama());
-//            changeUser.setTelp(updateDataRequest.getTelp());
-//            changeUser.setCountry(updateDataRequest.getNegara());
-//            changeUser.setCity(updateDataRequest.getKota());
-//            userRepository.save(changeUser);
-//        }else if (!userTelp.isPresent() || updateDataRequest.getTelp() == userTelp.get().getTelp()){
-//
-//        }else if (userTelp.isPresent() && updateDataRequest.getTelp() != userTelp.get().getTelp()){
-//
-//        }else {
-//            response.setMessage("telp is already exists");
-//            response.setErrors(true);
-//            return response;
-//        }
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setCountry(updateDataRequest.getNegara());
         changeUser.setCity(updateDataRequest.getKota());
         userRepository.save(changeUser);
 
-//        if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
-//            if (updateDataRequest.getEmail().equals(user.get().getEmail()) || updateDataRequest.getEmail() == user.get().getEmail()){
-//                changeUser.setEmail(updateDataRequest.getEmail());
-//            }else {
-//                response.setMessage("email is already exists");
-//                response.setErrors(true);
-//                return response;
-//            }
-//        }
-
-//        if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
-
-//            if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
-//
-//            }else {
-//                response.setMessage("telp is already exists");
-//                response.setErrors(true);
-//                return response;
-//            }
-//        }else {
-//            response.setMessage("telp is already exists");
-//            response.setErrors(true);
-//            return response;
-//        }
-
         UpdateDataResponse updateDataResponse = new UpdateDataResponse();
         updateDataResponse.setNama(updateDataRequest.getNama());
         updateDataResponse.setNegara(updateDataRequest.getNegara());
         updateDataResponse.setKota(updateDataRequest.getKota());
-
-//        LoginRequest loginRequest = new LoginRequest();
-//        loginRequest.setEmail(changeUser.getEmail());
-//        loginRequest.setPassword(passwordEncoder.);
-//
-//        updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
 
         response.setData(updateDataResponse);
         response.setMessage("success update data");
@@ -215,6 +177,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Override
+    public ResponseHandling<ChangeProfilePictureResponse> insertPicture(MultipartFile multipartFile) {
+        ResponseHandling<ChangeProfilePictureResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        try {
+            Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
+            String imageUrl = result.get("url").toString();
+
+            User userChange = user.get();
+            userChange.setPictureUrl(imageUrl);
+            userRepository.save(userChange);
+
+            ChangeProfilePictureResponse changeProfilePictureResponse = new ChangeProfilePictureResponse();
+            changeProfilePictureResponse.setUrl(imageUrl);
+
+            response.setData(changeProfilePictureResponse);
+            response.setMessage("success update profile picture");
+            response.setErrors(false);
+            return response;
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        response.setMessage("failed update picture");
+        response.setErrors(true);
+
+        return response;
+    }
+
     @Transactional
     @Override
     public ResponseHandling<RegisterResponse> register(RegisterRequest registerRequest) throws Exception {
@@ -229,7 +219,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 return response;
             }
 
+            final String url = "http://res.cloudinary.com/duzctbrt5/image/upload/v1701317552/ittcwcftomal7kgpspg7.jpg";
+
             User user = new User();
+            user.setPictureUrl(url);
             user.setNama(registerRequest.getNama());
             user.setEmail(registerRequest.getEmail());
             user.setTelp(registerRequest.getTelp());
