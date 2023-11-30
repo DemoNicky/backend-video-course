@@ -1,10 +1,7 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseCreateResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseGetResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.GetCourseResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/course")
+@RequestMapping("/api/course")
 public class CourseController {
 
     @Autowired
@@ -68,6 +65,17 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    
+
+    @GetMapping(
+            path = "/payment-history",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<PaymentHistoryResponse>>>getPaymentHistory(){
+        ResponseHandling<List<PaymentHistoryResponse>> response = courseService.getPaymentHistory();
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

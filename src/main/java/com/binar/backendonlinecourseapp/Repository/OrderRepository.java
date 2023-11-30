@@ -18,4 +18,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Optional<Order> findOrdersByUserAndCourse(@Param("user") User user, @Param("course") Course course);
 
     Optional<Order> findOrderByOrderCode(String orderCode);
+
+    @Query("SELECT o FROM Order o WHERE o.user = :user")
+    Optional<List<Order>> findOrdersByUser(@Param("user") User user);
 }

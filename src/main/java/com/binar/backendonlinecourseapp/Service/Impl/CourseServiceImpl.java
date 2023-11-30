@@ -227,6 +227,32 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
+    public ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory() {
+        ResponseHandling<List<PaymentHistoryResponse>> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+        if (!order.isPresent()){
+            response.setMessage("payment history not found");
+            response.setErrors(true);
+            return response;
+        }
+        List<PaymentHistoryResponse> paymentHistoryResponse = order.get().stream().map((p)->{
+            PaymentHistoryResponse paymentHistory = new PaymentHistoryResponse();
+            paymentHistory.setKodeKelas(p.getCourse().getCourseCode());
+            paymentHistory.setNamaKelas(p.getCourse().getClassName());
+            paymentHistory.setKategori(p.getCourse().getCategories().getCategoryName());
+            paymentHistory.setLevel(p.getCourse().getLevel());
+            paymentHistory.setAuthor(p.getCourse().getAuthor());
+            paymentHistory.setCompletePaid(p.getCompletePaid());
+            return paymentHistory;
+        }).collect(Collectors.toList());
+        response.setData(paymentHistoryResponse);
+        response.setMessage("success get payment history");
+        response.setErrors(false);
+        return response;
+    }
+
     private String getAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
