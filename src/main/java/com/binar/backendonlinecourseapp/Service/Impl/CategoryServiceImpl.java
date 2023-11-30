@@ -9,6 +9,8 @@ import com.binar.backendonlinecourseapp.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -33,6 +35,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseHandling<ResponseDeleteCategory> deleteCategoryById(Long id) {
         ResponseHandling<ResponseDeleteCategory> response = new ResponseHandling<>();
+        Optional<Category> category = categoryRepository.findById(id);
+        if(!category.isPresent()){
+            response.setMessage("failded delete category id");
+            response.setErrors(false);
+            return response;
+        }
         categoryRepository.deleteById(id);
         response.setMessage("succes delete category id");
         response.setErrors(false);
