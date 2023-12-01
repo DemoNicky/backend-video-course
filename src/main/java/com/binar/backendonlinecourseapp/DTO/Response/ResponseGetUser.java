@@ -17,4 +17,6 @@ public class ResponseGetUser {
 
     private String kota;
 
+    private String tipeKelas;
+
 }

@@ -75,6 +75,17 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping(path = "/premiumclass")
+    public ResponseEntity<ResponseGetPremiumClass> getPremiumClass() {
+        ResponseGetPremiumClass response = userService.getPremiumClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(path = "/freeclass")
+    public ResponseEntity<ResponseGetFreeClass> getFreeClass() {
+        ResponseGetFreeClass response = userService.getFreeClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @PutMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,

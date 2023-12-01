@@ -15,6 +15,10 @@ public interface UserService {
 
     ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception;
 
+    ResponseGetPremiumClass getPremiumClass();
+
+    ResponseGetFreeClass getFreeClass();
+
     ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception;
 
     ResponseHandling<TokenResendResponse> resendToken(String email);

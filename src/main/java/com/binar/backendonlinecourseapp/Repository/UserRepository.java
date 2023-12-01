@@ -13,5 +13,4 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByTelp(String telp);
 
-
 }

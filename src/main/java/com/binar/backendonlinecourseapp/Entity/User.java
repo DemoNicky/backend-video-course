@@ -17,13 +17,15 @@ public class User {
     @GeneratedValue(generator = "uuid")
     private String id;
 
+    private String tipeKelas;
+
     @Column(length = 100, nullable = false)
     private String nama;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, unique = true)
     private String telp;
 
     @Column(nullable = false, length = 30)

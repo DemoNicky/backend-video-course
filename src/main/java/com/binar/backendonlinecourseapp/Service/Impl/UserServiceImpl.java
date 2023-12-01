@@ -102,10 +102,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
         User user1 = user.get();
+
         ResponseGetUser responseGetUser = new ResponseGetUser();
         responseGetUser.setNama(user1.getNama());
         responseGetUser.setEmail(user1.getEmail());
         responseGetUser.setTelp(user1.getTelp());
+        responseGetUser.setNegara(user1.getCountry());
+        responseGetUser.setKota(user1.getCity());
+        responseGetUser.setTipeKelas(user1.getTipeKelas());
         return responseGetUser;
     }
 
@@ -162,6 +166,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             response.setErrors(true);
             return response;
         }
+    }
+
+    @Override
+    public ResponseGetPremiumClass getPremiumClass() {
+        Optional<User> optionalUser = userRepository.findByEmail(getAuth());
+        User user = optionalUser.get();
+
+        ResponseGetPremiumClass responseGetPremiumClass = new ResponseGetPremiumClass();
+        responseGetPremiumClass.setNama(user.getNama());
+        responseGetPremiumClass.setKelasPremium(user.getTipeKelas());
+        return responseGetPremiumClass;
+    }
+
+    @Override
+    public ResponseGetFreeClass getFreeClass() {
+        Optional<User> optionalUser = userRepository.findByEmail(getAuth());
+        User user = optionalUser.get();
+
+        ResponseGetFreeClass responseGetFreeClass = new ResponseGetFreeClass();
+        responseGetFreeClass.setNama(user.getNama());
+        responseGetFreeClass.setKelasFree(user.getTipeKelas());
+        return responseGetFreeClass;
     }
 
     @Transactional
