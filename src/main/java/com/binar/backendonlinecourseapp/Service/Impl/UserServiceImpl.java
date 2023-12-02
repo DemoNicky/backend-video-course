@@ -126,6 +126,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
         User changeUser = user.get();
+        changeUser.setTelp(updateDataRequest.getTelp());
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setCountry(updateDataRequest.getNegara());
@@ -133,6 +134,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(changeUser);
 
         UpdateDataResponse updateDataResponse = new UpdateDataResponse();
+        updateDataResponse.setTelp(updateDataRequest.getTelp());
         updateDataResponse.setNama(updateDataRequest.getNama());
         updateDataResponse.setNegara(updateDataRequest.getNegara());
         updateDataResponse.setKota(updateDataRequest.getKota());
