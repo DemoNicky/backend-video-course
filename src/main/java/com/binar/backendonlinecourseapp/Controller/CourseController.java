@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,20 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PutMapping(path = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<CourseUpdateResponse>>updateCourse(@RequestBody CourseUpdateRequest courseUpdateRequest){
+        ResponseHandling<CourseUpdateResponse> response = courseService.updateCourse(courseUpdateRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
 
     @GetMapping(path = "/{page}",
             produces = MediaType.APPLICATION_JSON_VALUE

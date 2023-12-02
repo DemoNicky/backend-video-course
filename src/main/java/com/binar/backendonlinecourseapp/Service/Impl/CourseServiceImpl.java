@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
 import com.binar.backendonlinecourseapp.Repository.*;
@@ -12,11 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,13 +67,21 @@ public class CourseServiceImpl implements CourseService {
         course.setPublish(new Date());
         course.setClassType(courseRequest.getTipeKelas());
         course.setCategories(category1);
+        Random random = new Random();
+
+        double randomNumber = 1.0 + new Random().nextDouble() * (5.0 - 1.0);
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        double formattedNumber = Double.parseDouble(decimalFormat.format(randomNumber));
+
+        course.setRating(formattedNumber);
+
+        course.setModul(new Random().nextInt(10) + 1);
         courseRepository.save(course);
-        List<Video> videos = courseRequest.getInsertVideo().stream().map((p)->{
+        courseRequest.getInsertVideo().stream().map((p)->{
             Video video = new Video();
             video.setVideoCode(getUUIDCode());
             video.setVideoTitle(p.getJudulVideo());
             video.setVideoLink(p.getLinkVideo());
-            video.setDescription(p.getDesc());
             video.setPremium(p.getIsPremium());
             video.setChapter(p.getChapter());
             video.setCourse(course);
@@ -111,6 +118,8 @@ public class CourseServiceImpl implements CourseService {
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
             courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setModul(p.getModul());
             courseGetResponse.setTipeKelas(p.getClassType());
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -142,6 +151,8 @@ public class CourseServiceImpl implements CourseService {
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
             courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setModul(p.getModul());
             courseGetResponse.setTipeKelas(p.getClassType());
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -177,6 +188,8 @@ public class CourseServiceImpl implements CourseService {
             getCourseResponse.setLevel(courseGet.getLevel());
             getCourseResponse.setHarga(courseGet.getPrice());
             getCourseResponse.setAuthor(courseGet.getAuthor());
+            getCourseResponse.setRating(courseGet.getRating());
+            getCourseResponse.setModul(courseGet.getModul());
             getCourseResponse.setDeskripsi(courseGet.getMateri());
             List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
                 GetVideoResponse getVideoResponse = new GetVideoResponse();
@@ -208,6 +221,8 @@ public class CourseServiceImpl implements CourseService {
         getCourseResponse.setLevel(courseGet.getLevel());
         getCourseResponse.setHarga(courseGet.getPrice());
         getCourseResponse.setAuthor(courseGet.getAuthor());
+        getCourseResponse.setRating(courseGet.getRating());
+        getCourseResponse.setModul(courseGet.getModul());
         getCourseResponse.setDeskripsi(courseGet.getMateri());
         List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
             GetVideoResponse getVideoResponse = new GetVideoResponse();
@@ -249,6 +264,46 @@ public class CourseServiceImpl implements CourseService {
         }).collect(Collectors.toList());
         response.setData(paymentHistoryResponse);
         response.setMessage("success get payment history");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest) {
+        ResponseHandling<CourseUpdateResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(courseUpdateRequest.getKodeKelas());
+        if (!course.isPresent()){
+            response.setMessage("course not found");
+            response.setErrors(true);
+            return response;
+        }
+
+        Course course1 = course.get();
+
+        course1.setClassType(courseUpdateRequest.getTipeKelas());
+        course1.setLevel(courseUpdateRequest.getLevel());
+        course1.setPrice(courseUpdateRequest.getHarga());
+        course1.setMateri(courseUpdateRequest.getMateri());
+
+        Video video = new Video();
+        video.setVideoCode(getUUIDCode());
+        video.setVideoTitle(courseUpdateRequest.getJudulVideo());
+        video.setVideoLink(courseUpdateRequest.getLinkVideo());
+        video.setPremium(courseUpdateRequest.getIsPremium());
+        video.setChapter(courseUpdateRequest.getChapter());
+        video.setCourse(course1);
+        videoRepository.save(video);
+
+        courseRepository.save(course1);
+
+        CourseUpdateResponse courseUpdateResponse = new CourseUpdateResponse();
+        courseUpdateResponse.setNamaKelas(course1.getClassName());
+        courseUpdateResponse.setKategori(course1.getCategories().getCategoryName());
+        courseUpdateResponse.setKodeKelas(course1.getCourseCode());
+        courseUpdateResponse.setHarga(course1.getPrice());
+        courseUpdateResponse.setMateri(course1.getMateri());
+        response.setData(courseUpdateResponse);
+        response.setMessage("success update course");
         response.setErrors(false);
         return response;
     }

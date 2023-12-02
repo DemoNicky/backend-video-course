@@ -26,6 +26,10 @@ public class CourseGetResponse {
 
     private ClassType tipeKelas;
 
+    private Double rating;
+
+    private Integer modul;
+
     private String publish;
 
 }

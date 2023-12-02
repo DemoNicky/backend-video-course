@@ -24,6 +24,10 @@ public class GetCourseResponse {
 
     private String author;
 
+    private Double rating;
+
+    private Integer modul;
+
     private String deskripsi;
 
     private List<GetVideoResponse> getVideoResponses;

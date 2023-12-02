@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import org.springframework.data.domain.Pageable;
 
@@ -17,4 +18,6 @@ public interface CourseService {
     ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode);
 
     ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory();
+
+    ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest);
 }

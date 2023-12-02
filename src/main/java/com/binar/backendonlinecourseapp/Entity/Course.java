@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,11 @@ public class Course {
 
     @Column(name = "materi", nullable = false, length = 500)
     private String materi;
+
+    @Max(value = 5, message = "Rating cannot be greater than 5.0")
+    private Double rating;
+
+    private Integer modul;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
     @DateTimeFormat(pattern = "dd-MM-yyyy")
