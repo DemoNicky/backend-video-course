@@ -93,4 +93,22 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping(
+            path = "/get-premium",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<GetPremiumClassResponse>>>getFreeClass(){
+        ResponseHandling<List<GetPremiumClassResponse>> response = courseService.getPremiumClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get-free",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

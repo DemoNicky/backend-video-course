@@ -308,6 +308,62 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
+    public ResponseHandling<List<GetPremiumClassResponse>> getPremiumClass() {
+        ResponseHandling<List<GetPremiumClassResponse>> response = new ResponseHandling<>();
+        List<Course> courses = courseRepository.findPremiumCourses();
+        List<GetPremiumClassResponse> getPremiumClassResponses = courses.stream().map((p) -> {
+            GetPremiumClassResponse getPremiumClassResponse = new GetPremiumClassResponse();
+            getPremiumClassResponse.setKodeKelas(p.getCourseCode());
+            getPremiumClassResponse.setNamaKelas(p.getClassName());
+            getPremiumClassResponse.setKategori(p.getCategories().getCategoryName());
+            getPremiumClassResponse.setLevel(p.getLevel());
+            getPremiumClassResponse.setHarga(p.getPrice());
+            getPremiumClassResponse.setAuthor(p.getAuthor());
+            getPremiumClassResponse.setTipeKelas(p.getClassType());
+            getPremiumClassResponse.setRating(p.getRating());
+            getPremiumClassResponse.setModul(p.getModul());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+            getPremiumClassResponse.setPublish(outputDate);
+
+            return getPremiumClassResponse;
+        }).collect(Collectors.toList());
+        response.setData(getPremiumClassResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<CourseGetResponse>> getFreeClass() {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+        List<Course> courses = courseRepository.findFreeCourses();
+        List<CourseGetResponse> courseGetResponsee = courses.stream().map((p) -> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setTipeKelas(p.getClassType());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setModul(p.getModul());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+            courseGetResponse.setPublish(outputDate);
+
+            return courseGetResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(courseGetResponsee);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
     private String getAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
