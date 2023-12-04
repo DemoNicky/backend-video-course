@@ -80,13 +80,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-
-    /**
-     * ini nanti di kasih image
-     * @param updateDataRequest
-     * @return
-     * @throws Exception
-     */
     @PutMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
