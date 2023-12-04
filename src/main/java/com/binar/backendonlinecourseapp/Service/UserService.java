@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.Service;
 
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -8,6 +9,7 @@ import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
@@ -22,4 +24,8 @@ public interface UserService {
     ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception;
 
     ResponseHandling<TokenResendResponse> resendToken(String email);
+
+    ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception;
+
+    ResponseHandling<ChangeProfilePictureResponse> insertPicture(MultipartFile multipartFile);
 }

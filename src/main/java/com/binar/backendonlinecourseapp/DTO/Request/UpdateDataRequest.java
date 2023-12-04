@@ -7,14 +7,12 @@ import lombok.Setter;
 @Setter
 public class UpdateDataRequest {
 
-    private String nama;
-
-    private String email;
-
     private String telp;
 
-    private String oldpassword;
+    private String nama;
 
-    private String newpassword;
+    private String negara;
+
+    private String kota;
 
 }

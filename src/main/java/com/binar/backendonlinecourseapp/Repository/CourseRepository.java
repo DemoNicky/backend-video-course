@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,8 +20,14 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
     Optional<Course> findByClassName(String code);
 
-    @Query("SELECT c FROM Course c WHERE c.className LIKE %:searchTerm% OR c.teacher LIKE %:searchTerm%")
+    @Query("SELECT c FROM Course c WHERE c.className LIKE %:searchTerm% OR c.author LIKE %:searchTerm%")
     Page<Course> findByClassNameOrTeacherJPQL(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @Query("SELECT c FROM Course c WHERE c.classType = 'PREMIUM'")
+    List<Course> findPremiumCourses();
+
+    @Query("SELECT c FROM Course c WHERE c.classType = 'FREE'")
+    List<Course> findFreeCourses();
 
 }
 

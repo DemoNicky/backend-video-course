@@ -45,13 +45,22 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/otp/{code}/{email}").permitAll()
                 .antMatchers("/api/users/resend-otp/{email}").permitAll()
                 .antMatchers("/api/course/{page}").permitAll()
+                .antMatchers("/api/course/get-premium").permitAll()
+                .antMatchers("/api/course/get-free").permitAll()
                 .antMatchers("/api/course/search/{page}/{course}").permitAll()
                 .antMatchers("/api/course/get/{course}").permitAll()
+                .antMatchers("/api/category/{category}").permitAll()
 
                 .antMatchers("/api/category").hasAuthority("ADMIN")
                 .antMatchers("/api/course/create").hasAuthority("ADMIN")
+                .antMatchers("/api/course/update").hasAuthority("ADMIN")
 
                 .antMatchers("/api/users").hasAuthority("USER")
+                .antMatchers("/api/course/get/{course}").hasAuthority("USER")
+                .antMatchers("/api/order").hasAuthority("USER")
+                .antMatchers("/api/order/{ordercode}").hasAuthority("USER")
+                .antMatchers("/api/users/update-profil-pic").hasAuthority("USER")
+                .antMatchers("/api/course/payment-history").hasAuthority("USER")
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()

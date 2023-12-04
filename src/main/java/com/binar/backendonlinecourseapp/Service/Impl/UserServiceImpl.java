@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -12,17 +13,18 @@ import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
-import jdk.jpackage.internal.Log;
-import lombok.extern.log4j.Log4j;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,13 +33,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
@@ -61,6 +66,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private final Cloudinary cloudinary;
+
     public ResponseHandling<LoginResponse> createJwtToken(LoginRequest jwtRequest) throws Exception {
         ResponseHandling<LoginResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(jwtRequest.getEmail());
@@ -77,11 +84,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             final UserDetails userDetails = loadUserByUsername(username);
 
-
-
             String newToken = jwtUtil.generateToken(userDetails);
 
-            response.setData(new LoginResponse(newToken));
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+            Set<String> authorityStrings = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+
+            String authoritiesString = String.join(",", authorityStrings);
+
+            response.setData(new LoginResponse(newToken, authoritiesString));
             response.setMessage("Authentication successful");
             response.setErrors(false);
         }catch (Exception e){
@@ -97,9 +110,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Optional<User> user = userRepository.findByEmail(email);
         User user1 = user.get();
         ResponseGetUser responseGetUser = new ResponseGetUser();
+        responseGetUser.setUrlPicture(user1.getPictureUrl());
         responseGetUser.setNama(user1.getNama());
         responseGetUser.setEmail(user1.getEmail());
         responseGetUser.setTelp(user1.getTelp());
+        responseGetUser.setNegara(user1.getCountry());
+        responseGetUser.setKota(user1.getCity());
         return responseGetUser;
     }
 
@@ -109,54 +125,86 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         ResponseHandling<UpdateDataResponse> response = new ResponseHandling<>();
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
+        User changeUser = user.get();
+        changeUser.setTelp(updateDataRequest.getTelp());
+        changeUser.setNama(updateDataRequest.getNama());
+        changeUser.setNama(updateDataRequest.getNama());
+        changeUser.setCountry(updateDataRequest.getNegara());
+        changeUser.setCity(updateDataRequest.getKota());
+        userRepository.save(changeUser);
 
-        if (passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())){
+        UpdateDataResponse updateDataResponse = new UpdateDataResponse();
+        updateDataResponse.setTelp(updateDataRequest.getTelp());
+        updateDataResponse.setNama(updateDataRequest.getNama());
+        updateDataResponse.setNegara(updateDataRequest.getNegara());
+        updateDataResponse.setKota(updateDataRequest.getKota());
+
+        response.setData(updateDataResponse);
+        response.setMessage("success update data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception {
+        ResponseHandling<ChangePasswordResponse> response = new ResponseHandling<>();
+        String email = getAuth();
+        Optional<User> user = userRepository.findByEmail(email);
+        if (passwordEncoder.matches(changePasswordRequest.getOldpassword(), user.get().getPassword())) {
             User changeUser = user.get();
-            changeUser.setNama(updateDataRequest.getNama());
-            if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
-                if (updateDataRequest.getEmail().equals(user.get().getEmail()) || updateDataRequest.getEmail() == user.get().getEmail()){
-                    changeUser.setEmail(updateDataRequest.getEmail());
-                }else {
-                    response.setMessage("email is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
-                if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
-                    changeUser.setTelp(updateDataRequest.getTelp());
-                }else {
-                    response.setMessage("telp is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            String encodePasswordd = encodePasswordMethod(updateDataRequest.getNewpassword());
+
+            String encodePasswordd = encodePasswordMethod(changePasswordRequest.getNewpassword());
+
             changeUser.setPassword(encodePasswordd);
+
             userRepository.save(changeUser);
 
-            UpdateDataResponse updateDataResponse = new UpdateDataResponse();
-            updateDataResponse.setNama(updateDataRequest.getNama());
-            updateDataResponse.setEmail(updateDataRequest.getEmail());
-            updateDataResponse.setTelp(updateDataRequest.getTelp());
+            ChangePasswordResponse changePasswordResponse = new ChangePasswordResponse();
 
             LoginRequest loginRequest = new LoginRequest();
             loginRequest.setEmail(changeUser.getEmail());
-            loginRequest.setPassword(updateDataRequest.getNewpassword());
+            loginRequest.setPassword(changePasswordRequest.getNewpassword());
 
-            updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
-
-            response.setData(updateDataResponse);
-            response.setMessage("success update data");
+            changePasswordResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+            response.setData(changePasswordResponse);
+            response.setMessage("success update password");
             response.setErrors(false);
-
             return response;
-
         }else {
-            response.setMessage("cant update data wrong old password");
+            response.setMessage("old Password is wrong");
             response.setErrors(true);
             return response;
         }
+    }
+
+    @Override
+    public ResponseHandling<ChangeProfilePictureResponse> insertPicture(MultipartFile multipartFile) {
+        ResponseHandling<ChangeProfilePictureResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        try {
+            Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
+            String imageUrl = result.get("url").toString();
+
+            User userChange = user.get();
+            userChange.setPictureUrl(imageUrl);
+            userRepository.save(userChange);
+
+            ChangeProfilePictureResponse changeProfilePictureResponse = new ChangeProfilePictureResponse();
+            changeProfilePictureResponse.setUrl(imageUrl);
+
+            response.setData(changeProfilePictureResponse);
+            response.setMessage("success update profile picture");
+            response.setErrors(false);
+            return response;
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        response.setMessage("failed update picture");
+        response.setErrors(true);
+
+        return response;
     }
 
     @Transactional
@@ -173,7 +221,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 return response;
             }
 
+            final String url = "http://res.cloudinary.com/duzctbrt5/image/upload/v1701317552/ittcwcftomal7kgpspg7.jpg";
+
             User user = new User();
+            user.setPictureUrl(url);
             user.setNama(registerRequest.getNama());
             user.setEmail(registerRequest.getEmail());
             user.setTelp(registerRequest.getTelp());

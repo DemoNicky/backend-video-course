@@ -1,10 +1,8 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseCreateResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.CourseGetResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.GetCourseResponse;
-import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
+import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/course")
+@RequestMapping("/api/course")
 public class CourseController {
 
     @Autowired
@@ -34,6 +32,20 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PutMapping(path = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<CourseUpdateResponse>>updateCourse(@RequestBody CourseUpdateRequest courseUpdateRequest){
+        ResponseHandling<CourseUpdateResponse> response = courseService.updateCourse(courseUpdateRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
 
     @GetMapping(path = "/{page}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -69,6 +81,34 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    
+    @GetMapping(
+            path = "/payment-history",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<PaymentHistoryResponse>>>getPaymentHistory(){
+        ResponseHandling<List<PaymentHistoryResponse>> response = courseService.getPaymentHistory();
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get-premium",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<GetPremiumClassResponse>>>getFreeClass(){
+        ResponseHandling<List<GetPremiumClassResponse>> response = courseService.getPremiumClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get-free",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

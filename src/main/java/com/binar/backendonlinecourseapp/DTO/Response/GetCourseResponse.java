@@ -22,7 +22,11 @@ public class GetCourseResponse {
 
     private BigDecimal harga;
 
-    private String teacher;
+    private String author;
+
+    private Double rating;
+
+    private Integer modul;
 
     private String deskripsi;
 

@@ -24,8 +24,8 @@ public class Video {
     @Column(name = "video_link", nullable = false)
     private String videoLink;
 
-    @Column(name = "description", length = 500)
-    private String description;
+//    @Column(name = "description", length = 500)
+//    private String description;
 
     private Boolean premium;
 

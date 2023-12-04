@@ -1,16 +1,15 @@
 package com.binar.backendonlinecourseapp.DTO.Response;
 
-import com.binar.backendonlinecourseapp.Entity.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Level;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
-public class CourseGetResponse {
+public class PaymentResponse {
 
     private String kodeKelas;
 
@@ -24,12 +23,8 @@ public class CourseGetResponse {
 
     private String author;
 
-    private ClassType tipeKelas;
+    private String deskripsi;
 
-    private Double rating;
-
-    private Integer modul;
-
-    private String publish;
+    private List<GetVideoResponse> getVideoResponses;
 
 }
