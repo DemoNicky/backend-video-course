@@ -21,7 +21,7 @@ public interface UserService {
 
     ResponseHandling<UpdateDataResponse> updateUser(UpdateDataRequest updateDataRequest) throws Exception;
 
-    ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception;
+    ResponseHandling<TokenResponse> tokenCheck(String code) throws Exception;
 
     ResponseHandling<TokenResendResponse> resendToken(String email);
 
