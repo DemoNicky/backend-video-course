@@ -11,6 +11,8 @@ public class ReseponseGetCategory {
 
     private String categoryName;
 
+    private String imageUrl;
+
     private List<CourseGetResponse> courseGetResponses;
 
 }
