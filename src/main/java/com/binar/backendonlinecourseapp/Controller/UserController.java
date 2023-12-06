@@ -40,11 +40,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping(path = "/otp/{code}/{email}",
+    @PostMapping(path = "/otp/{code}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<TokenResponse>>tokenCheck(@PathVariable("code")String code, @PathVariable("email")String email) throws Exception {
-        ResponseHandling<TokenResponse> response = userService.tokenCheck(code, email);
+    public ResponseEntity<ResponseHandling<TokenResponse>>tokenCheck(@PathVariable("code")String code) throws Exception {
+        ResponseHandling<TokenResponse> response = userService.tokenCheck(code);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }

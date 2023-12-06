@@ -267,48 +267,42 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception {
+    public ResponseHandling<TokenResponse> tokenCheck(String code) throws Exception {
         ResponseHandling<TokenResponse> response = new ResponseHandling<>();
 
         Optional<Token> token1 = tokenRepository.findByToken(code);
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(token1.get().getUser().getEmail());
 
-        if (token1.isPresent()){
-            if (token1.get().getUser().getEmail() == email || token1.get().getUser().getEmail().equals(email)){
-                if (!token1.get().getExpired().before(new Date())){
-                    User user1 = user.get();
+        if (!token1.isPresent()){
+            response.setMessage("token is invalid");
+            response.setErrors(true);
+            return response;
+        }else {
+            if (!token1.get().getExpired().before(new Date())){
+                User user1 = user.get();
 
-                    LoginRequest loginRequest = new LoginRequest();
-                    loginRequest.setEmail(user1.getEmail());
-                    loginRequest.setPassword(user1.getPassword());
+                LoginRequest loginRequest = new LoginRequest();
+                loginRequest.setEmail(user1.getEmail());
+                loginRequest.setPassword(user1.getPassword());
 
-                    user1.setActive(true);
-                    String password = encodePasswordMethod(user1.getPassword());
-                    user1.setPassword(password);
-                    userRepository.save(user1);
+                user1.setActive(true);
+                String password = encodePasswordMethod(user1.getPassword());
+                user1.setPassword(password);
+                userRepository.save(user1);
 
-                    TokenResponse tokenResponse = new TokenResponse();
-                    tokenResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+                TokenResponse tokenResponse = new TokenResponse();
+                tokenResponse.setToken(createJwtToken(loginRequest).getData().getToken());
 
-                    tokenRepository.delete(token1.get());
-                    response.setData(tokenResponse);
-                    response.setMessage("account active");
-                    response.setErrors(false);
-                    return response;
-                }else {
-                    response.setMessage("token is invalid");
-                    response.setErrors(true);
-                    return response;
-                }
+                tokenRepository.delete(token1.get());
+                response.setData(tokenResponse);
+                response.setMessage("account active");
+                response.setErrors(false);
+                return response;
             }else {
                 response.setMessage("token is invalid");
                 response.setErrors(true);
                 return response;
             }
-        }else {
-            response.setMessage("token is invalid");
-            response.setErrors(true);
-            return response;
         }
     }
 
