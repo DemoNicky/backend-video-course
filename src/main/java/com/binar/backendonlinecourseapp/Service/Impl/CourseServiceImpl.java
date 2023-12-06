@@ -191,6 +191,7 @@ public class CourseServiceImpl implements CourseService {
             getCourseResponse.setRating(courseGet.getRating());
             getCourseResponse.setModul(courseGet.getModul());
             getCourseResponse.setDeskripsi(courseGet.getMateri());
+
             List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
                 GetVideoResponse getVideoResponse = new GetVideoResponse();
                 getVideoResponse.setVideoCode(p.getVideoCode());
@@ -254,6 +255,7 @@ public class CourseServiceImpl implements CourseService {
         }
         List<PaymentHistoryResponse> paymentHistoryResponse = order.get().stream().map((p)->{
             PaymentHistoryResponse paymentHistory = new PaymentHistoryResponse();
+            paymentHistory.setOrderCode(p.getOrderCode());
             paymentHistory.setKodeKelas(p.getCourse().getCourseCode());
             paymentHistory.setNamaKelas(p.getCourse().getClassName());
             paymentHistory.setKategori(p.getCourse().getCategories().getCategoryName());

@@ -106,6 +106,12 @@ public class UserController {
 
     }
 
+//    @PutMapping(
+//            path = "/forgot-password",
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public ResponseEntity<ResponseHandling>
+
     @PostMapping(
             path = "/update-profil-pic"
     )
