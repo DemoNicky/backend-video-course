@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("api/category")
@@ -17,13 +20,16 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping(
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PostMapping
     public ResponseEntity<ResponseHandling<ResponseCreateCategory>>createCategory(@RequestParam String categoryName){
         ResponseHandling<ResponseCreateCategory> response = categoryService.createCategory(categoryName);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+//    @PostMapping
+//    public ResponseEntity<String>addPicture(@RequestHeader MultipartFile multipartFile){
+//
+//    }
 
     @GetMapping(
             path = "/{category}",
