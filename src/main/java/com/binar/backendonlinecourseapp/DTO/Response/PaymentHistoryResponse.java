@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 public class PaymentHistoryResponse {
 
+    private String orderCode;
+
     private String kodeKelas;
 
     private String namaKelas;

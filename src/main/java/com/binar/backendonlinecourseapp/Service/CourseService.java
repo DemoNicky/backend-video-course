@@ -24,4 +24,5 @@ public interface CourseService {
     ResponseHandling<List<GetPremiumClassResponse>> getPremiumClass();
 
     ResponseHandling<List<CourseGetResponse>> getFreeClass();
+
 }
