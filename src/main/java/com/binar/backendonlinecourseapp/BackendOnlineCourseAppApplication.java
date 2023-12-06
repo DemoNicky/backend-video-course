@@ -12,15 +12,15 @@ public class BackendOnlineCourseAppApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BackendOnlineCourseAppApplication.class, args); // test
 	}
-
-	@Bean
-	public WebMvcConfigurer corsConfigurer(){
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:5173");
-			}
-		};
-	}
+//
+//	@Bean
+//	public WebMvcConfigurer corsConfigurer(){
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("/**").allowedOrigins("http://localhost:5173");
+//			}
+//		};
+//	}
 
 }

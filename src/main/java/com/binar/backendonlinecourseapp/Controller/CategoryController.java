@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping("api/category")
+@RequestMapping("/api/category")
 public class CategoryController {
 
     @Autowired
@@ -26,17 +27,20 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @PostMapping
-//    public ResponseEntity<String>addPicture(@RequestHeader MultipartFile multipartFile){
-//
-//    }
+    @PostMapping(
+            path = "/addpicture/{id}"
+    )
+    public ResponseEntity<String>addPicture(@RequestHeader MultipartFile multipartFile, @PathVariable("id")Long id) throws IOException {
+        String response = categoryService.addPicture(multipartFile, id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @GetMapping(
-            path = "/{category}",
+            path = "/get",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<ReseponseGetCategory>>getByCategory(@PathVariable("category")String categoryName){
-        ResponseHandling<ReseponseGetCategory> response = categoryService.getByCategory(categoryName);
+    public ResponseEntity<ResponseHandling<List<ReseponseGetCategory>>>getByCategory(){
+        ResponseHandling<List<ReseponseGetCategory>> response = categoryService.getByCategory();
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
