@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CourseService {
 
-    ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseCreateRequest);
+    ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseCreateRequest, MultipartFile file) throws IOException;
 
     ResponseHandling<List<CourseGetResponse>> getCourse(Pageable pageable);
 
@@ -27,5 +27,4 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> getFreeClass();
 
-    String uploadImage(MultipartFile upload, String course) throws IOException;
 }

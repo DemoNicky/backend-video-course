@@ -26,17 +26,12 @@ public class CourseController {
     @PostMapping(path = "/create",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestBody CourseCreateRequest courseCreateRequest){
-        ResponseHandling<CourseCreateResponse> response = courseService.createCourse(courseCreateRequest);
+    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestPart("file") MultipartFile file,
+                                                                              @RequestPart("course") CourseCreateRequest courseCreateRequest) throws IOException {
+        ResponseHandling<CourseCreateResponse> response = courseService.createCourse(courseCreateRequest, file);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @PostMapping(path = "/upload-image/{course}")
-    public ResponseEntity<String>uploadImage(@RequestHeader MultipartFile upload, @PathVariable("course")String course) throws IOException {
-        String response = courseService.uploadImage(upload, course);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -52,7 +47,6 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
-
 
     @GetMapping(path = "/{page}",
             produces = MediaType.APPLICATION_JSON_VALUE
