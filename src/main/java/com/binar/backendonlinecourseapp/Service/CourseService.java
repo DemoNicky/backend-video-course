@@ -4,7 +4,9 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface CourseService {
@@ -25,4 +27,5 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> getFreeClass();
 
+    String uploadImage(MultipartFile upload, String course) throws IOException;
 }

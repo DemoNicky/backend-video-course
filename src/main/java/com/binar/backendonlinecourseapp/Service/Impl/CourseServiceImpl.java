@@ -6,19 +6,26 @@ import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
 import com.binar.backendonlinecourseapp.Repository.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
     @Autowired
@@ -36,8 +43,11 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private VideoRepository videoRepository;
 
+    private final Cloudinary cloudinary;
+
+    @Transactional
     @Override
-    public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest) {
+    public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest){
         ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
         Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
         Optional<User> user = userRepository.findByEmail(getAuth());
@@ -56,6 +66,7 @@ public class CourseServiceImpl implements CourseService {
             response.setErrors(true);
             return response;
         }
+
         Category category1 = category.get();
         Course course = new Course();
         course.setCourseCode(courseRequest.getKodeKelas());
@@ -67,6 +78,10 @@ public class CourseServiceImpl implements CourseService {
         course.setPublish(new Date());
         course.setClassType(courseRequest.getTipeKelas());
         course.setCategories(category1);
+        int randomNumber1 = getRandomNumberrr();
+
+        course.setTime(randomNumber1);
+
         Random random = new Random();
 
         double randomNumber = 1.0 + new Random().nextDouble() * (5.0 - 1.0);
@@ -101,6 +116,24 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+
+    @Override
+    public String uploadImage(MultipartFile upload, String course) throws IOException {
+        Optional<Course> courseCodeCheck = courseRepository.findByCourseCode(course);
+        Map<?, ?> result = cloudinary.uploader().upload(upload.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = result.get("url").toString();
+        Course course1 = courseCodeCheck.get();
+        course1.setPictureUrl(imageUrl);
+        courseRepository.save(course1);
+        return course1.getPictureUrl();
+    }
+
+    private int getRandomNumberrr() {
+        Random random1 = new Random();
+        int randomNumber1 = random1.nextInt(191) + 10;
+        return randomNumber1;
+    }
+
     @Override
     public ResponseHandling<List<CourseGetResponse>> getCourse(Pageable pageable) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
@@ -114,11 +147,13 @@ public class CourseServiceImpl implements CourseService {
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());
             courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
             courseGetResponse.setKategori(p.getCategories().getCategoryName());
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
             courseGetResponse.setAuthor(p.getAuthor());
             courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setTime(p.getTime());
             courseGetResponse.setModul(p.getModul());
             courseGetResponse.setTipeKelas(p.getClassType());
 
@@ -147,6 +182,8 @@ public class CourseServiceImpl implements CourseService {
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());
             courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
+            courseGetResponse.setTime(p.getTime());
             courseGetResponse.setKategori(p.getCategories().getCategoryName());
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
@@ -184,6 +221,7 @@ public class CourseServiceImpl implements CourseService {
             GetCourseResponse getCourseResponse = new GetCourseResponse();
             getCourseResponse.setKodeKelas(courseGet.getCourseCode());
             getCourseResponse.setNamaKelas(courseGet.getClassName());
+            getCourseResponse.setTime(courseGet.getTime());
             getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
             getCourseResponse.setLevel(courseGet.getLevel());
             getCourseResponse.setHarga(courseGet.getPrice());
@@ -258,9 +296,11 @@ public class CourseServiceImpl implements CourseService {
             paymentHistory.setOrderCode(p.getOrderCode());
             paymentHistory.setKodeKelas(p.getCourse().getCourseCode());
             paymentHistory.setNamaKelas(p.getCourse().getClassName());
+            paymentHistory.setImageUrl(p.getCourse().getPictureUrl());
             paymentHistory.setKategori(p.getCourse().getCategories().getCategoryName());
             paymentHistory.setLevel(p.getCourse().getLevel());
             paymentHistory.setAuthor(p.getCourse().getAuthor());
+            paymentHistory.setTime(p.getCourse().getTime());
             paymentHistory.setCompletePaid(p.getCompletePaid());
             return paymentHistory;
         }).collect(Collectors.toList());

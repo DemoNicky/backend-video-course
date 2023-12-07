@@ -14,11 +14,15 @@ public class PaymentHistoryResponse {
 
     private String namaKelas;
 
+    private String imageUrl;
+
     private String kategori;
 
     private Level level;
 
     private String author;
+
+    private Integer time;
 
     private Boolean completePaid;
 
