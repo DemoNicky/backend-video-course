@@ -28,6 +28,8 @@ public class GetCourseResponse {
 
     private Integer modul;
 
+    private Integer time;
+
     private String deskripsi;
 
     private List<GetVideoResponse> getVideoResponses;

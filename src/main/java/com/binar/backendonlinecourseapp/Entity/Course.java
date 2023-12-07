@@ -27,6 +27,10 @@ public class Course {
     @Column(name = "class_name", length = 40, nullable = false, unique = true)
     private String className;
 
+    private String pictureUrl;
+
+    private Integer time;
+
     @Enumerated(EnumType.STRING)
     private Level level;
 
