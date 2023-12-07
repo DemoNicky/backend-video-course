@@ -43,11 +43,14 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private VideoRepository videoRepository;
 
+    @Autowired
+    private UserVideoRepository userVideoRepository;
+
     private final Cloudinary cloudinary;
 
     @Transactional
     @Override
-    public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest){
+    public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest, MultipartFile file) throws IOException {
         ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
         Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
         Optional<User> user = userRepository.findByEmail(getAuth());
@@ -67,10 +70,15 @@ public class CourseServiceImpl implements CourseService {
             return response;
         }
 
+        Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = result.get("url").toString();
+
         Category category1 = category.get();
         Course course = new Course();
         course.setCourseCode(courseRequest.getKodeKelas());
         course.setClassName(courseRequest.getNamaKelas());
+        System.out.println(imageUrl);
+        course.setPictureUrl(imageUrl);
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getHarga());
         course.setAuthor(user.get().getNama());
@@ -114,18 +122,6 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("sucess create new course");
         response.setErrors(false);
         return response;
-    }
-
-
-    @Override
-    public String uploadImage(MultipartFile upload, String course) throws IOException {
-        Optional<Course> courseCodeCheck = courseRepository.findByCourseCode(course);
-        Map<?, ?> result = cloudinary.uploader().upload(upload.getBytes(), ObjectUtils.emptyMap());
-        String imageUrl = result.get("url").toString();
-        Course course1 = courseCodeCheck.get();
-        course1.setPictureUrl(imageUrl);
-        courseRepository.save(course1);
-        return course1.getPictureUrl();
     }
 
     private int getRandomNumberrr() {
@@ -404,6 +400,18 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("success get data");
         response.setErrors(false);
         return response;
+    }
+
+    @Override
+    public void videoTrigger(String videoCode) {
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<Video> video = videoRepository.findByVideoCode(videoCode);
+        UserVideo userVideo = new UserVideo();
+        userVideo.setIsWatched(true);
+        userVideo.setUser(user.get());
+        userVideo.setVideo(video.get());
+        userVideo.setCourse(video.get().getCourse());
+        userVideoRepository.save(userVideo);
     }
 
     private String getAuth() {
