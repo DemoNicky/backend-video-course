@@ -23,7 +23,8 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @PostMapping(path = "/create",
+    @PostMapping(
+            path = "/create",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestPart("file") MultipartFile file,
@@ -33,6 +34,15 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(
+            path = "/watched/{video}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String>videoWatchTrigger(@PathVariable("video")String videoCode){
+        courseService.videoTrigger(videoCode);
+        return ResponseEntity.status(HttpStatus.OK).body("sukses");
     }
 
     @PutMapping(path = "/update",

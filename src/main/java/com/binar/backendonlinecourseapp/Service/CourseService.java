@@ -27,4 +27,5 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> getFreeClass();
 
+    void videoTrigger(String videoCode);
 }

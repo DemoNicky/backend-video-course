@@ -43,6 +43,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private VideoRepository videoRepository;
 
+    @Autowired
+    private UserVideoRepository userVideoRepository;
+
     private final Cloudinary cloudinary;
 
     @Transactional
@@ -397,6 +400,18 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("success get data");
         response.setErrors(false);
         return response;
+    }
+
+    @Override
+    public void videoTrigger(String videoCode) {
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<Video> video = videoRepository.findByVideoCode(videoCode);
+        UserVideo userVideo = new UserVideo();
+        userVideo.setIsWatched(true);
+        userVideo.setUser(user.get());
+        userVideo.setVideo(video.get());
+        userVideo.setCourse(video.get().getCourse());
+        userVideoRepository.save(userVideo);
     }
 
     private String getAuth() {
