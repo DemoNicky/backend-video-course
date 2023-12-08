@@ -13,9 +13,9 @@ public interface CourseService {
 
     ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseCreateRequest, MultipartFile file) throws IOException;
 
-    ResponseHandling<List<CourseGetResponse>> getCourse(Pageable pageable);
+    ResponseHandling<List<CourseGetResponse>> getCourse();
 
-    ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName, Pageable pageable);
+    ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName);
 
     ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode);
 
