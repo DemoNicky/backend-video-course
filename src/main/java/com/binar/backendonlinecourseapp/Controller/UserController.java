@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -97,7 +98,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<ChangePasswordResponse>>changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
+    public ResponseEntity<ResponseHandling<ChangePasswordResponse>>changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
         ResponseHandling<ChangePasswordResponse> response = userService.changePassword(changePasswordRequest);
         if (response.getData()==null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
