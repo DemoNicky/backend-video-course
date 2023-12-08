@@ -29,5 +29,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c WHERE c.classType = 'FREE'")
     List<Course> findFreeCourses();
 
+    @Query("SELECT c FROM Course c JOIN c.videos v WHERE v.videoCode = :videoCode")
+    Optional<Course> findCourseByVideoCode(@Param("videoCode") String videoCode);
+
 }
 

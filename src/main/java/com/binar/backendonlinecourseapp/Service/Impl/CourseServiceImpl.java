@@ -406,12 +406,16 @@ public class CourseServiceImpl implements CourseService {
     public void videoTrigger(String videoCode) {
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<Video> video = videoRepository.findByVideoCode(videoCode);
-        UserVideo userVideo = new UserVideo();
-        userVideo.setIsWatched(true);
-        userVideo.setUser(user.get());
-        userVideo.setVideo(video.get());
-        userVideo.setCourse(video.get().getCourse());
-        userVideoRepository.save(userVideo);
+        Optional<Course> course = courseRepository.findCourseByVideoCode(videoCode);
+        Optional<Order> order = orderRepository.findOrdersByUserAndCourse(user.get(),course.get());
+        if (order.isPresent() && order.get().getCompletePaid()==true){
+            UserVideo userVideo = new UserVideo();
+            userVideo.setIsWatched(true);
+            userVideo.setUser(user.get());
+            userVideo.setVideo(video.get());
+            userVideo.setCourse(video.get().getCourse());
+            userVideoRepository.save(userVideo);
+        }
     }
 
     @Override
