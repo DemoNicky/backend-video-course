@@ -406,12 +406,68 @@ public class CourseServiceImpl implements CourseService {
     public void videoTrigger(String videoCode) {
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<Video> video = videoRepository.findByVideoCode(videoCode);
-        UserVideo userVideo = new UserVideo();
-        userVideo.setIsWatched(true);
-        userVideo.setUser(user.get());
-        userVideo.setVideo(video.get());
-        userVideo.setCourse(video.get().getCourse());
-        userVideoRepository.save(userVideo);
+        Optional<Course> course = courseRepository.findCourseByVideoCode(videoCode);
+        Optional<Order> order = orderRepository.findOrdersByUserAndCourse(user.get(),course.get());
+        if (order.isPresent() && order.get().getCompletePaid()==true){
+            UserVideo userVideo = new UserVideo();
+            userVideo.setIsWatched(true);
+            userVideo.setUser(user.get());
+            userVideo.setVideo(video.get());
+            userVideo.setCourse(video.get().getCourse());
+            userVideoRepository.save(userVideo);
+        }
+    }
+
+    @Override
+    public ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse() {
+        ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
+        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+
+        if (!order.isPresent() || order.get().size()==0){
+            response.setMessage("user dont have data");
+            response.setErrors(true);
+            return response;
+        }
+        if (!userVideo.isPresent()){
+            response.setMessage("user never learnnnnn");
+            response.setErrors(true);
+            return response;
+        }
+        List<UserWatchProgressResponse> responses = order.get().stream().map((p)->{
+            UserWatchProgressResponse userWatchProgressResponse = new UserWatchProgressResponse();
+            userWatchProgressResponse.setKodeKelas(p.getCourse().getCourseCode());
+            userWatchProgressResponse.setNamaKelas(p.getCourse().getClassName());
+            userWatchProgressResponse.setImageUrl(p.getCourse().getPictureUrl());
+            userWatchProgressResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            userWatchProgressResponse.setLevel(p.getCourse().getLevel());
+            userWatchProgressResponse.setAuthor(p.getCourse().getAuthor());
+            userWatchProgressResponse.setRating(p.getCourse().getRating());
+            userWatchProgressResponse.setModul(p.getCourse().getModul());
+            userWatchProgressResponse.setTime(p.getCourse().getTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getCourse().getPublish());
+            userWatchProgressResponse.setPublish(outputDate);
+            int count = 0;
+
+            for (UserVideo userVideo1 : userVideo.get()) {
+                if (userVideo1.getCourse() == p.getCourse()) {
+                    count += 1;
+                }
+            }
+
+            int videoSize = p.getCourse().getVideos().size();
+            int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
+            userWatchProgressResponse.setProgress(progressTotal);
+
+            return userWatchProgressResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(responses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
     }
 
     private String getAuth() {

@@ -324,6 +324,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         sendEmail(email, otp1);
         TokenResendResponse resendResponse = new TokenResendResponse();
+        resendResponse.setToken(otp1);
         resendResponse.setEmail(email);
         response.setData(resendResponse);
         response.setMessage("token already sent");

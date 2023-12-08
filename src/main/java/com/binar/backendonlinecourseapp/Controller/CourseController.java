@@ -45,6 +45,18 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body("sukses");
     }
 
+    @GetMapping(
+            path = "/get/get-in-progress",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressResponse(){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressResponse();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @PutMapping(path = "/update",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
