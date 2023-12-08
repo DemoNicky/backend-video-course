@@ -44,10 +44,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/register").permitAll()
                 .antMatchers("/api/users/otp/{code}").permitAll()
                 .antMatchers("/api/users/resend-otp/{email}").permitAll()
-                .antMatchers("/api/course/{page}").permitAll()
+                .antMatchers("/api/course/get-course").permitAll()
                 .antMatchers("/api/course/get-premium").permitAll()
                 .antMatchers("/api/course/get-free").permitAll()
-                .antMatchers("/api/course/search/{page}/{course}").permitAll()
+                .antMatchers("/api/course/search/{course}").permitAll()
                 .antMatchers("/api/course/get/{course}").permitAll()
                 .antMatchers("/api/category/get").permitAll()
 

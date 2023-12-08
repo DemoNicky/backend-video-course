@@ -70,24 +70,22 @@ public class CourseController {
 
     }
 
-    @GetMapping(path = "/{page}",
+    @GetMapping(path = "/get-course",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getCourse(@PathVariable("page")int page){
-        Pageable pageable = PageRequest.of(page, 10);
-        ResponseHandling<List<CourseGetResponse>> response =courseService.getCourse(pageable);
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getCourse(){
+        ResponseHandling<List<CourseGetResponse>> response =courseService.getCourse();
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping(path = "/search/{page}/{course}",
+    @GetMapping(path = "/search/{course}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName, @PathVariable("page")int page){
-        Pageable pageable = PageRequest.of(page, 10);
-        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName, pageable);
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }

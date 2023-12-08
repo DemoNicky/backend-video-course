@@ -131,9 +131,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> getCourse(Pageable pageable) {
+    public ResponseHandling<List<CourseGetResponse>> getCourse() {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        Page<Course> course = courseRepository.findAll(pageable);
+        List<Course> course = courseRepository.findAll();
         if (course.isEmpty() || course == null){
             response.setMessage("course data is null");
             response.setErrors(true);
@@ -166,9 +166,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName, Pageable pageable) {
+    public ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        Page<Course> courses = courseRepository.findByClassNameOrTeacherJPQL(courseName, pageable);
+        List<Course> courses = courseRepository.findByClassNameOrTeacherJPQL(courseName);
         if (courses.isEmpty()){
             response.setMessage("course not found");
             response.setErrors(true);
