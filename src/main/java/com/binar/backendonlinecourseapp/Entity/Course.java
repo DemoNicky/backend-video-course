@@ -24,7 +24,7 @@ public class Course {
     @Column(name = "course_code", length = 10, nullable = false, unique = true)
     private String courseCode;
 
-    @Column(name = "class_name", length = 40, nullable = false, unique = true)
+    @Column(name = "class_name", length = 100, nullable = false, unique = true)
     private String className;
 
     private String pictureUrl;
@@ -37,10 +37,10 @@ public class Course {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "teacher", nullable = false, length = 40)
+    @Column(name = "teacher", nullable = false)
     private String author;
 
-    @Column(name = "materi", nullable = false, length = 500)
+    @Column(name = "materi", nullable = false, length = 1000)
     private String materi;
 
     @Max(value = 5, message = "Rating cannot be greater than 5.0")
