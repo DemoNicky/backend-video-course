@@ -544,6 +544,7 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
 
         List<Course> courseList = new ArrayList<>();
+
         if (!courseFilterRequest.getIsNewest() && !courseFilterRequest.getIsPopular()
                 && courseFilterRequest.getCategories().isEmpty() && courseFilterRequest.getLevels().isEmpty()) {
             courseList = courseRepository.findAll();

@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -207,6 +208,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return response;
     }
 
+
     @Transactional
     @Override
     public ResponseHandling<RegisterResponse> register(RegisterRequest registerRequest) throws Exception {
@@ -330,6 +332,96 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         response.setMessage("token already sent");
         response.setErrors(false);
         return response;
+    }
+
+    @Override
+    public ResponseHandling<ForgetPasswordEmailResponse> forgetPassword(String email) {
+        ResponseHandling<ForgetPasswordEmailResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Token> token2 = tokenRepository.findByUserEmail(email);
+        if (!user.isPresent()){
+            response.setMessage("user with email " + email + " not found");
+            response.setErrors(true);
+        }
+        if (token2.isPresent()){
+            tokenRepository.delete(token2.get());
+        }
+        int otp = getNumericCode();
+        String token1 = String.valueOf(otp);
+        sendEmailForgetPassword(email, token1);
+        Token token = new Token();
+        token.setToken(token1);
+        token.setUser(user.get());
+        token.setExpired(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        tokenRepository.save(token);
+        ForgetPasswordEmailResponse forgetPasswordEmailResponse = new ForgetPasswordEmailResponse();
+        forgetPasswordEmailResponse.setEmail(email);
+        response.setData(forgetPasswordEmailResponse);
+        response.setMessage("Your email has been successfully verified. Please check your email message");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<ForgetPasswordResponse> setForgetPassword(String email, String code, String newPassword) throws Exception {
+        ResponseHandling<ForgetPasswordResponse> response = new ResponseHandling<>();
+        Optional<Token> token = tokenRepository.findByToken(code);
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!token.isPresent()){
+            response.setMessage("code invalid");
+            response.setErrors(true);
+            return response;
+        }
+        if (token.get().getUser() != user.get()){
+            response.setMessage("email and code invalid");
+            response.setErrors(true);
+            return response;
+        }
+        User user1 = user.get();
+        String password = encodePasswordMethod(newPassword);
+        user1.setPassword(password);
+        userRepository.save(user1);
+
+        tokenRepository.delete(token.get());
+
+        sendEmailSuccessChangePassword(email);
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(newPassword);
+        ForgetPasswordResponse forgetPasswordResponse = new ForgetPasswordResponse();
+        forgetPasswordResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+
+        response.setData(forgetPasswordResponse);
+        response.setMessage("Your password has been changed");
+        response.setErrors(false);
+        return response;
+    }
+
+    public void sendEmailSuccessChangePassword(String toEmail){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("cokicilox@gmail.com");
+        message.setTo(toEmail);
+        message.setText(
+                "Congratulations! Your password has been changed successfully. Please use your new password to log in"
+        );
+        message.setSubject("Your password has been successfully updated");
+        javaMailSender.send(message);
+    }
+
+    public void sendEmailForgetPassword(String toEmail, String code){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("cokicilox@gmail.com");
+        message.setTo(toEmail);
+        message.setText(String.format(
+                "Someone requested that the password be reset for the following account\n" +
+                        "To reset your password, visit the following address: \n\n" +
+                        "http://localhost:5173/reset-password?email=%s&code=%s", toEmail, code) +
+                "\n\n Do not share this link with anyone."
+        );
+        message.setSubject("Binar Course Reset Password!!!");
+        javaMailSender.send(message);
     }
 
     public void sendEmail(String toEmail, String otp){
