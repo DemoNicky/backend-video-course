@@ -48,8 +48,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get-premium").permitAll()
                 .antMatchers("/api/course/get-free").permitAll()
                 .antMatchers("/api/course/search/{course}").permitAll()
+                .antMatchers("/api/course/filter").permitAll()
                 .antMatchers("/api/course/get/{course}").permitAll()
                 .antMatchers("/api/category/get").permitAll()
+
 
                 .antMatchers("/api/category").hasAuthority("ADMIN")
                 .antMatchers("/api/category/addpicture/**").hasAuthority("ADMIN")
@@ -66,7 +68,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/payment-history").hasAuthority("USER")
                 .antMatchers("/api/course/watched/{video}").hasAuthority("USER")
                 .antMatchers("/api/course/get/get-in-progress").hasAuthority("USER")
+                .antMatchers("/api/course/get/get-finished").hasAuthority("USER")
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
+
 
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()

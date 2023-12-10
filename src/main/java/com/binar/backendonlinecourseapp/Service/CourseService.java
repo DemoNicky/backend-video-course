@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +31,8 @@ public interface CourseService {
     void videoTrigger(String videoCode);
 
     ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse();
+
+    ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass();
+
+    ResponseHandling<List<CourseGetResponse>> filter(CourseFilterRequest courseFilterRequest);
 }

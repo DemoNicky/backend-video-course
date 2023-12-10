@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             response.setErrors(false);
         }catch (Exception e){
             response.setErrors(true);
-            response.setMessage("Authentication failed: " + e.getMessage());
+            response.setMessage("Invalid Email and Password Combination");
         }
         return response;
     }
