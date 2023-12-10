@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
@@ -37,24 +38,25 @@ public class CourseController {
     }
 
     @PostMapping(
+            path = "/filter",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>filter(@RequestBody CourseFilterRequest courseFilterRequest) throws IOException {
+        ResponseHandling<List<CourseGetResponse>> response = courseService.filter(courseFilterRequest);
+        if (response.getData()==null || response.getErrors() == true){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @PostMapping(
             path = "/watched/{video}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<String>videoWatchTrigger(@PathVariable("video")String videoCode){
         courseService.videoTrigger(videoCode);
         return ResponseEntity.status(HttpStatus.OK).body("sukses");
-    }
-
-    @GetMapping(
-            path = "/get/get-in-progress",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressResponse(){
-        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressResponse();
-        if (response.getData() == null){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping(path = "/update",
@@ -131,6 +133,31 @@ public class CourseController {
         ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping(
+            path = "/get/get-in-progress",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressResponse(){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressResponse();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get/get-finished",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getFinishedClass(){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getFinishedClass();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
 
 }

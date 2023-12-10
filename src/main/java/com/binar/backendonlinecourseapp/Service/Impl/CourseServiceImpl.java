@@ -1,6 +1,7 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
@@ -23,6 +24,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -77,7 +79,6 @@ public class CourseServiceImpl implements CourseService {
         Course course = new Course();
         course.setCourseCode(courseRequest.getKodeKelas());
         course.setClassName(courseRequest.getNamaKelas());
-        System.out.println(imageUrl);
         course.setPictureUrl(imageUrl);
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getHarga());
@@ -466,6 +467,111 @@ public class CourseServiceImpl implements CourseService {
 
         response.setData(responses);
         response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass() {
+        ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
+        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+
+        if (!order.isPresent() || order.get().size()==0){
+            response.setMessage("user dont have data");
+            response.setErrors(true);
+            return response;
+        }
+        if (!userVideo.isPresent()){
+            response.setMessage("user never learnnnnn");
+            response.setErrors(true);
+            return response;
+        }
+        List<UserWatchProgressResponse> responses = order.get().stream().map((p)->{
+            UserWatchProgressResponse userWatchProgressResponse = new UserWatchProgressResponse();
+            userWatchProgressResponse.setKodeKelas(p.getCourse().getCourseCode());
+            userWatchProgressResponse.setNamaKelas(p.getCourse().getClassName());
+            userWatchProgressResponse.setImageUrl(p.getCourse().getPictureUrl());
+            userWatchProgressResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            userWatchProgressResponse.setLevel(p.getCourse().getLevel());
+            userWatchProgressResponse.setAuthor(p.getCourse().getAuthor());
+            userWatchProgressResponse.setRating(p.getCourse().getRating());
+            userWatchProgressResponse.setModul(p.getCourse().getModul());
+            userWatchProgressResponse.setTime(p.getCourse().getTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getCourse().getPublish());
+            userWatchProgressResponse.setPublish(outputDate);
+            int count = 0;
+
+            for (UserVideo userVideo1 : userVideo.get()) {
+                if (userVideo1.getCourse() == p.getCourse()) {
+                    count += 1;
+                }
+            }
+
+            int videoSize = p.getCourse().getVideos().size();
+            int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
+            userWatchProgressResponse.setProgress(progressTotal);
+
+            return userWatchProgressResponse;
+        }).collect(Collectors.toList());
+
+//        List<UserWatchProgressResponse> responseList = new ArrayList<>();
+//        for (UserWatchProgressResponse userWatchProgressResponse : responseList){
+//            if (userWatchProgressResponse.getProgress() == 100){
+//                responseList.add(userWatchProgressResponse);
+//            }
+//        }
+        List<UserWatchProgressResponse> filteredList = responses.stream()
+                .filter(userWatchProgressResponse -> userWatchProgressResponse.getProgress() == 100)
+                .collect(Collectors.toList());
+
+        response.setData(filteredList);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<CourseGetResponse>> filter(CourseFilterRequest courseFilterRequest) {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+
+        List<Category> categories = courseFilterRequest.getCategories().stream()
+                .map(categoriesFilterRequest -> categoryRepository.findByCategoryName(categoriesFilterRequest.getCategoryName()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        List<Course> courseList = new ArrayList<>();
+        if (!courseFilterRequest.getIsNewest() && !courseFilterRequest.getIsPopular()
+                && courseFilterRequest.getCategories().isEmpty() && courseFilterRequest.getLevels().isEmpty()) {
+            courseList = courseRepository.findAll();
+        }else {
+            courseList = courseRepository.findFilteredCourses(categories, courseFilterRequest.getLevels(),
+                    courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
+        }
+
+        List<CourseGetResponse> courseGetResponses = courseList.stream().map((p)->{
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setTime(p.getTime());
+            courseGetResponse.setModul(p.getModul());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+            courseGetResponse.setPublish(outputDate);
+            courseGetResponse.setTipeKelas(p.getClassType());
+            return courseGetResponse;
+        }) .collect(Collectors.toList());
+        response.setData(courseGetResponses);
+        response.setMessage("success get course");
         response.setErrors(false);
         return response;
     }

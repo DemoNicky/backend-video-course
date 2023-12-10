@@ -15,7 +15,7 @@ public class Video {
     @GeneratedValue(generator = "uuid")
     private String id;
 
-    @Column(name = "video_code", length = 10, nullable = false)
+    @Column(name = "video_code", length = 10, nullable = false, unique = true)
     private String videoCode;
 
     @Column(name = "video_title", length = 40, nullable = false)
@@ -23,9 +23,6 @@ public class Video {
 
     @Column(name = "video_link", nullable = false)
     private String videoLink;
-
-//    @Column(name = "description", length = 500)
-//    private String description;
 
     private Boolean premium;
 
