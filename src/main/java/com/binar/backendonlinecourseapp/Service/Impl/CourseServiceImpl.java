@@ -536,10 +536,6 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public ResponseHandling<List<CourseGetResponse>> filter(CourseFilterRequest courseFilterRequest) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        if (!courseFilterRequest.getIsNewest() && !courseFilterRequest.getIsPopular()
-        && courseFilterRequest.getCategories().isEmpty() && courseFilterRequest.getLevels().isEmpty()){
-            return getCourse();
-        }
 
         List<Category> categories = courseFilterRequest.getCategories().stream()
                 .map(categoriesFilterRequest -> categoryRepository.findByCategoryName(categoriesFilterRequest.getCategoryName()))
@@ -548,8 +544,8 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
 
         List<Course> courseList = new ArrayList<>();
-        if (courseFilterRequest.getCategories().isEmpty() && !courseFilterRequest.getIsPopular() && !courseFilterRequest.getIsNewest()) {
-            System.out.println("1");
+        if (!courseFilterRequest.getIsNewest() && !courseFilterRequest.getIsPopular()
+                && courseFilterRequest.getCategories().isEmpty() && courseFilterRequest.getLevels().isEmpty()) {
             courseList = courseRepository.findAll();
         }else {
             courseList = courseRepository.findFilteredCourses(categories, courseFilterRequest.getLevels(),
