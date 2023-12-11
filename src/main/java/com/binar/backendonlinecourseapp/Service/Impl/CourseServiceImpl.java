@@ -348,13 +348,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<GetPremiumClassResponse>> getPremiumClass() {
-        ResponseHandling<List<GetPremiumClassResponse>> response = new ResponseHandling<>();
+    public ResponseHandling<List<CourseGetResponse>> getPremiumClass() {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
         List<Course> courses = courseRepository.findPremiumCourses();
-        List<GetPremiumClassResponse> getPremiumClassResponses = courses.stream().map((p) -> {
-            GetPremiumClassResponse getPremiumClassResponse = new GetPremiumClassResponse();
+        List<CourseGetResponse> getPremiumClassResponses = courses.stream().map((p) -> {
+            CourseGetResponse getPremiumClassResponse = new CourseGetResponse();
             getPremiumClassResponse.setKodeKelas(p.getCourseCode());
             getPremiumClassResponse.setNamaKelas(p.getClassName());
+            getPremiumClassResponse.setImageUrl(p.getPictureUrl());
             getPremiumClassResponse.setKategori(p.getCategories().getCategoryName());
             getPremiumClassResponse.setLevel(p.getLevel());
             getPremiumClassResponse.setHarga(p.getPrice());
@@ -362,6 +363,7 @@ public class CourseServiceImpl implements CourseService {
             getPremiumClassResponse.setTipeKelas(p.getClassType());
             getPremiumClassResponse.setRating(p.getRating());
             getPremiumClassResponse.setModul(p.getModul());
+            getPremiumClassResponse.setModul(p.getTime());
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String outputDate = dateFormat.format(p.getPublish());
             getPremiumClassResponse.setPublish(outputDate);
@@ -383,17 +385,19 @@ public class CourseServiceImpl implements CourseService {
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());
             courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
             courseGetResponse.setKategori(p.getCategories().getCategoryName());
             courseGetResponse.setLevel(p.getLevel());
             courseGetResponse.setHarga(p.getPrice());
             courseGetResponse.setAuthor(p.getAuthor());
-            courseGetResponse.setTipeKelas(p.getClassType());
             courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setTime(p.getTime());
             courseGetResponse.setModul(p.getModul());
+            courseGetResponse.setTipeKelas(p.getClassType());
+
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String outputDate = dateFormat.format(p.getPublish());
             courseGetResponse.setPublish(outputDate);
-
             return courseGetResponse;
         }).collect(Collectors.toList());
 

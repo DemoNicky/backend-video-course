@@ -15,4 +15,6 @@ public class InsertVideoRequest {
 
     private String chapter;
 
+    private String chapterName;
+
 }
