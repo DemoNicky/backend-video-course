@@ -4,7 +4,6 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,4 +34,6 @@ public interface CourseService {
     ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass();
 
     ResponseHandling<List<CourseGetResponse>> filter(CourseFilterRequest courseFilterRequest);
+
+    ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 }
