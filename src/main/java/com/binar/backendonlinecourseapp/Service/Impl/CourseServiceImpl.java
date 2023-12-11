@@ -351,26 +351,26 @@ public class CourseServiceImpl implements CourseService {
     public ResponseHandling<List<CourseGetResponse>> getPremiumClass() {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
         List<Course> courses = courseRepository.findPremiumCourses();
-        List<CourseGetResponse> getPremiumClassResponses = courses.stream().map((p) -> {
-            CourseGetResponse getPremiumClassResponse = new CourseGetResponse();
-            getPremiumClassResponse.setKodeKelas(p.getCourseCode());
-            getPremiumClassResponse.setNamaKelas(p.getClassName());
-            getPremiumClassResponse.setImageUrl(p.getPictureUrl());
-            getPremiumClassResponse.setKategori(p.getCategories().getCategoryName());
-            getPremiumClassResponse.setLevel(p.getLevel());
-            getPremiumClassResponse.setHarga(p.getPrice());
-            getPremiumClassResponse.setAuthor(p.getAuthor());
-            getPremiumClassResponse.setTipeKelas(p.getClassType());
-            getPremiumClassResponse.setRating(p.getRating());
-            getPremiumClassResponse.setModul(p.getModul());
-            getPremiumClassResponse.setModul(p.getTime());
+        List<CourseGetResponse> courseGetResponsee = courses.stream().map((p) -> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setTime(p.getTime());
+            courseGetResponse.setModul(p.getModul());
+            courseGetResponse.setTipeKelas(p.getClassType());
+
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String outputDate = dateFormat.format(p.getPublish());
-            getPremiumClassResponse.setPublish(outputDate);
-
-            return getPremiumClassResponse;
+            courseGetResponse.setPublish(outputDate);
+            return courseGetResponse;
         }).collect(Collectors.toList());
-        response.setData(getPremiumClassResponses);
+        response.setData(courseGetResponsee);
         response.setMessage("success get data");
         response.setErrors(false);
 

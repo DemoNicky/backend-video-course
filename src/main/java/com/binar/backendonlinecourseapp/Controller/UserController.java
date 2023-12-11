@@ -107,7 +107,7 @@ public class UserController {
 
     }
 
-    @PutMapping(
+    @PostMapping(
             path = "/forgot-password",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
