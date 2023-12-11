@@ -21,7 +21,7 @@ public interface CourseService {
 
     ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory();
 
-    ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest);
+//    ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest);
 
     ResponseHandling<List<CourseGetResponse>> getPremiumClass();
 

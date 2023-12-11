@@ -26,11 +26,8 @@ public class Video {
 
     private Boolean premium;
 
-    @Column(name = "chapter", length = 20, nullable = false)
-    private String Chapter;
-
     @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @JoinColumn(name = "chapter_id")
+    private Chapter chapter;
 
 }

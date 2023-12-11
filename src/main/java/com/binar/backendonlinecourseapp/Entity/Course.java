@@ -1,5 +1,7 @@
 package com.binar.backendonlinecourseapp.Entity;
 
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -63,6 +65,6 @@ public class Course {
     private Category categories;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
-    private List<Video> videos;
+    private List<Chapter> chapters;
 
 }

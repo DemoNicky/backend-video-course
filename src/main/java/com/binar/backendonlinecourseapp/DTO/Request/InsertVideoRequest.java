@@ -13,6 +13,4 @@ public class InsertVideoRequest {
 
     private Boolean isPremium;
 
-    private String chapter;
-
 }
