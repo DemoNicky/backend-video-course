@@ -120,8 +120,8 @@ public class CourseController {
             path = "/get-premium",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<GetPremiumClassResponse>>>getFreeClass(){
-        ResponseHandling<List<GetPremiumClassResponse>> response = courseService.getPremiumClass();
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getPremiumClass();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -129,7 +129,7 @@ public class CourseController {
             path = "/get-free",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(){
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getFreelass(){
         ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -107,11 +107,33 @@ public class UserController {
 
     }
 
-//    @PutMapping(
-//            path = "/forgot-password",
-//            produces = MediaType.APPLICATION_JSON_VALUE
-//    )
-//    public ResponseEntity<ResponseHandling>
+    @PutMapping(
+            path = "/forgot-password",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<ForgetPasswordEmailResponse>>forgetPassword(@RequestParam String email){
+        ResponseHandling<ForgetPasswordEmailResponse> response = userService.forgetPassword(email);
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @PutMapping(
+            path = "/set-forgot-password",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<ForgetPasswordResponse>>setForgetPassword(@RequestParam String email,
+                                                                                     @RequestParam String code,
+                                                                                     @RequestParam String newPassword) throws Exception {
+        ResponseHandling<ForgetPasswordResponse> response = userService.setForgetPassword(email, code, newPassword);
+        if (response.getData()==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
 
     @PostMapping(
             path = "/update-profil-pic"

@@ -43,6 +43,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/api/users/login").permitAll()
                 .antMatchers("/api/users/register").permitAll()
                 .antMatchers("/api/users/otp/{code}").permitAll()
+                .antMatchers("/api/users/forgot-password").permitAll()
+                .antMatchers("/api/users/set-forgot-password").permitAll()
                 .antMatchers("/api/users/resend-otp/{email}").permitAll()
                 .antMatchers("/api/course/get-course").permitAll()
                 .antMatchers("/api/course/get-premium").permitAll()
@@ -70,6 +72,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get/get-in-progress").hasAuthority("USER")
                 .antMatchers("/api/course/get/get-finished").hasAuthority("USER")
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
+
 
 
 

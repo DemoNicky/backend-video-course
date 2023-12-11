@@ -28,4 +28,8 @@ public interface UserService {
     ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception;
 
     ResponseHandling<ChangeProfilePictureResponse> insertPicture(MultipartFile multipartFile);
+
+    ResponseHandling<ForgetPasswordEmailResponse> forgetPassword(String email);
+
+    ResponseHandling<ForgetPasswordResponse> setForgetPassword(String email, String code, String newPassword) throws Exception;
 }

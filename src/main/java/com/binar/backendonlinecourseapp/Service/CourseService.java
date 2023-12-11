@@ -24,7 +24,7 @@ public interface CourseService {
 
     ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest);
 
-    ResponseHandling<List<GetPremiumClassResponse>> getPremiumClass();
+    ResponseHandling<List<CourseGetResponse>> getPremiumClass();
 
     ResponseHandling<List<CourseGetResponse>> getFreeClass();
 
