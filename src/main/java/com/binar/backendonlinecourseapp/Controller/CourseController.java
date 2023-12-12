@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -42,8 +43,12 @@ public class CourseController {
             path = "/filter",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>filter(@RequestBody CourseFilterRequest courseFilterRequest) throws IOException {
-        ResponseHandling<List<CourseGetResponse>> response = courseService.filter(courseFilterRequest);
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>filter(@RequestParam Boolean isNewest,
+                                                                           @RequestParam Boolean isPopular,
+                                                                           @RequestParam List<String> category,
+                                                                           @RequestParam List<Level> level) throws IOException {
+
+        ResponseHandling<List<CourseGetResponse>> response = courseService.filter(isNewest, isPopular, category, level);
         if (response.getData()==null || response.getErrors() == true){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
