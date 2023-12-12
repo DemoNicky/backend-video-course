@@ -45,6 +45,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private UserVideoRepository userVideoRepository;
 
+    @Autowired
+    private ChapterRepository chapterRepository;
+
     private final Cloudinary cloudinary;
 
     @Transactional
@@ -97,18 +100,31 @@ public class CourseServiceImpl implements CourseService {
         course.setRating(formattedNumber);
 
         course.setModul(new Random().nextInt(10) + 1);
+
         courseRepository.save(course);
-        courseRequest.getInsertVideo().stream().map((p)->{
-            Video video = new Video();
-            video.setVideoCode(getUUIDCode());
-            video.setVideoTitle(p.getJudulVideo());
-            video.setVideoLink(p.getLinkVideo());
-            video.setPremium(p.getIsPremium());
-            video.setChapter(p.getChapter());
-            video.setCourse(course);
-            videoRepository.save(video);
-            return video;
+
+        courseRequest.getChapterInsertRequests().stream().map((p) -> {
+            Chapter chapter = new Chapter();
+            chapter.setChapterNumber(p.getChapterNumber());
+            chapter.setChaptertitle(p.getChaptertitle());
+            chapter.setCourse(course);
+
+            List<Video> videos = p.getInsertVideoRequests().stream().map((x) -> {
+                    Video video = new Video();
+                    video.setVideoCode(getUUIDCode());
+                    video.setVideoTitle(x.getJudulVideo());
+                    video.setVideoLink(x.getLinkVideo());
+                    video.setPremium(x.getIsPremium());
+                    video.setChapter(chapter);
+                    videoRepository.save(video);
+                    return video;
+                }).collect(Collectors.toList());
+
+            chapterRepository.save(chapter);
+
+            return chapter;
         }).collect(Collectors.toList());
+
 
         CourseCreateResponse courseCreateResponse = new CourseCreateResponse();
         courseCreateResponse.setNamaKelas(courseRequest.getNamaKelas());
@@ -224,21 +240,28 @@ public class CourseServiceImpl implements CourseService {
             getCourseResponse.setModul(courseGet.getModul());
             getCourseResponse.setDeskripsi(courseGet.getMateri());
 
-            List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
-                GetVideoResponse getVideoResponse = new GetVideoResponse();
-                getVideoResponse.setVideoCode(p.getVideoCode());
-                getVideoResponse.setJudulVideo(p.getVideoTitle());
-                if (p.getPremium()==true){
-                    getVideoResponse.setLinkVideo(null);
-                }else {
-                    getVideoResponse.setLinkVideo(p.getVideoLink());
-                }
-                getVideoResponse.setPremium(p.getPremium());
-                getVideoResponse.setChapter(p.getChapter());
-                return getVideoResponse;
+            List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
+                GetChapterResponse getChapterResponse = new GetChapterResponse();
+                getChapterResponse.setNoChapter(p.getChapterNumber());
+                getChapterResponse.setJudulChapter(p.getChaptertitle());
+                List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
+                    GetVideoResponse getVideoResponse = new GetVideoResponse();
+                    getVideoResponse.setVideoCode(x.getVideoCode());
+                    getVideoResponse.setJudulVideo(x.getVideoTitle());
+                    if (x.getPremium()==true){
+                        getVideoResponse.setLinkVideo(null);
+                    }else {
+                        getVideoResponse.setLinkVideo(x.getVideoLink());
+                    }
+                    getVideoResponse.setPremium(x.getPremium());
+                    return getVideoResponse;
+                }).collect(Collectors.toList());
+                getChapterResponse.setGetVideoResponses(getVideoResponses);
+
+                return getChapterResponse;
             }).collect(Collectors.toList());
 
-            getCourseResponse.setGetVideoResponses(getVideoResponses);
+            getCourseResponse.setGetChapterResponses(getChapterResponses);
 
             response.setData(getCourseResponse);
             response.setMessage("successfully get data");
@@ -250,6 +273,7 @@ public class CourseServiceImpl implements CourseService {
         GetCourseResponse getCourseResponse = new GetCourseResponse();
         getCourseResponse.setKodeKelas(courseGet.getCourseCode());
         getCourseResponse.setNamaKelas(courseGet.getClassName());
+        getCourseResponse.setTime(courseGet.getTime());
         getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
         getCourseResponse.setLevel(courseGet.getLevel());
         getCourseResponse.setHarga(courseGet.getPrice());
@@ -257,17 +281,25 @@ public class CourseServiceImpl implements CourseService {
         getCourseResponse.setRating(courseGet.getRating());
         getCourseResponse.setModul(courseGet.getModul());
         getCourseResponse.setDeskripsi(courseGet.getMateri());
-        List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
-            GetVideoResponse getVideoResponse = new GetVideoResponse();
-            getVideoResponse.setVideoCode(p.getVideoCode());
-            getVideoResponse.setJudulVideo(p.getVideoTitle());
-            getVideoResponse.setLinkVideo(p.getVideoLink());
-            getVideoResponse.setPremium(p.getPremium());
-            getVideoResponse.setChapter(p.getChapter());
-            return getVideoResponse;
+
+        List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
+            GetChapterResponse getChapterResponse = new GetChapterResponse();
+            getChapterResponse.setNoChapter(p.getChapterNumber());
+            getChapterResponse.setJudulChapter(p.getChaptertitle());
+            List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
+                GetVideoResponse getVideoResponse = new GetVideoResponse();
+                getVideoResponse.setVideoCode(x.getVideoCode());
+                getVideoResponse.setJudulVideo(x.getVideoTitle());
+                getVideoResponse.setLinkVideo(x.getVideoLink());
+                getVideoResponse.setPremium(x.getPremium());
+                return getVideoResponse;
+            }).collect(Collectors.toList());
+            getChapterResponse.setGetVideoResponses(getVideoResponses);
+
+            return getChapterResponse;
         }).collect(Collectors.toList());
 
-        getCourseResponse.setGetVideoResponses(getVideoResponses);
+        getCourseResponse.setGetChapterResponses(getChapterResponses);
 
         response.setData(getCourseResponse);
         response.setMessage("successfully get data");
@@ -304,45 +336,45 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
-    @Override
-    public ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest) {
-        ResponseHandling<CourseUpdateResponse> response = new ResponseHandling<>();
-        Optional<Course> course = courseRepository.findByCourseCode(courseUpdateRequest.getKodeKelas());
-        if (!course.isPresent()){
-            response.setMessage("course not found");
-            response.setErrors(true);
-            return response;
-        }
-
-        Course course1 = course.get();
-
-        course1.setClassType(courseUpdateRequest.getTipeKelas());
-        course1.setLevel(courseUpdateRequest.getLevel());
-        course1.setPrice(courseUpdateRequest.getHarga());
-        course1.setMateri(courseUpdateRequest.getMateri());
-
-        Video video = new Video();
-        video.setVideoCode(getUUIDCode());
-        video.setVideoTitle(courseUpdateRequest.getJudulVideo());
-        video.setVideoLink(courseUpdateRequest.getLinkVideo());
-        video.setPremium(courseUpdateRequest.getIsPremium());
-        video.setChapter(courseUpdateRequest.getChapter());
-        video.setCourse(course1);
-        videoRepository.save(video);
-
-        courseRepository.save(course1);
-
-        CourseUpdateResponse courseUpdateResponse = new CourseUpdateResponse();
-        courseUpdateResponse.setNamaKelas(course1.getClassName());
-        courseUpdateResponse.setKategori(course1.getCategories().getCategoryName());
-        courseUpdateResponse.setKodeKelas(course1.getCourseCode());
-        courseUpdateResponse.setHarga(course1.getPrice());
-        courseUpdateResponse.setMateri(course1.getMateri());
-        response.setData(courseUpdateResponse);
-        response.setMessage("success update course");
-        response.setErrors(false);
-        return response;
-    }
+//    @Override
+//    public ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest) {
+//        ResponseHandling<CourseUpdateResponse> response = new ResponseHandling<>();
+//        Optional<Course> course = courseRepository.findByCourseCode(courseUpdateRequest.getKodeKelas());
+//        if (!course.isPresent()){
+//            response.setMessage("course not found");
+//            response.setErrors(true);
+//            return response;
+//        }
+//
+//        Course course1 = course.get();
+//
+//        course1.setClassType(courseUpdateRequest.getTipeKelas());
+//        course1.setLevel(courseUpdateRequest.getLevel());
+//        course1.setPrice(courseUpdateRequest.getHarga());
+//        course1.setMateri(courseUpdateRequest.getMateri());
+//
+//        Video video = new Video();
+//        video.setVideoCode(getUUIDCode());
+//        video.setVideoTitle(courseUpdateRequest.getJudulVideo());
+//        video.setVideoLink(courseUpdateRequest.getLinkVideo());
+//        video.setPremium(courseUpdateRequest.getIsPremium());
+//        video.setChapter(courseUpdateRequest.getChapter());
+//        video.setCourse(course1);
+//        videoRepository.save(video);
+//
+//        courseRepository.save(course1);
+//
+//        CourseUpdateResponse courseUpdateResponse = new CourseUpdateResponse();
+//        courseUpdateResponse.setNamaKelas(course1.getClassName());
+//        courseUpdateResponse.setKategori(course1.getCategories().getCategoryName());
+//        courseUpdateResponse.setKodeKelas(course1.getCourseCode());
+//        courseUpdateResponse.setHarga(course1.getPrice());
+//        courseUpdateResponse.setMateri(course1.getMateri());
+//        response.setData(courseUpdateResponse);
+//        response.setMessage("success update course");
+//        response.setErrors(false);
+//        return response;
+//    }
 
     @Override
     public ResponseHandling<List<CourseGetResponse>> getPremiumClass() {
@@ -415,7 +447,7 @@ public class CourseServiceImpl implements CourseService {
             userVideo.setIsWatched(true);
             userVideo.setUser(user.get());
             userVideo.setVideo(video.get());
-            userVideo.setCourse(video.get().getCourse());
+            userVideo.setCourse(course.get());
             userVideoRepository.save(userVideo);
         }
     }
@@ -459,7 +491,9 @@ public class CourseServiceImpl implements CourseService {
                 }
             }
 
-            int videoSize = p.getCourse().getVideos().size();
+            int videoSize = p.getCourse().getChapters().stream()
+                    .mapToInt(chapter -> chapter.getVideos().size())
+                    .sum();
             int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
             userWatchProgressResponse.setProgress(progressTotal);
 
@@ -511,7 +545,9 @@ public class CourseServiceImpl implements CourseService {
                 }
             }
 
-            int videoSize = p.getCourse().getVideos().size();
+            int videoSize = p.getCourse().getChapters().stream()
+                    .mapToInt(chapter -> chapter.getVideos().size())
+                    .sum();
             int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
             userWatchProgressResponse.setProgress(progressTotal);
 

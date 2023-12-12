@@ -15,6 +15,4 @@ public class GetVideoResponse {
 
     private boolean isPremium;
 
-    private String chapter;
-
 }

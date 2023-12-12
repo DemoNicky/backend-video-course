@@ -7,8 +7,6 @@ import lombok.Setter;
 @Setter
 public class UpdateDataRequest {
 
-    private String telp;
-
     private String nama;
 
     private String negara;

@@ -1,6 +1,6 @@
 package com.binar.backendonlinecourseapp.DTO.Response;
 
-import com.binar.backendonlinecourseapp.Entity.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,20 +11,8 @@ import java.util.List;
 @Setter
 public class PaymentResponse {
 
-    private String kodeKelas;
+    private String CourseCode;
 
-    private String namaKelas;
-
-    private String kategori;
-
-    private Level level;
-
-    private BigDecimal harga;
-
-    private String author;
-
-    private String deskripsi;
-
-    private List<GetVideoResponse> getVideoResponses;
+    private String statusPayment;
 
 }

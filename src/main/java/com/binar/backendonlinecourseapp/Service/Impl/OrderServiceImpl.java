@@ -99,25 +99,11 @@ public class OrderServiceImpl implements OrderService {
         order1.setPayTime(new Date());
         order1.setCompletePaid(true);
         orderRepository.save(order1);
-        Course courseGet = course.get();
+
         PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setKodeKelas(courseGet.getCourseCode());
-        paymentResponse.setNamaKelas(courseGet.getClassName());
-        paymentResponse.setKategori(courseGet.getCategories().getCategoryName());
-        paymentResponse.setLevel(courseGet.getLevel());
-        paymentResponse.setHarga(courseGet.getPrice());
-        paymentResponse.setAuthor(courseGet.getAuthor());
-        paymentResponse.setDeskripsi(courseGet.getMateri());
-        List<GetVideoResponse> getVideoResponses = courseGet.getVideos().stream().map((p)->{
-            GetVideoResponse getVideoResponse = new GetVideoResponse();
-            getVideoResponse.setVideoCode(p.getVideoCode());
-            getVideoResponse.setJudulVideo(p.getVideoTitle());
-            getVideoResponse.setLinkVideo(p.getVideoLink());
-            getVideoResponse.setPremium(p.getPremium());
-            getVideoResponse.setChapter(p.getChapter());
-            return getVideoResponse;
-        }).collect(Collectors.toList());
-        paymentResponse.setGetVideoResponses(getVideoResponses);
+        paymentResponse.setCourseCode(course.get().getCourseCode());
+        paymentResponse.setStatusPayment("success");
+
         response.setData(paymentResponse);
         response.setMessage("payment success");
         response.setErrors(false);

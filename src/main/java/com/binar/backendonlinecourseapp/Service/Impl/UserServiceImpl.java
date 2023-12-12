@@ -127,7 +127,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
         User changeUser = user.get();
-        changeUser.setTelp(updateDataRequest.getTelp());
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setNama(updateDataRequest.getNama());
         changeUser.setCountry(updateDataRequest.getNegara());
@@ -135,7 +134,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(changeUser);
 
         UpdateDataResponse updateDataResponse = new UpdateDataResponse();
-        updateDataResponse.setTelp(updateDataRequest.getTelp());
         updateDataResponse.setNama(updateDataRequest.getNama());
         updateDataResponse.setNegara(updateDataRequest.getNegara());
         updateDataResponse.setKota(updateDataRequest.getKota());
@@ -395,6 +393,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         response.setData(forgetPasswordResponse);
         response.setMessage("Your password has been changed");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<GetUserProfilePicture> getPictureUser() {
+        ResponseHandling<GetUserProfilePicture> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        GetUserProfilePicture getUserProfilePicture = new GetUserProfilePicture();
+        getUserProfilePicture.setImageUrl(user.get().getPictureUrl());
+        response.setData(getUserProfilePicture);
+        response.setMessage("success get user picture");
         response.setErrors(false);
         return response;
     }

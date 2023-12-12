@@ -60,18 +60,18 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body("sukses");
     }
 
-    @PutMapping(path = "/update",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<ResponseHandling<CourseUpdateResponse>>updateCourse(@RequestBody CourseUpdateRequest courseUpdateRequest){
-        ResponseHandling<CourseUpdateResponse> response = courseService.updateCourse(courseUpdateRequest);
-        if (response.getData() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-
-    }
+//    @PutMapping(path = "/update",
+//            consumes = MediaType.APPLICATION_JSON_VALUE,
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public ResponseEntity<ResponseHandling<CourseUpdateResponse>>updateCourse(@RequestBody CourseUpdateRequest courseUpdateRequest){
+//        ResponseHandling<CourseUpdateResponse> response = courseService.updateCourse(courseUpdateRequest);
+//        if (response.getData() == null){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//
+//    }
 
     @GetMapping(path = "/get-course",
             produces = MediaType.APPLICATION_JSON_VALUE

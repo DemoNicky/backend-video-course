@@ -1,7 +1,6 @@
 package com.binar.backendonlinecourseapp.DTO.Response;
 
-import com.binar.backendonlinecourseapp.Entity.ClassType;
-import com.binar.backendonlinecourseapp.Entity.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +31,6 @@ public class GetCourseResponse {
 
     private String deskripsi;
 
-    private List<GetVideoResponse> getVideoResponses;
+    private List<GetChapterResponse> getChapterResponses;
 
 }

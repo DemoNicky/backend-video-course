@@ -2,7 +2,7 @@ package com.binar.backendonlinecourseapp.Repository;
 
 import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Entity.Course;
-import com.binar.backendonlinecourseapp.Entity.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +31,7 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c WHERE c.classType = 'FREE'")
     List<Course> findFreeCourses();
 
-    @Query("SELECT c FROM Course c JOIN c.videos v WHERE v.videoCode = :videoCode")
+    @Query("SELECT c FROM Course c JOIN c.chapters ch JOIN ch.videos v WHERE v.videoCode = :videoCode")
     Optional<Course> findCourseByVideoCode(@Param("videoCode") String videoCode);
 
     @Query("SELECT c FROM Course c ORDER BY c.publish DESC")

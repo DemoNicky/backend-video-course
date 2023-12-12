@@ -1,7 +1,7 @@
 package com.binar.backendonlinecourseapp.DTO.Request;
 
-import com.binar.backendonlinecourseapp.Entity.ClassType;
-import com.binar.backendonlinecourseapp.Entity.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
 import lombok.Setter;
 

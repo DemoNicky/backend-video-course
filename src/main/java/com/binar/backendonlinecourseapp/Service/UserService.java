@@ -32,4 +32,6 @@ public interface UserService {
     ResponseHandling<ForgetPasswordEmailResponse> forgetPassword(String email);
 
     ResponseHandling<ForgetPasswordResponse> setForgetPassword(String email, String code, String newPassword) throws Exception;
+
+    ResponseHandling<GetUserProfilePicture> getPictureUser();
 }
