@@ -146,4 +146,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping(
+            path = "/get-user-profile-pic"
+    )
+    public ResponseEntity<ResponseHandling<GetUserProfilePicture>>getPictureUser(){
+        ResponseHandling<GetUserProfilePicture> response = userService.getPictureUser();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
 }

@@ -73,9 +73,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get/get-in-progress").hasAuthority("USER")
                 .antMatchers("/api/course/get/get-finished").hasAuthority("USER")
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
-
-
-
+                .antMatchers("/api/users/get-user-profile-pic").hasAuthority("USER")
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()

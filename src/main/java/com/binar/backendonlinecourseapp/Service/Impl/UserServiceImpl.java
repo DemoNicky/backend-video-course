@@ -399,6 +399,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return response;
     }
 
+    @Override
+    public ResponseHandling<GetUserProfilePicture> getPictureUser() {
+        ResponseHandling<GetUserProfilePicture> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        GetUserProfilePicture getUserProfilePicture = new GetUserProfilePicture();
+        getUserProfilePicture.setImageUrl(user.get().getPictureUrl());
+        response.setData(getUserProfilePicture);
+        response.setMessage("success get user picture");
+        response.setErrors(false);
+        return response;
+    }
+
     public void sendEmailSuccessChangePassword(String toEmail){
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("cokicilox@gmail.com");
