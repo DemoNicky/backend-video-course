@@ -30,7 +30,7 @@ public class CategoryController {
     @PostMapping(
             path = "/addpicture/{id}"
     )
-    public ResponseEntity<String>addPicture(@RequestHeader MultipartFile multipartFile, @PathVariable("id")Long id) throws IOException {
+    public ResponseEntity<String>addPicture(@RequestParam MultipartFile multipartFile, @PathVariable("id")Long id) throws IOException {
         String response = categoryService.addPicture(multipartFile, id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
