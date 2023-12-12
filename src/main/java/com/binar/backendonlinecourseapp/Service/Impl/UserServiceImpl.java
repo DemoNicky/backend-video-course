@@ -128,7 +128,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Optional<User> user = userRepository.findByEmail(email);
         User changeUser = user.get();
         changeUser.setNama(updateDataRequest.getNama());
-        changeUser.setNama(updateDataRequest.getNama());
         changeUser.setCountry(updateDataRequest.getNegara());
         changeUser.setCity(updateDataRequest.getKota());
         userRepository.save(changeUser);
