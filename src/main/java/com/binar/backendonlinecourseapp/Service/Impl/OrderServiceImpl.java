@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -68,6 +69,14 @@ public class OrderServiceImpl implements OrderService {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setCouresCode(course.get().getCourseCode());
         orderResponse.setOrderCode(order.getOrderCode());
+        orderResponse.setHarga(course.get().getPrice());
+        BigDecimal ppn = course.get().getPrice().multiply(BigDecimal.valueOf(0.11));
+        orderResponse.setPpn(ppn);
+        orderResponse.setTotalBayar(course.get().getPrice().add(ppn));
+
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
+        orderResponse.setExpiredDate(outputFormat.format(order.getExpired()));
+
 
         response.setData(orderResponse);
         response.setMessage("success create order");
