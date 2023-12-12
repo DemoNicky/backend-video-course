@@ -5,6 +5,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Repository.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import com.cloudinary.Cloudinary;
@@ -565,11 +566,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> filter(CourseFilterRequest courseFilterRequest) {
+    public ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular,
+                                                            List<String> category, List<Level> level){
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
 
-        List<Category> categories = courseFilterRequest.getCategories().stream()
-                .map(categoriesFilterRequest -> categoryRepository.findByCategoryName(categoriesFilterRequest.getCategoryName()))
+        CourseFilterRequest courseFilterRequest = new CourseFilterRequest();
+        courseFilterRequest.setIsNewest(isNewest);
+        courseFilterRequest.setIsPopular(isPopular);
+        courseFilterRequest.setCategories(category);
+        courseFilterRequest.setLevels(level);
+
+        List<Category> categories = category.stream()
+                .map(categoryRepository::findByCategoryName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());

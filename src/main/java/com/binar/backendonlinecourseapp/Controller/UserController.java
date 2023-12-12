@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -136,15 +137,18 @@ public class UserController {
     }
 
     @PostMapping(
-            path = "/update-profil-pic"
+            path = "/update-profil-pic",
+            consumes = "multipart/form-data",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<ChangeProfilePictureResponse>>changePicture(@RequestHeader MultipartFile multipartFile){
+    public ResponseEntity<ResponseHandling<ChangeProfilePictureResponse>> changePicture(@RequestParam MultipartFile multipartFile) {
         ResponseHandling<ChangeProfilePictureResponse> response = userService.insertPicture(multipartFile);
-        if (response.getData()==null){
+        if (response.getData() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
 
     @GetMapping(
             path = "/get-user-profile-pic"

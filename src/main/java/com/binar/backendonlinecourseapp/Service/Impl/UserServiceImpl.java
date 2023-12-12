@@ -197,7 +197,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             response.setMessage("success update profile picture");
             response.setErrors(false);
             return response;
-        }catch (IOException e) {
+        }catch (IOException | RuntimeException e) {
             e.printStackTrace();
         }
         response.setMessage("failed update picture");
@@ -216,7 +216,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             Optional<User> isUserByEmailExists = userRepository.findByEmail(registerRequest.getEmail());
             Optional<User> isUserByTelpExists = userRepository.findByTelp(registerRequest.getTelp());
             if (isUserByEmailExists.isPresent() || isUserByTelpExists.isPresent()) {
-                response.setMessage("email/telp number invalid");
+                response.setMessage("email/telp number already exists");    
                 response.setErrors(true);
                 return response;
             }

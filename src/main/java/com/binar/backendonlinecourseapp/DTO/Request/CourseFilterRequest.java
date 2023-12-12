@@ -17,7 +17,7 @@ public class CourseFilterRequest {
     @NotNull(message = "isPopular cannot be null")
     private Boolean isPopular;
 
-    private List<CategoriesFilterRequest> categories;
+    private List<String> categories;
 
     private List<Level> levels;
 }
