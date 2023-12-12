@@ -7,8 +7,6 @@ import lombok.Setter;
 @Setter
 public class UpdateDataResponse {
 
-    private String telp;
-
     private String nama;
 
     private String negara;
