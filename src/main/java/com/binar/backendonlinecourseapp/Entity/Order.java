@@ -6,7 +6,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Data
@@ -22,11 +21,11 @@ public class Order {
     private String orderCode;
 
     @Column(name = "order_time")
-    @JsonFormat(pattern = "dd-MM-yyyy hh:mm")
-    private Date date;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private Date orderDate;
 
     @Column(name = "pay_time")
-    @JsonFormat(pattern = "dd-MM-yyyy hh:mm")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date payTime;
 
     @Column(name = "expired")

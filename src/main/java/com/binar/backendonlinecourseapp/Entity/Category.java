@@ -17,6 +17,8 @@ public class Category {
     @Column(name = "category_name", length = 30, nullable = false, unique = true)
     private String categoryName;
 
+    private String pictureUrl;
+
     @OneToMany(mappedBy = "categories", cascade = CascadeType.ALL)
     private List<Course> courses;
 

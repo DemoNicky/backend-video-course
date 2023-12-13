@@ -3,7 +3,6 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 import com.binar.backendonlinecourseapp.DTO.Response.GetClassResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
 import com.binar.backendonlinecourseapp.Entity.Admin;
-import com.binar.backendonlinecourseapp.Entity.ClassType;
 import com.binar.backendonlinecourseapp.Repository.AdminRepository;
 import com.binar.backendonlinecourseapp.Service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;

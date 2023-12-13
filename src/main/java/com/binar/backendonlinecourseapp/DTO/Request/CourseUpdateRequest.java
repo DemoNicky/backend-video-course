@@ -6,15 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
-public class CourseCreateRequest {
-
-    private String namaKelas;
-
-    private String kategori;
+public class CourseUpdateRequest {
 
     private String kodeKelas;
 
@@ -26,5 +21,12 @@ public class CourseCreateRequest {
 
     private String materi;
 
-    private List<ChapterInsertRequest> chapterInsertRequests;
+    private String judulVideo;
+
+    private String linkVideo;
+
+    private Boolean isPremium;
+
+    private String chapter;
+
 }

@@ -11,10 +11,7 @@ public class InsertVideoRequest {
 
     private String linkVideo;
 
-    private String desc;
+    private Boolean isPremium;
 
-    private boolean isPremium;
-
-    private String chapter;
 
 }

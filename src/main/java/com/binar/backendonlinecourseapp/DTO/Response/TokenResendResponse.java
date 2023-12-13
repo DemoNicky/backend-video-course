@@ -8,4 +8,6 @@ import lombok.Setter;
 public class TokenResendResponse {
 
     private String email;
+
+    private String token;
 }

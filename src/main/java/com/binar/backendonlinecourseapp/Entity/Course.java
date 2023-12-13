@@ -1,11 +1,14 @@
 package com.binar.backendonlinecourseapp.Entity;
 
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -23,8 +26,12 @@ public class Course {
     @Column(name = "course_code", length = 10, nullable = false, unique = true)
     private String courseCode;
 
-    @Column(name = "class_name", length = 40, nullable = false, unique = true)
+    @Column(name = "class_name", length = 100, nullable = false, unique = true)
     private String className;
+
+    private String pictureUrl;
+
+    private Integer time;
 
     @Enumerated(EnumType.STRING)
     private Level level;
@@ -32,11 +39,16 @@ public class Course {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "teacher", nullable = false, length = 40)
-    private String teacher;
+    @Column(name = "teacher", nullable = false)
+    private String author;
 
-    @Column(name = "materi", nullable = false, length = 500)
+    @Column(name = "materi", nullable = false, length = 1000)
     private String materi;
+
+    @Max(value = 5, message = "Rating cannot be greater than 5.0")
+    private Double rating;
+
+    private Integer modul;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
     @DateTimeFormat(pattern = "dd-MM-yyyy")
@@ -53,6 +65,6 @@ public class Course {
     private Category categories;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
-    private List<Video> videos;
+    private List<Chapter> chapters;
 
 }

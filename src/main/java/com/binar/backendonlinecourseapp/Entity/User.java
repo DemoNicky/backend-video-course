@@ -17,14 +17,21 @@ public class User {
     @GeneratedValue(generator = "uuid")
     private String id;
 
+    private String pictureUrl;
     @Column(length = 100, nullable = false)
     private String nama;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, length = 20)
     private String telp;
+
+    @Column(length = 30)
+    private String country;
+
+    @Column(length = 40)
+    private String city;
 
     @Column(nullable = false, length = 60)
     private String password;
@@ -38,7 +45,7 @@ public class User {
             @JoinColumn(name = "USER_ID")
     },
             inverseJoinColumns = {
-            @JoinColumn(name = "ROLE_ID")
+                    @JoinColumn(name = "ROLE_ID")
             }
     )
     private Set<Role> roles;

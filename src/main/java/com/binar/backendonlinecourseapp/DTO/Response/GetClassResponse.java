@@ -1,6 +1,6 @@
 package com.binar.backendonlinecourseapp.DTO.Response;
 
-import com.binar.backendonlinecourseapp.Entity.ClassType;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import lombok.Builder;
 import lombok.Data;
 

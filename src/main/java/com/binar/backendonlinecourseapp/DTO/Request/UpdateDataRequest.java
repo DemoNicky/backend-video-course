@@ -9,12 +9,17 @@ public class UpdateDataRequest {
 
     private String nama;
 
-    private String email;
+    private String negara;
 
-    private String telp;
+    private String kota;
 
-    private String oldpassword;
 
-    private String newpassword;
+//    private String email;
+//
+//    private String telp;
+//
+//    private String oldpassword;
+//
+//    private String newpassword;
 
 }

@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
+import com.binar.backendonlinecourseapp.DTO.Request.ChangePasswordRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
@@ -12,17 +13,18 @@ import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
-import jdk.jpackage.internal.Log;
-import lombok.extern.log4j.Log4j;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,11 +33,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-
+import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -61,6 +66,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private final Cloudinary cloudinary;
+
+
     public ResponseHandling<LoginResponse> createJwtToken(LoginRequest jwtRequest) throws Exception {
         ResponseHandling<LoginResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(jwtRequest.getEmail());
@@ -77,16 +85,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             final UserDetails userDetails = loadUserByUsername(username);
 
-
-
             String newToken = jwtUtil.generateToken(userDetails);
 
-            response.setData(new LoginResponse(newToken));
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+            Set<String> authorityStrings = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+
+            String authoritiesString = String.join(",", authorityStrings);
+
+            response.setData(new LoginResponse(newToken, authoritiesString));
             response.setMessage("Authentication successful");
             response.setErrors(false);
         }catch (Exception e){
             response.setErrors(true);
-            response.setMessage("Authentication failed: " + e.getMessage());
+            response.setMessage("Invalid Email and Password Combination");
         }
         return response;
     }
@@ -97,9 +111,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Optional<User> user = userRepository.findByEmail(email);
         User user1 = user.get();
         ResponseGetUser responseGetUser = new ResponseGetUser();
+        responseGetUser.setUrlPicture(user1.getPictureUrl());
         responseGetUser.setNama(user1.getNama());
         responseGetUser.setEmail(user1.getEmail());
         responseGetUser.setTelp(user1.getTelp());
+        responseGetUser.setNegara(user1.getCountry());
+        responseGetUser.setKota(user1.getCity());
         return responseGetUser;
     }
 
@@ -109,55 +126,85 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         ResponseHandling<UpdateDataResponse> response = new ResponseHandling<>();
         String email = getAuth();
         Optional<User> user = userRepository.findByEmail(email);
+        User changeUser = user.get();
+        changeUser.setNama(updateDataRequest.getNama());
+        changeUser.setCountry(updateDataRequest.getNegara());
+        changeUser.setCity(updateDataRequest.getKota());
+        userRepository.save(changeUser);
 
-        if (passwordEncoder.matches(updateDataRequest.getOldpassword(), user.get().getPassword())){
+        UpdateDataResponse updateDataResponse = new UpdateDataResponse();
+        updateDataResponse.setNama(updateDataRequest.getNama());
+        updateDataResponse.setNegara(updateDataRequest.getNegara());
+        updateDataResponse.setKota(updateDataRequest.getKota());
+
+        response.setData(updateDataResponse);
+        response.setMessage("success update data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest) throws Exception {
+        ResponseHandling<ChangePasswordResponse> response = new ResponseHandling<>();
+        String email = getAuth();
+        Optional<User> user = userRepository.findByEmail(email);
+        if (passwordEncoder.matches(changePasswordRequest.getOldpassword(), user.get().getPassword())) {
             User changeUser = user.get();
-            changeUser.setNama(updateDataRequest.getNama());
-            if (userRepository.findByEmail(updateDataRequest.getEmail()).isPresent()){
-                if (updateDataRequest.getEmail().equals(user.get().getEmail()) || updateDataRequest.getEmail() == user.get().getEmail()){
-                    changeUser.setEmail(updateDataRequest.getEmail());
-                }else {
-                    response.setMessage("email is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            if (userRepository.findByTelp(updateDataRequest.getTelp()).isPresent()){
-                if (updateDataRequest.getTelp().equals(user.get().getTelp()) ||updateDataRequest.getTelp() == user.get().getTelp()){
-                    changeUser.setTelp(updateDataRequest.getTelp());
-                }else {
-                    response.setMessage("telp is already exists");
-                    response.setErrors(true);
-                    return response;
-                }
-            }
-            String encodePasswordd = encodePasswordMethod(updateDataRequest.getNewpassword());
+
+            String encodePasswordd = encodePasswordMethod(changePasswordRequest.getNewpassword());
+
             changeUser.setPassword(encodePasswordd);
+
             userRepository.save(changeUser);
 
-            UpdateDataResponse updateDataResponse = new UpdateDataResponse();
-            updateDataResponse.setNama(updateDataRequest.getNama());
-            updateDataResponse.setEmail(updateDataRequest.getEmail());
-            updateDataResponse.setTelp(updateDataRequest.getTelp());
+            ChangePasswordResponse changePasswordResponse = new ChangePasswordResponse();
 
             LoginRequest loginRequest = new LoginRequest();
             loginRequest.setEmail(changeUser.getEmail());
-            loginRequest.setPassword(updateDataRequest.getNewpassword());
+            loginRequest.setPassword(changePasswordRequest.getNewpassword());
 
-            updateDataResponse.setToken(createJwtToken(loginRequest).getData().getToken());
-
-            response.setData(updateDataResponse);
-            response.setMessage("success update data");
+            changePasswordResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+            response.setData(changePasswordResponse);
+            response.setMessage("success update password");
             response.setErrors(false);
-
             return response;
-
         }else {
-            response.setMessage("cant update data wrong old password");
+            response.setMessage("old Password is wrong");
             response.setErrors(true);
             return response;
         }
     }
+
+    @Override
+    public ResponseHandling<ChangeProfilePictureResponse> insertPicture(MultipartFile multipartFile) {
+        ResponseHandling<ChangeProfilePictureResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        try {
+            Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
+            String imageUrl = result.get("url").toString();
+
+            User userChange = user.get();
+            userChange.setPictureUrl(imageUrl);
+            userRepository.save(userChange);
+
+            ChangeProfilePictureResponse changeProfilePictureResponse = new ChangeProfilePictureResponse();
+            changeProfilePictureResponse.setUrl(imageUrl);
+
+            response.setData(changeProfilePictureResponse);
+            response.setMessage("success update profile picture");
+            response.setErrors(false);
+            return response;
+        }catch (IOException | RuntimeException e) {
+            e.printStackTrace();
+        }
+        response.setMessage("failed update picture");
+        response.setErrors(true);
+
+        return response;
+    }
+
 
     @Transactional
     @Override
@@ -168,12 +215,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             Optional<User> isUserByEmailExists = userRepository.findByEmail(registerRequest.getEmail());
             Optional<User> isUserByTelpExists = userRepository.findByTelp(registerRequest.getTelp());
             if (isUserByEmailExists.isPresent() || isUserByTelpExists.isPresent()) {
-                response.setMessage("email/telp number invalid");
+                response.setMessage("email/telp number already exists");
                 response.setErrors(true);
                 return response;
             }
 
+            final String url = "http://res.cloudinary.com/duzctbrt5/image/upload/v1701317552/ittcwcftomal7kgpspg7.jpg";
+
             User user = new User();
+            user.setPictureUrl(url);
             user.setNama(registerRequest.getNama());
             user.setEmail(registerRequest.getEmail());
             user.setTelp(registerRequest.getTelp());
@@ -216,48 +266,42 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public ResponseHandling<TokenResponse> tokenCheck(String code, String email) throws Exception {
+    public ResponseHandling<TokenResponse> tokenCheck(String code) throws Exception {
         ResponseHandling<TokenResponse> response = new ResponseHandling<>();
 
         Optional<Token> token1 = tokenRepository.findByToken(code);
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(token1.get().getUser().getEmail());
 
-        if (token1.isPresent()){
-            if (token1.get().getUser().getEmail() == email || token1.get().getUser().getEmail().equals(email)){
-                if (!token1.get().getExpired().before(new Date())){
-                    User user1 = user.get();
+        if (!token1.isPresent()){
+            response.setMessage("token is invalid");
+            response.setErrors(true);
+            return response;
+        }else {
+            if (!token1.get().getExpired().before(new Date())){
+                User user1 = user.get();
 
-                    LoginRequest loginRequest = new LoginRequest();
-                    loginRequest.setEmail(user1.getEmail());
-                    loginRequest.setPassword(user1.getPassword());
+                LoginRequest loginRequest = new LoginRequest();
+                loginRequest.setEmail(user1.getEmail());
+                loginRequest.setPassword(user1.getPassword());
 
-                    user1.setActive(true);
-                    String password = encodePasswordMethod(user1.getPassword());
-                    user1.setPassword(password);
-                    userRepository.save(user1);
+                user1.setActive(true);
+                String password = encodePasswordMethod(user1.getPassword());
+                user1.setPassword(password);
+                userRepository.save(user1);
 
-                    TokenResponse tokenResponse = new TokenResponse();
-                    tokenResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+                TokenResponse tokenResponse = new TokenResponse();
+                tokenResponse.setToken(createJwtToken(loginRequest).getData().getToken());
 
-                    tokenRepository.delete(token1.get());
-                    response.setData(tokenResponse);
-                    response.setMessage("account active");
-                    response.setErrors(false);
-                    return response;
-                }else {
-                    response.setMessage("token is invalid");
-                    response.setErrors(true);
-                    return response;
-                }
+                tokenRepository.delete(token1.get());
+                response.setData(tokenResponse);
+                response.setMessage("account active");
+                response.setErrors(false);
+                return response;
             }else {
                 response.setMessage("token is invalid");
                 response.setErrors(true);
                 return response;
             }
-        }else {
-            response.setMessage("token is invalid");
-            response.setErrors(true);
-            return response;
         }
     }
 
@@ -279,11 +323,114 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         sendEmail(email, otp1);
         TokenResendResponse resendResponse = new TokenResendResponse();
+        resendResponse.setToken(otp1);
         resendResponse.setEmail(email);
         response.setData(resendResponse);
         response.setMessage("token already sent");
         response.setErrors(false);
         return response;
+    }
+
+    @Override
+    public ResponseHandling<ForgetPasswordEmailResponse> forgetPassword(String email) {
+        ResponseHandling<ForgetPasswordEmailResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Token> token2 = tokenRepository.findByUserEmail(email);
+        if (!user.isPresent()){
+            response.setMessage("user with email " + email + " not found");
+            response.setErrors(true);
+        }
+        if (token2.isPresent()){
+            tokenRepository.delete(token2.get());
+        }
+        int otp = getNumericCode();
+        String token1 = String.valueOf(otp);
+        sendEmailForgetPassword(email, token1);
+        Token token = new Token();
+        token.setToken(token1);
+        token.setUser(user.get());
+        token.setExpired(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        tokenRepository.save(token);
+        ForgetPasswordEmailResponse forgetPasswordEmailResponse = new ForgetPasswordEmailResponse();
+        forgetPasswordEmailResponse.setEmail(email);
+        response.setData(forgetPasswordEmailResponse);
+        response.setMessage("Your email has been successfully verified. Please check your email message");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<ForgetPasswordResponse> setForgetPassword(String email, String code, String newPassword) throws Exception {
+        ResponseHandling<ForgetPasswordResponse> response = new ResponseHandling<>();
+        Optional<Token> token = tokenRepository.findByToken(code);
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!token.isPresent()){
+            response.setMessage("code invalid");
+            response.setErrors(true);
+            return response;
+        }
+        if (token.get().getUser() != user.get()){
+            response.setMessage("email and code invalid");
+            response.setErrors(true);
+            return response;
+        }
+        User user1 = user.get();
+        String password = encodePasswordMethod(newPassword);
+        user1.setPassword(password);
+        userRepository.save(user1);
+
+        tokenRepository.delete(token.get());
+
+        sendEmailSuccessChangePassword(email);
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(newPassword);
+        ForgetPasswordResponse forgetPasswordResponse = new ForgetPasswordResponse();
+        forgetPasswordResponse.setToken(createJwtToken(loginRequest).getData().getToken());
+
+        response.setData(forgetPasswordResponse);
+        response.setMessage("Your password has been changed");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<GetUserProfilePicture> getPictureUser() {
+        ResponseHandling<GetUserProfilePicture> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        GetUserProfilePicture getUserProfilePicture = new GetUserProfilePicture();
+        getUserProfilePicture.setImageUrl(user.get().getPictureUrl());
+        response.setData(getUserProfilePicture);
+        response.setMessage("success get user picture");
+        response.setErrors(false);
+        return response;
+    }
+
+    public void sendEmailSuccessChangePassword(String toEmail){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("cokicilox@gmail.com");
+        message.setTo(toEmail);
+        message.setText(
+                "Congratulations! Your password has been changed successfully. Please use your new password to log in"
+        );
+        message.setSubject("Your password has been successfully updated");
+        javaMailSender.send(message);
+    }
+
+    public void sendEmailForgetPassword(String toEmail, String code){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("cokicilox@gmail.com");
+        message.setTo(toEmail);
+        message.setText(String.format(
+                "Someone requested that the password be reset for the following account\n" +
+                        "To reset your password, visit the following address: \n\n" +
+                        "http://localhost:5173/reset-password?email=%s&code=%s", toEmail, code) +
+                "\n\n Do not share this link with anyone."
+        );
+        message.setSubject("Binar Course Reset Password!!!");
+        javaMailSender.send(message);
     }
 
     public void sendEmail(String toEmail, String otp){
@@ -314,7 +461,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username).get();
+        User user = userRepository.findUserByEmailOrtelp(username).get();
         if (user != null){
             return new org.springframework.security.core.userdetails.User(
                     user.getEmail(), user.getPassword(),getAuthorities(user)

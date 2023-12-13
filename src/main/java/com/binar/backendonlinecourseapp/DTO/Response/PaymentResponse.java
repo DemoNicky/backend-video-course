@@ -5,12 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateDataResponse {
+public class PaymentResponse {
 
-    private String nama;
+    private String CourseCode;
 
-    private String negara;
-
-    private String kota;
+    private String statusPayment;
 
 }

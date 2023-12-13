@@ -5,12 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateDataResponse {
+public class GetUserProfilePicture {
 
-    private String nama;
-
-    private String negara;
-
-    private String kota;
+    private String imageUrl;
 
 }
