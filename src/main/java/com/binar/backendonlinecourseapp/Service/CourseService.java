@@ -1,10 +1,9 @@
 package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,9 +13,9 @@ public interface CourseService {
 
     ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseCreateRequest, MultipartFile file) throws IOException;
 
-    ResponseHandling<List<CourseGetResponse>> getCourse();
+    ResponseHandling<List<CourseGetResponse>> getCourse(Integer page);
 
-    ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName);
+    ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName, Integer page);
 
     ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode);
 
@@ -37,4 +36,5 @@ public interface CourseService {
     ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 
     ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, List<String> category, List<Level> level);
+
 }

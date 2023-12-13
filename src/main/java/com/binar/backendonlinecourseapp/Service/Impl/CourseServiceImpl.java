@@ -2,7 +2,6 @@ package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
@@ -12,6 +11,9 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -146,9 +148,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> getCourse() {
+    public ResponseHandling<List<CourseGetResponse>> getCourse(Integer page) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        List<Course> course = courseRepository.findAll();
+        List<Course> course;
+
+        if (page == null) {
+            course = courseRepository.findAll();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findAll(pageable);
+            course = coursePage.getContent();
+        }
+
         if (course.isEmpty() || course == null){
             response.setMessage("course data is null");
             response.setErrors(true);
@@ -181,9 +192,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName) {
+    public ResponseHandling<List<CourseGetResponse>> searchCourse(String courseName, Integer page) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        List<Course> courses = courseRepository.findByClassNameOrTeacherJPQL(courseName);
+        List<Course> courses;
+
+        if (page == null) {
+            courses = courseRepository.findByClassNameOrTeacherJPQL(courseName);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findByClassNameOrTeacherJPQLPage(courseName, pageable);
+            courses = coursePage.getContent();
+        }
         if (courses.isEmpty()){
             response.setMessage("course not found");
             response.setErrors(true);
@@ -615,6 +634,8 @@ public class CourseServiceImpl implements CourseService {
         response.setErrors(false);
         return response;
     }
+
+
 
     @Override
     public ResponseHandling<List<CourseGetResponse>> getPopularClass(String category) {

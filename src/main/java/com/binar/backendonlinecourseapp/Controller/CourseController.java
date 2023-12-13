@@ -81,8 +81,9 @@ public class CourseController {
     @GetMapping(path = "/get-course",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getCourse(){
-        ResponseHandling<List<CourseGetResponse>> response =courseService.getCourse();
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getCourse(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getCourse(page);
+
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -92,8 +93,9 @@ public class CourseController {
     @GetMapping(path = "/search/{course}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName){
-        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName);
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName,
+                                                                                    @RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName, page);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
