@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -122,32 +121,34 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public ResponseHandling<List<GetUserResponse>> getActiveUser() {
-        try {
-            List<User> activeUser = userRepository.findByActiveTrue();
-            List<GetUserResponse> response = activeUser.stream()
-                    .map(this::mapToGetUserResponse)
-                    .collect(Collectors.toList());
 
-            return ResponseHandling.<List<GetUserResponse>>builder()
-                    .data(response)
-                    .message("Success Get Active User")
-                    .errors(false)
-                    .build();
-        }
-        catch (Exception e) {
-            return ResponseHandling.<List<GetUserResponse>>builder()
-                    .data(null)
-                    .message("Failed To Retrieve Active User")
-                    .errors(true)
-                    .build();
-        }
-    }
+        ResponseHandling<List<GetUserResponse>> response = new ResponseHandling<>();
+        List<User> activeUser = userRepository.findByActiveTrue();
+        Integer count;
 
-    private GetUserResponse mapToGetUserResponse(User user) {
-        return GetUserResponse.builder()
-                .nama(user.getNama())
-                .active(user.getActive())
-                .build();
+        if(activeUser.isEmpty()) {
+            activeUser = userRepository.findAll();
+            if(activeUser.isEmpty()) {
+                response.setMessage("user data is null");
+                response.setErrors(true);
+                return response;
+            }
+            count = activeUser.size();
+        }
+        else {
+            count = activeUser.size();
+        }
+
+        List<GetUserResponse> getUserResponses = activeUser.stream().map((p)->{
+            GetUserResponse getUserResponse = new GetUserResponse();
+            getUserResponse.setActiveUser(count);
+            return getUserResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(getUserResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
     }
 
     private String getAuth() {
