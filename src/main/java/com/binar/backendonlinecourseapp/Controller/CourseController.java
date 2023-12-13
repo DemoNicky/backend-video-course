@@ -39,7 +39,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping(
+    @GetMapping(
             path = "/filter",
             produces = MediaType.APPLICATION_JSON_VALUE
     )

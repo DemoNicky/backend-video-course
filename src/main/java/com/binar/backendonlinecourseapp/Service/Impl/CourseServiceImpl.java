@@ -484,11 +484,12 @@ public class CourseServiceImpl implements CourseService {
             response.setErrors(true);
             return response;
         }
-        if (!userVideo.isPresent()){
+        if (!userVideo.isPresent()) {
             response.setMessage("user never learnnnnn");
             response.setErrors(true);
             return response;
         }
+
         List<UserWatchProgressResponse> responses = order.get().stream().map((p)->{
             UserWatchProgressResponse userWatchProgressResponse = new UserWatchProgressResponse();
             userWatchProgressResponse.setKodeKelas(p.getCourse().getCourseCode());
