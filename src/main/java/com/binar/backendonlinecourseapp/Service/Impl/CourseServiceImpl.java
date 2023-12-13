@@ -254,6 +254,33 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
+    public ResponseHandling<List<GetPremiumClassResponse>> getCountPremiumClass() {
+        ResponseHandling<List<GetPremiumClassResponse>> response = new ResponseHandling<>();
+        List<Course> premiumCourse = courseRepository.findPremiumCourses();
+        Integer count;
+
+        if(premiumCourse.isEmpty()) {
+            response.setMessage("premium class is null");
+            response.setErrors(true);
+            return response;
+        }
+        else {
+            count = premiumCourse.size();
+        }
+
+        List<GetPremiumClassResponse> getClassResponses = premiumCourse.stream().map((p)->{
+            GetPremiumClassResponse getClassResponse = new GetPremiumClassResponse();
+            getClassResponse.setCountPremiumClass(count);
+            return getClassResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(getClassResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
     private String getAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

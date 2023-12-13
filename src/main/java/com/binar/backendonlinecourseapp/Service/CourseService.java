@@ -18,4 +18,6 @@ public interface CourseService {
 
     ResponseHandling<List<GetClassResponse>> getActiveClass();
 
+    ResponseHandling<List<GetPremiumClassResponse>> getCountPremiumClass();
+
 }

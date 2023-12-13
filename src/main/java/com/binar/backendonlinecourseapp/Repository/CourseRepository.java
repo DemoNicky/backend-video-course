@@ -20,6 +20,9 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
     Optional<Course> findByClassName(String code);
 
+    @Query("SELECT c FROM Course c WHERE c.classType = 'PREMIUM'")
+    List<Course> findPremiumCourses();
+
     @Query("SELECT c FROM Course c WHERE c.className LIKE %:searchTerm% OR c.author LIKE %:searchTerm%")
     Page<Course> findByClassNameOrTeacherJPQL(@Param("searchTerm") String searchTerm, Pageable pageable);
 }

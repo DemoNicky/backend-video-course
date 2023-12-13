@@ -75,4 +75,13 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping(path = "/premium-classes")
+    public ResponseEntity<ResponseHandling<List<GetPremiumClassResponse>>>getCountPremiumClass(){
+        ResponseHandling<List<GetPremiumClassResponse>> response = courseService.getCountPremiumClass();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
