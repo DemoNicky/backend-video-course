@@ -227,6 +227,33 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
+    public ResponseHandling<List<GetClassResponse>> getActiveClass() {
+        ResponseHandling<List<GetClassResponse>> response = new ResponseHandling<>();
+        List<Course> activeCourse = courseRepository.findAll();
+        Integer count;
+
+        if(activeCourse.isEmpty()) {
+            response.setMessage("class data is null");
+            response.setErrors(true);
+            return response;
+        }
+        else {
+            count = activeCourse.size();
+        }
+
+        List<GetClassResponse> getClassResponses = activeCourse.stream().map((p)->{
+            GetClassResponse getClassResponse = new GetClassResponse();
+            getClassResponse.setActiveClass(count);
+            return getClassResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(getClassResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
     private String getAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

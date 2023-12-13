@@ -66,4 +66,13 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping(path = "/active-classes")
+    public ResponseEntity<ResponseHandling<List<GetClassResponse>>>getActiveClass(){
+        ResponseHandling<List<GetClassResponse>> response = courseService.getActiveClass();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

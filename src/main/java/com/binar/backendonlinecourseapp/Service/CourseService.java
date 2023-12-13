@@ -16,4 +16,6 @@ public interface CourseService {
 
     ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode);
 
+    ResponseHandling<List<GetClassResponse>> getActiveClass();
+
 }
