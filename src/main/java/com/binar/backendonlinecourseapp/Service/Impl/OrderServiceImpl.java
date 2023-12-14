@@ -1,16 +1,18 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
 import com.binar.backendonlinecourseapp.DTO.Request.OrderRequest;
-import com.binar.backendonlinecourseapp.DTO.Response.GetVideoResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.OrderResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.PaymentResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
 import com.binar.backendonlinecourseapp.Entity.Course;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Order;
 import com.binar.backendonlinecourseapp.Entity.User;
+import com.binar.backendonlinecourseapp.Entity.UserWallet;
 import com.binar.backendonlinecourseapp.Repository.CourseRepository;
 import com.binar.backendonlinecourseapp.Repository.OrderRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
+import com.binar.backendonlinecourseapp.Repository.UserWalletRepository;
 import com.binar.backendonlinecourseapp.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,10 +25,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -39,6 +39,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UserWalletRepository userWalletRepository;
 
     @Override
     public ResponseHandling<OrderResponse> createOrder(OrderRequest orderRequest) throws ParseException {
@@ -67,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setCouresCode(course.get().getCourseCode());
+        orderResponse.setCourseCode(course.get().getCourseCode());
         orderResponse.setOrderCode(order.getOrderCode());
         orderResponse.setHarga(course.get().getPrice());
         BigDecimal ppn = course.get().getPrice().multiply(BigDecimal.valueOf(0.11));
@@ -87,8 +90,23 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ResponseHandling<PaymentResponse> payCourse(String ordercode) {
+    public ResponseHandling<PaymentResponse> payCourse(String ordercode, String cardNumber,
+                                                       CardType cardType) {
         ResponseHandling<PaymentResponse> response = new ResponseHandling<>();
+
+        Optional<UserWallet> userWallet = userWalletRepository.findByCardNumber(cardNumber);
+
+        if (!userWallet.isPresent()){
+            response.setMessage("Your payment has been declined due to an invalid card");
+            response.setErrors(true);
+            return response;
+        }
+
+        if (userWallet.get().getCardType() != cardType){
+            response.setMessage("Your payment has been declined due to an invalid card");
+            response.setErrors(true);
+            return response;
+        }
 
         if (!orderRepository.findOrderByOrderCode(ordercode).isPresent()){
             response.setMessage("payment is failed because code not found");
@@ -98,16 +116,31 @@ public class OrderServiceImpl implements OrderService {
 
         Optional<Order> order = orderRepository.findOrderByOrderCode(ordercode);
         Optional<Course> course = courseRepository.findById(order.get().getCourse().getId());
+
         if (order.get().getExpired().before(new Date())){
             orderRepository.deleteById(order.get().getId());
             response.setMessage("payment is failed because payment is expired");
             response.setErrors(true);
             return response;
         }
+        BigDecimal ppn = course.get().getPrice().multiply(BigDecimal.valueOf(0.11));
+        if (course.get().getPrice().add(ppn).compareTo(userWallet.get().getUserBalance()) >= 0){
+            response.setMessage("Payment failed. Insufficient balance in your account.");
+            response.setErrors(true);
+            return response;
+        }
+
         Order order1 = order.get();
         order1.setPayTime(new Date());
         order1.setCompletePaid(true);
+        order1.setPaymentMethod(userWallet.get().getCardType());
+        order1.setPaymentTotal(course.get().getPrice().add(ppn));
         orderRepository.save(order1);
+
+        UserWallet userWallet1 = userWallet.get();
+        BigDecimal userAmount = userWallet.get().getUserBalance().subtract(course.get().getPrice().add(ppn));
+        userWallet1.setUserBalance(userAmount);
+        userWalletRepository.save(userWallet1);
 
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setCourseCode(course.get().getCourseCode());

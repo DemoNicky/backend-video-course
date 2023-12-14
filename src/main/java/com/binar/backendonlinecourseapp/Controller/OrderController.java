@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.OrderRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.OrderResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.PaymentResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,11 +34,13 @@ public class OrderController {
     }
 
     @PostMapping(
-            path = "/{ordercode}",
+            path = "/payment",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<PaymentResponse>>payCourse(@PathVariable("ordercode")String ordercode){
-        ResponseHandling<PaymentResponse> response = orderService.payCourse(ordercode);
+    public ResponseEntity<ResponseHandling<PaymentResponse>>payCourse(@RequestParam String ordercode,
+                                                                      @RequestParam String cardNumber,
+                                                                      @RequestParam CardType cardType){
+        ResponseHandling<PaymentResponse> response = orderService.payCourse(ordercode, cardNumber, cardType);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }

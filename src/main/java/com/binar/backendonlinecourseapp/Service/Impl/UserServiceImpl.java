@@ -5,12 +5,15 @@ import com.binar.backendonlinecourseapp.DTO.Request.LoginRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.RegisterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.UpdateDataRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Role;
 import com.binar.backendonlinecourseapp.Entity.Token;
 import com.binar.backendonlinecourseapp.Entity.User;
+import com.binar.backendonlinecourseapp.Entity.UserWallet;
 import com.binar.backendonlinecourseapp.Repository.RoleRepository;
 import com.binar.backendonlinecourseapp.Repository.TokenRepository;
 import com.binar.backendonlinecourseapp.Repository.UserRepository;
+import com.binar.backendonlinecourseapp.Repository.UserWalletRepository;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import com.binar.backendonlinecourseapp.Util.JwtUtil;
 import com.cloudinary.Cloudinary;
@@ -36,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -63,6 +67,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserWalletRepository userWalletRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -406,6 +413,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         response.setMessage("success get user picture");
         response.setErrors(false);
         return response;
+    }
+
+    @Override
+    public String addUserBalance(BigDecimal balance, String cardnumber, CardType cardType) {
+        UserWallet userWallet1 = new UserWallet();
+        userWallet1.setCardNumber(cardnumber);
+        userWallet1.setUserBalance(balance);
+        userWallet1.setCardType(cardType);
+        userWalletRepository.save(userWallet1);
+        return "successfully create bank account";
     }
 
     public void sendEmailSuccessChangePassword(String toEmail){
