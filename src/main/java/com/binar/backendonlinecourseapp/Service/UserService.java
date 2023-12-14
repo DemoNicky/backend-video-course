@@ -9,7 +9,10 @@ import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 
 public interface UserService {
 
@@ -34,4 +37,6 @@ public interface UserService {
     ResponseHandling<ForgetPasswordResponse> setForgetPassword(String email, String code, String newPassword) throws Exception;
 
     ResponseHandling<GetUserProfilePicture> getPictureUser();
+
+    String addUserBalance(BigDecimal balance, String cardnumber, CardType cardType);
 }

@@ -10,7 +10,7 @@ import java.util.Date;
 @Setter
 public class OrderResponse {
 
-    private String couresCode;
+    private String courseCode;
 
     private String orderCode;
 

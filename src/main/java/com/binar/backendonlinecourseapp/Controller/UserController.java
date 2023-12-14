@@ -8,6 +8,7 @@ import com.binar.backendonlinecourseapp.DTO.Response.LoginResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.RegisterResponse;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseGetUser;
 import com.binar.backendonlinecourseapp.DTO.Response.ResponseHandling;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.User;
 import com.binar.backendonlinecourseapp.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/users")
@@ -160,4 +162,13 @@ public class UserController {
 
     }
 
+    @PostMapping(
+            path = "/create-bank-account"
+    )
+    public ResponseEntity<String>addUserbalance(@RequestParam BigDecimal balance,
+                                                @RequestParam String cardnumber,
+                                                @RequestParam CardType cardType){
+        String response = userService.addUserBalance(balance, cardnumber, cardType);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

@@ -1,10 +1,12 @@
 package com.binar.backendonlinecourseapp.Entity;
 
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -33,6 +35,11 @@ public class Order {
     private Date expired;
 
     private Boolean completePaid;
+
+    @Enumerated(EnumType.STRING)
+    private CardType paymentMethod;
+
+    private BigDecimal paymentTotal;
 
     @ManyToOne
     @JoinColumn(name = "course_id", referencedColumnName = "id")

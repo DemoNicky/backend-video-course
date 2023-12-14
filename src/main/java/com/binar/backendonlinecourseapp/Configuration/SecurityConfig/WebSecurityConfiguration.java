@@ -66,7 +66,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users").hasAuthority("USER")
                 .antMatchers("/api/course/get/{course}").hasAuthority("USER")
                 .antMatchers("/api/order").hasAuthority("USER")
-                .antMatchers("/api/order/{ordercode}").hasAuthority("USER")
+                .antMatchers("/api/order/payment").hasAuthority("USER")
                 .antMatchers("/api/users/update-profil-pic").hasAuthority("USER")
                 .antMatchers("/api/course/payment-history").hasAuthority("USER")
                 .antMatchers("/api/course/watched/{video}").hasAuthority("USER")
@@ -74,6 +74,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get/get-finished").hasAuthority("USER")
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
                 .antMatchers("/api/users/get-user-profile-pic").hasAuthority("USER")
+                .antMatchers("/api/users/create-bank-account").hasAuthority("USER")
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()
