@@ -22,6 +22,8 @@ public class Chapter {
     @Column(length = 30, nullable = false)
     private String chaptertitle;
 
+    private Integer chapterTime;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "chapter")
     private List<Video> videos;
 

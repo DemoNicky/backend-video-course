@@ -13,6 +13,8 @@ public class GetChapterResponse {
 
     private String judulChapter;
 
+    private Integer time;
+
     private List<GetVideoResponse> getVideoResponses;
 
 }

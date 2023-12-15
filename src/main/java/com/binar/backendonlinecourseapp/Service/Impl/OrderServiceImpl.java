@@ -48,6 +48,12 @@ public class OrderServiceImpl implements OrderService {
         ResponseHandling<OrderResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<Course> course = courseRepository.findByCourseCode(orderRequest.getCourseCode());
+        Optional<Order> order1 = orderRepository.findOrdersByUserAndCourse(user.get(), course.get());
+
+        if (order1.isPresent() && order1.get().getCompletePaid() == false && order1.get().getExpired().before(new Date())){
+            orderRepository.deleteById(order1.get().getId());
+        }
+
         if (!course.isPresent()){
             response.setMessage("cant create order because order code is invalid man!!!");
             response.setErrors(true);
@@ -57,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
             response.setErrors(true);
             return response;
         }
+
         Order order = new Order();
         order.setOrderCode(getUUIDCode());
 
