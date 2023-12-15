@@ -241,6 +241,8 @@ public class CourseServiceImpl implements CourseService {
     public ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode) {
         ResponseHandling<GetCourseResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
+
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
         if (!course.isPresent()){
             response.setMessage("fail hit data");
@@ -262,6 +264,19 @@ public class CourseServiceImpl implements CourseService {
             getCourseResponse.setModul(courseGet.getModul());
             getCourseResponse.setDeskripsi(courseGet.getMateri());
 
+            int count = 0;
+
+            for (UserVideo userVideo1 : userVideo.get()) {
+                if (userVideo1.getCourse() == course.get()) {
+                    count += 1;
+                }
+            }
+
+            int videoSize = course.get().getChapters().stream()
+                    .mapToInt(chapter -> chapter.getVideos().size())
+                    .sum();
+            int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
+            getCourseResponse.setProgress(progressTotal);
             List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
                 GetChapterResponse getChapterResponse = new GetChapterResponse();
                 getChapterResponse.setNoChapter(p.getChapterNumber());
@@ -305,10 +320,24 @@ public class CourseServiceImpl implements CourseService {
         getCourseResponse.setModul(courseGet.getModul());
         getCourseResponse.setDeskripsi(courseGet.getMateri());
 
+        int count = 0;
+
+        for (UserVideo userVideo1 : userVideo.get()) {
+            if (userVideo1.getCourse() == course.get()) {
+                count += 1;
+            }
+        }
+
+        int videoSize = course.get().getChapters().stream()
+                .mapToInt(chapter -> chapter.getVideos().size())
+                .sum();
+        int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
+        getCourseResponse.setProgress(progressTotal);
         List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
             GetChapterResponse getChapterResponse = new GetChapterResponse();
             getChapterResponse.setNoChapter(p.getChapterNumber());
             getChapterResponse.setJudulChapter(p.getChaptertitle());
+            getChapterResponse.setTime(p.getChapterTime());
             List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
                 GetVideoResponse getVideoResponse = new GetVideoResponse();
                 getVideoResponse.setVideoCode(x.getVideoCode());
@@ -465,7 +494,9 @@ public class CourseServiceImpl implements CourseService {
         Optional<Video> video = videoRepository.findByVideoCode(videoCode);
         Optional<Course> course = courseRepository.findCourseByVideoCode(videoCode);
         Optional<Order> order = orderRepository.findOrdersByUserAndCourse(user.get(),course.get());
-        if (order.isPresent() && order.get().getCompletePaid()==true){
+        Optional<UserVideo> userVideoCheck = userVideoRepository.findByUserAndVideo(user.get(), video.get());
+
+        if (order.isPresent() && order.get().getCompletePaid()==true && !userVideoCheck.isPresent()){
             UserVideo userVideo = new UserVideo();
             userVideo.setIsWatched(true);
             userVideo.setUser(user.get());

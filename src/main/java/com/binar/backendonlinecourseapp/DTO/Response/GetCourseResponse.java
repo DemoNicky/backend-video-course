@@ -31,6 +31,8 @@ public class GetCourseResponse {
 
     private String deskripsi;
 
+    private Integer progress;
+
     private List<GetChapterResponse> getChapterResponses;
 
 }
