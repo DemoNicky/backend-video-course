@@ -110,6 +110,8 @@ public class CourseServiceImpl implements CourseService {
             Chapter chapter = new Chapter();
             chapter.setChapterNumber(p.getChapterNumber());
             chapter.setChaptertitle(p.getChaptertitle());
+            int chapterTime = new Random().nextInt(51) + 10;
+            chapter.setChapterTime(chapterTime);
             chapter.setCourse(course);
 
             List<Video> videos = p.getInsertVideoRequests().stream().map((x) -> {
@@ -264,6 +266,7 @@ public class CourseServiceImpl implements CourseService {
                 GetChapterResponse getChapterResponse = new GetChapterResponse();
                 getChapterResponse.setNoChapter(p.getChapterNumber());
                 getChapterResponse.setJudulChapter(p.getChaptertitle());
+                getChapterResponse.setTime(p.getChapterTime());
                 List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
                     GetVideoResponse getVideoResponse = new GetVideoResponse();
                     getVideoResponse.setVideoCode(x.getVideoCode());
