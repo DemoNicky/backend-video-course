@@ -73,6 +73,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/payment-history").hasAuthority("USER")
                 .antMatchers("/api/course/watched/{video}").hasAuthority("USER")
                 .antMatchers("/api/course/get/get-in-progress").hasAuthority("USER")
+                .antMatchers("/api/course/get/get-progress-finish").hasAuthority("USER")
                 .antMatchers("/api/course/get/get-finished").hasAuthority("USER")
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
                 .antMatchers("/api/users/get-user-profile-pic").hasAuthority("USER")

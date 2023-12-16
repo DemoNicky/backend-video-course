@@ -167,6 +167,18 @@ public class CourseController {
     }
 
     @GetMapping(
+            path = "/get/get-progress-finish",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressAndFinished(){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressAndFinished();
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
             path = "/get/get-in-progress",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
