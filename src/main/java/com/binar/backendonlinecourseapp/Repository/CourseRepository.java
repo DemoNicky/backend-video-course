@@ -2,6 +2,7 @@ package com.binar.backendonlinecourseapp.Repository;
 
 import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Entity.Course;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +44,14 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c WHERE c.classType = 'PREMIUM'")
     List<Course> findPremiumCourses();
 
+    @Query("SELECT c FROM Course c WHERE c.classType = 'PREMIUM'")
+    Page<Course> findPremiumCourses(Pageable pageable);
+
     @Query("SELECT c FROM Course c WHERE c.classType = 'FREE'")
     List<Course> findFreeCourses();
+
+    @Query("SELECT c FROM Course c WHERE c.classType = 'FREE'")
+    Page<Course> findFreeCourses(Pageable pageable);
 
     @Query("SELECT c FROM Course c JOIN c.chapters ch JOIN ch.videos v WHERE v.videoCode = :videoCode")
     Optional<Course> findCourseByVideoCode(@Param("videoCode") String videoCode);
@@ -55,15 +62,29 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c ORDER BY c.rating DESC")
     List<Course> findAllOrderBypopularDesc();
 
+//    @Query("SELECT c FROM Course c " +
+//            "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
+//            "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
+//            "ORDER BY " +
+//            "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
+//            "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
+//    List<Course> findFilteredCourses(
+//            @Param("categoryList") List<Category> categoryList,
+//            @Param("levelList") List<Level> levelList,
+//            @Param("orderByRating") boolean orderByRating,
+//            @Param("orderByPublish") boolean orderByPublish);
+
     @Query("SELECT c FROM Course c " +
             "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
             "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
+            "AND (COALESCE(:classType, NULL) IS NULL OR c.classType = :classType) " +
             "ORDER BY " +
             "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
             "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
     List<Course> findFilteredCourses(
             @Param("categoryList") List<Category> categoryList,
             @Param("levelList") List<Level> levelList,
+            @Param("classType") ClassType classType,
             @Param("orderByRating") boolean orderByRating,
             @Param("orderByPublish") boolean orderByPublish);
 
