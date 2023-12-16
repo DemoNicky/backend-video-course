@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,4 +52,6 @@ public interface CourseService {
     ResponseHandling<List<UserWatchProgressResponse>> searchFinished(String courseName, Integer page);
 
     ResponseHandling<List<UserWatchProgressResponse>> searchProgressAndFinished(String courseName, Integer page);
+
+    ResponseHandling<List<UserWatchProgressResponse>> filterProgress(Boolean isNewest, Boolean isPopular, ProgressType progressType, List<String> category, List<Level> level);
 }

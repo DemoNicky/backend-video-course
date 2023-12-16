@@ -6,6 +6,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +47,7 @@ public class CourseController {
     )
     public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>filter(@RequestParam Boolean isNewest,
                                                                            @RequestParam Boolean isPopular,
-                                                                           @RequestParam ClassType classType,
+                                                                           @RequestParam(required = false) ClassType classType,
                                                                            @RequestParam List<String> category,
                                                                            @RequestParam List<Level> level) throws IOException {
 
@@ -58,7 +59,23 @@ public class CourseController {
 
     }
 
+    @GetMapping(
+            path = "/filter-porgress",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>filterProgress(@RequestParam Boolean isNewest,
+                                                                                   @RequestParam Boolean isPopular,
+                                                                                   @RequestParam ProgressType progressType,
+                                                                                   @RequestParam List<String> category,
+                                                                                   @RequestParam List<Level> level) throws IOException {
 
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.filterProgress(isNewest, isPopular, progressType, category, level);
+        if (response.getData()==null || response.getErrors() == true){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
 
     @PostMapping(
             path = "/watched/{video}",
