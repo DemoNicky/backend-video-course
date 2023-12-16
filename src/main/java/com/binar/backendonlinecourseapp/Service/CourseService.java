@@ -36,5 +36,10 @@ public interface CourseService {
     ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 
     ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, List<String> category, List<Level> level);
+//
+//    ResponseHandling<DashboardResponse> dashboard(Integer page);
 
+    ResponseHandling<List<CourseGetResponse>> searchCoursePremium(String courseName, Integer page);
+
+    ResponseHandling<List<CourseGetResponse>> searchCourseFree(String courseName, Integer page);
 }

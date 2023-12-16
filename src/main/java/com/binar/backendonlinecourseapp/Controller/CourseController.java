@@ -103,6 +103,30 @@ public class CourseController {
 
     }
 
+    @GetMapping(path = "/search-premium/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCoursePremium(@PathVariable("course")String courseName,
+                                                                                    @RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCoursePremium(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(path = "/search-free/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourseFree(@PathVariable("course")String courseName,
+                                                                                           @RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourseFree(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @GetMapping(path = "/get/{course}")
     public ResponseEntity<ResponseHandling<GetCourseResponse>>hitGetCourse(@PathVariable("course")String courseCode){
         ResponseHandling<GetCourseResponse> response = courseService.hitGetCourse(courseCode);
@@ -177,7 +201,14 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    
-    
+
+//    @GetMapping(
+//            path = "/admin-dashboard",
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public ResponseEntity<ResponseHandling<DashboardResponse>>dashboard(@RequestParam(required = false) Integer page){
+//        ResponseHandling<DashboardResponse> response = courseService.dashboard(page);
+//    }
+
 
 }

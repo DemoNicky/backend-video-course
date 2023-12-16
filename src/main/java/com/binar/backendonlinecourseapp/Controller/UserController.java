@@ -78,6 +78,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PostMapping(
+            path = "/admin-login"
+    )
+    public ResponseEntity<ResponseHandling<LoginResponse>> adminLogin(@RequestBody LoginRequest loginRequest){
+        ResponseHandling<LoginResponse> response = userService.adminLogin(loginRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
     @GetMapping
     public ResponseEntity<ResponseGetUser> getData(){
         ResponseGetUser response = userService.getUser();
@@ -171,4 +183,6 @@ public class UserController {
         String response = userService.addUserBalance(balance, cardnumber, cardType);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+
 }
