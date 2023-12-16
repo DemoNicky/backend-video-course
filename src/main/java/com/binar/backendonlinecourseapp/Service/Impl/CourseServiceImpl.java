@@ -448,10 +448,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory() {
+    public ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory(Integer page) {
         ResponseHandling<List<PaymentHistoryResponse>> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
-        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+        Optional<List<Order>> order;
+        if (page == null) {
+            order = orderRepository.findOrdersByUser(user.get());
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Optional<Page<Order>> coursePage = orderRepository.findOrdersByUser(user.get(), pageable);
+            order = coursePage.map(pageContent -> pageContent.getContent())
+                    .map(Collections::unmodifiableList);
+        }
         if (!order.isPresent()){
             response.setMessage("payment history not found");
             response.setErrors(true);
@@ -517,9 +525,17 @@ public class CourseServiceImpl implements CourseService {
 //    }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> getPremiumClass() {
+    public ResponseHandling<List<CourseGetResponse>> getPremiumClass(Integer page) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
         List<Course> courses = courseRepository.findPremiumCourses();
+        if (page == null) {
+            courses = courseRepository.findPremiumCourses();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findPremiumCourses(pageable);
+            courses = coursePage.getContent();
+        }
+
         List<CourseGetResponse> courseGetResponsee = courses.stream().map((p) -> {
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());
@@ -547,9 +563,16 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> getFreeClass() {
+    public ResponseHandling<List<CourseGetResponse>> getFreeClass(Integer page) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
-        List<Course> courses = courseRepository.findFreeCourses();
+        List<Course> courses;
+        if (page == null) {
+            courses = courseRepository.findFreeCourses();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findFreeCourses(pageable);
+            courses = coursePage.getContent();
+        }
         List<CourseGetResponse> courseGetResponsee = courses.stream().map((p) -> {
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());
@@ -594,10 +617,8 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-
-
     @Override
-    public ResponseHandling<List<UserWatchProgressResponse>> getProgressAndFinished() {
+    public ResponseHandling<List<UserWatchProgressResponse>> getProgressAndFinished(Integer page) {
         ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
@@ -836,11 +857,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse() {
+    public ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse(Integer page) {
         ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
-        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+        Optional<List<Order>> order;
+
+        if (page == null) {
+            order = orderRepository.findOrdersByUser(user.get());
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Optional<Page<Order>> coursePage = orderRepository.findOrdersByUser(user.get(), pageable);
+            order = coursePage.map(pageContent -> pageContent.getContent())
+                    .map(Collections::unmodifiableList);
+        }
 
         if (!order.isPresent() || order.get().size()==0) {
             response.setMessage("user dont have data");
@@ -890,11 +920,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass() {
+    public ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass(Integer page) {
         ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
-        Optional<List<Order>> order = orderRepository.findOrdersByUser(user.get());
+        Optional<List<Order>> order;
+
+        if (page == null) {
+            order = orderRepository.findOrdersByUser(user.get());
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Optional<Page<Order>> coursePage = orderRepository.findOrdersByUser(user.get(), pageable);
+            order = coursePage.map(pageContent -> pageContent.getContent())
+                    .map(Collections::unmodifiableList);
+        }
 
         if (!order.isPresent() || order.get().size()==0){
             response.setMessage("user dont have data");

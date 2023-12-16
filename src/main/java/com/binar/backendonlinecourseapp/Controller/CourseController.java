@@ -56,6 +56,8 @@ public class CourseController {
 
     }
 
+
+
     @PostMapping(
             path = "/watched/{video}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -140,8 +142,8 @@ public class CourseController {
             path = "/payment-history",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<PaymentHistoryResponse>>>getPaymentHistory(){
-        ResponseHandling<List<PaymentHistoryResponse>> response = courseService.getPaymentHistory();
+    public ResponseEntity<ResponseHandling<List<PaymentHistoryResponse>>>getPaymentHistory(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<PaymentHistoryResponse>> response = courseService.getPaymentHistory(page);
         if (response.getData()==null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -152,8 +154,8 @@ public class CourseController {
             path = "/get-premium",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(){
-        ResponseHandling<List<CourseGetResponse>> response = courseService.getPremiumClass();
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getPremiumClass(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getPremiumClass(page);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -161,8 +163,8 @@ public class CourseController {
             path = "/get-free",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getFreelass(){
-        ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass();
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getFreelass(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getFreeClass(page);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -209,8 +211,8 @@ public class CourseController {
             path = "/get/get-progress-finish",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressAndFinished(){
-        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressAndFinished();
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressAndFinished(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressAndFinished(page);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
@@ -221,8 +223,8 @@ public class CourseController {
             path = "/get/get-in-progress",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressResponse(){
-        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressResponse();
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getProgressResponse(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getProgressResponse(page);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
@@ -233,8 +235,8 @@ public class CourseController {
             path = "/get/get-finished",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getFinishedClass(){
-        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getFinishedClass();
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>getFinishedClass(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.getFinishedClass(page);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }

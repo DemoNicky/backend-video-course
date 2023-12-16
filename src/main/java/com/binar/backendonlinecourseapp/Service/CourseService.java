@@ -19,19 +19,19 @@ public interface CourseService {
 
     ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode);
 
-    ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory();
+    ResponseHandling<List<PaymentHistoryResponse>> getPaymentHistory(Integer page);
 
 //    ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest);
 
-    ResponseHandling<List<CourseGetResponse>> getPremiumClass();
+    ResponseHandling<List<CourseGetResponse>> getPremiumClass(Integer page);
 
-    ResponseHandling<List<CourseGetResponse>> getFreeClass();
+    ResponseHandling<List<CourseGetResponse>> getFreeClass(Integer page);
 
     void videoTrigger(String videoCode);
 
-    ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse();
+    ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse(Integer page);
 
-    ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass();
+    ResponseHandling<List<UserWatchProgressResponse>> getFinishedClass(Integer page);
 
     ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 
@@ -43,7 +43,7 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> searchCourseFree(String courseName, Integer page);
 
-    ResponseHandling<List<UserWatchProgressResponse>> getProgressAndFinished();
+    ResponseHandling<List<UserWatchProgressResponse>> getProgressAndFinished(Integer page);
 
     ResponseHandling<List<UserWatchProgressResponse>> searchProgress(String courseName, Integer page);
 
