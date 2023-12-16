@@ -1,6 +1,9 @@
 package com.binar.backendonlinecourseapp.Repository;
 
+import com.binar.backendonlinecourseapp.Entity.Category;
 import com.binar.backendonlinecourseapp.Entity.Course;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
+import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Order;
 import com.binar.backendonlinecourseapp.Entity.User;
 import org.springframework.data.domain.Page;
@@ -33,5 +36,30 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     Page<Order> findAll(Pageable pageable);
 
-//    Optional<List<Course>> findCourseByUser(User user);
+//    @Query("SELECT o FROM Order o " +
+//            "JOIN o.course c " +
+//            "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
+//            "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
+//            "ORDER BY " +
+//            "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
+//            "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
+//    List<Order> findFilteredOrders(
+//            @Param("categoryList") List<Category> categoryList,
+//            @Param("levelList") List<Level> levelList,
+//            @Param("orderByRating") boolean orderByRating,
+//            @Param("orderByPublish") boolean orderByPublish);
+
+@Query("SELECT o FROM Order o " +
+        "WHERE o.user = :user " +
+        "AND (COALESCE(:categoryList, NULL) IS NULL OR o.course.categories IN :categoryList) " +
+        "AND (COALESCE(:levelList, NULL) IS NULL OR o.course.level IN :levelList) " +
+        "ORDER BY " +
+        "CASE WHEN :orderByRating = true THEN o.course.rating END DESC, " +
+        "CASE WHEN :orderByPublish = true THEN o.course.publish END DESC")
+List<Order> findFilteredOrdersByUser(
+        @Param("user") User user,
+        @Param("categoryList") List<Category> categoryList,
+        @Param("levelList") List<Level> levelList,
+        @Param("orderByRating") boolean orderByRating,
+        @Param("orderByPublish") boolean orderByPublish);
 }

@@ -62,17 +62,17 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c ORDER BY c.rating DESC")
     List<Course> findAllOrderBypopularDesc();
 
-//    @Query("SELECT c FROM Course c " +
-//            "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
-//            "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
-//            "ORDER BY " +
-//            "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
-//            "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
-//    List<Course> findFilteredCourses(
-//            @Param("categoryList") List<Category> categoryList,
-//            @Param("levelList") List<Level> levelList,
-//            @Param("orderByRating") boolean orderByRating,
-//            @Param("orderByPublish") boolean orderByPublish);
+    @Query("SELECT c FROM Course c " +
+            "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
+            "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
+            "ORDER BY " +
+            "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
+            "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
+    List<Course> findFilteredCoursesWithoutclasstype(
+            @Param("categoryList") List<Category> categoryList,
+            @Param("levelList") List<Level> levelList,
+            @Param("orderByRating") boolean orderByRating,
+            @Param("orderByPublish") boolean orderByPublish);
 
     @Query("SELECT c FROM Course c " +
             "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +

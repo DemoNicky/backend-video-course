@@ -81,6 +81,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/change-password").hasAuthority("USER")
                 .antMatchers("/api/users/get-user-profile-pic").hasAuthority("USER")
                 .antMatchers("/api/users/create-bank-account").hasAuthority("USER")
+                .antMatchers("/api/course/filter-porgress").hasAuthority("USER")
+
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()

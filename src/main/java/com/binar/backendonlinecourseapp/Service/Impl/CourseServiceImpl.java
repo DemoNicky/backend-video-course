@@ -6,6 +6,7 @@ import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
+import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
 import com.binar.backendonlinecourseapp.Repository.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import com.cloudinary.Cloudinary;
@@ -858,6 +859,74 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public ResponseHandling<List<UserWatchProgressResponse>> filterProgress(Boolean isNewest, Boolean isPopular,
+                                                                            ProgressType progressType, List<String> category, List<Level> level) {
+        ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<List<UserVideo>> userVideo = userVideoRepository.findByUser(user);
+        List<Category> categories = category.stream()
+                .map(categoryRepository::findByCategoryName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        List<Order> order = orderRepository.findFilteredOrdersByUser(user.get(), categories, level, isPopular, isNewest);
+
+        if (order == null || order.isEmpty()){
+            response.setMessage("user dont have data");
+            response.setErrors(true);
+            return response;
+        }
+
+        List<UserWatchProgressResponse> responses = order.stream().map((p)->{
+            UserWatchProgressResponse userWatchProgressResponse = new UserWatchProgressResponse();
+            userWatchProgressResponse.setKodeKelas(p.getCourse().getCourseCode());
+            userWatchProgressResponse.setNamaKelas(p.getCourse().getClassName());
+            userWatchProgressResponse.setImageUrl(p.getCourse().getPictureUrl());
+            userWatchProgressResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            userWatchProgressResponse.setLevel(p.getCourse().getLevel());
+            userWatchProgressResponse.setAuthor(p.getCourse().getAuthor());
+            userWatchProgressResponse.setRating(p.getCourse().getRating());
+            userWatchProgressResponse.setModul(p.getCourse().getModul());
+            userWatchProgressResponse.setTime(p.getCourse().getTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getCourse().getPublish());
+            userWatchProgressResponse.setPublish(outputDate);
+            int count = 0;
+
+            for (UserVideo userVideo1 : userVideo.get()) {
+                if (userVideo1.getCourse() == p.getCourse()) {
+                    count += 1;
+                }
+            }
+
+            int videoSize = p.getCourse().getChapters().stream()
+                    .mapToInt(chapter -> chapter.getVideos().size())
+                    .sum();
+            int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
+            userWatchProgressResponse.setProgress(progressTotal);
+
+            if (progressTotal == 100 && progressType== ProgressType.PROGRESS){
+                return null;
+            }
+
+            return userWatchProgressResponse;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (progressType == ProgressType.FINISH){
+            List<UserWatchProgressResponse> filteredList = responses.stream()
+                    .filter(userWatchProgressResponse -> userWatchProgressResponse.getProgress() == 100)
+                    .collect(Collectors.toList());
+            responses = filteredList;
+        }
+
+        response.setData(responses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
     public ResponseHandling<List<UserWatchProgressResponse>> getProgressResponse(Integer page) {
         ResponseHandling<List<UserWatchProgressResponse>> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
@@ -1005,6 +1074,9 @@ public class CourseServiceImpl implements CourseService {
         if (!courseFilterRequest.getIsNewest() && !courseFilterRequest.getIsPopular()
                 && courseFilterRequest.getCategories().isEmpty() && courseFilterRequest.getLevels().isEmpty()) {
             courseList = courseRepository.findAll();
+        }else if (classType == null){
+            courseList = courseRepository.findFilteredCoursesWithoutclasstype(categories, courseFilterRequest.getLevels(),
+                    courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
         }else {
             courseList = courseRepository.findFilteredCourses(categories, courseFilterRequest.getLevels(),
                     classType, courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
@@ -1033,7 +1105,6 @@ public class CourseServiceImpl implements CourseService {
         response.setErrors(false);
         return response;
     }
-
 
 //    @Override
 //    public ResponseHandling<DashboardResponse> dashboard(Integer page) {
