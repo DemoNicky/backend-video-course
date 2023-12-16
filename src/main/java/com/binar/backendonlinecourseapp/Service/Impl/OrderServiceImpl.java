@@ -58,9 +58,28 @@ public class OrderServiceImpl implements OrderService {
             response.setMessage("cant create order because order code is invalid man!!!");
             response.setErrors(true);
             return response;
-        }else if (orderRepository.findOrdersByUserAndCourse(user.get(), course.get()).isPresent()){
+        }else if (orderRepository.findOrdersByUserAndCourse(user.get(), course.get()).isPresent() && order1.get().getCompletePaid() == true){
             response.setMessage("cant create order because you already order it bro!!!");
             response.setErrors(true);
+            return response;
+        }
+
+        if (order1.isPresent() && order1.get().getCompletePaid() == false){
+            Order order = order1.get();
+            OrderResponse orderResponse = new OrderResponse();
+            orderResponse.setCourseCode(course.get().getCourseCode());
+            orderResponse.setOrderCode(order.getOrderCode());
+            orderResponse.setHarga(course.get().getPrice());
+            BigDecimal ppn = course.get().getPrice().multiply(BigDecimal.valueOf(0.11));
+            orderResponse.setPpn(ppn);
+            orderResponse.setTotalBayar(course.get().getPrice().add(ppn));
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
+            orderResponse.setExpiredDate(outputFormat.format(order.getExpired()));
+
+            response.setData(orderResponse);
+            response.setMessage("success get order");
+            response.setErrors(false);
             return response;
         }
 
