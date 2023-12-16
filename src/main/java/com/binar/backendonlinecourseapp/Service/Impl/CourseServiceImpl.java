@@ -238,6 +238,95 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public ResponseHandling<List<CourseGetResponse>> searchCoursePremium(String courseName, Integer page) {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+        List<Course> courses;
+
+        if (page == null) {
+            courses = courseRepository.findByClassNameOrAuthorAndClassType(courseName);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findByClassNameOrAuthorAndClassTypepage(courseName, pageable);
+            courses = coursePage.getContent();
+        }
+        if (courses.isEmpty()){
+            response.setMessage("course not found");
+            response.setErrors(true);
+            return response;
+        }
+        List<CourseGetResponse> courseGetResponses = courses.stream().map((p) -> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
+            courseGetResponse.setTime(p.getTime());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setModul(p.getModul());
+            courseGetResponse.setTipeKelas(p.getClassType());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+
+            courseGetResponse.setPublish(outputDate);
+            return courseGetResponse;
+        }).collect(Collectors.toList());
+        response.setData(courseGetResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<CourseGetResponse>> searchCourseFree(String courseName, Integer page) {
+        ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
+        List<Course> courses;
+
+        if (page == null) {
+            courses = courseRepository.findByClassNameOrAuthorAndClassTypeFree(courseName);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findByClassNameOrAuthorAndClassTypeFreepage(courseName, pageable);
+            courses = coursePage.getContent();
+        }
+        if (courses.isEmpty()){
+            response.setMessage("course not found");
+            response.setErrors(true);
+            return response;
+        }
+        List<CourseGetResponse> courseGetResponses = courses.stream().map((p) -> {
+            CourseGetResponse courseGetResponse = new CourseGetResponse();
+            courseGetResponse.setKodeKelas(p.getCourseCode());
+            courseGetResponse.setNamaKelas(p.getClassName());
+            courseGetResponse.setImageUrl(p.getPictureUrl());
+            courseGetResponse.setTime(p.getTime());
+            courseGetResponse.setKategori(p.getCategories().getCategoryName());
+            courseGetResponse.setLevel(p.getLevel());
+            courseGetResponse.setHarga(p.getPrice());
+            courseGetResponse.setAuthor(p.getAuthor());
+            courseGetResponse.setRating(p.getRating());
+            courseGetResponse.setModul(p.getModul());
+            courseGetResponse.setTipeKelas(p.getClassType());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String outputDate = dateFormat.format(p.getPublish());
+
+            courseGetResponse.setPublish(outputDate);
+            return courseGetResponse;
+        }).collect(Collectors.toList());
+        response.setData(courseGetResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+
+    @Override
     public ResponseHandling<GetCourseResponse> hitGetCourse(String courseCode) {
         ResponseHandling<GetCourseResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
@@ -670,6 +759,26 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+
+//    @Override
+//    public ResponseHandling<DashboardResponse> dashboard(Integer page) {
+//        List<User> user = userRepository.findAll();
+//        List<Course> courses = courseRepository.findAll();
+//        List<Course> premiumCourse = courseRepository.findPremiumCourses();
+//        List<Order> orders;
+//        if (page == null) {
+//            orders = orderRepository.findAll();
+//        } else {
+//            Pageable pageable = PageRequest.of(page, 10);
+//            Page<Order> orderpage = orderRepository.findAll(pageable);
+//            orders = orderpage.getContent();
+//        }
+//
+//
+//
+//
+//        return null;
+//    }
 
 
     @Override

@@ -28,6 +28,18 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     @Query("SELECT c FROM Course c WHERE LOWER(c.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.author) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Course> findByClassNameOrTeacherJPQLPage(@Param("searchTerm") String searchTerm, Pageable pageable);
 
+    @Query("SELECT c FROM Course c WHERE (LOWER(c.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.author) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND c.classType = 'PREMIUM'")
+    List<Course> findByClassNameOrAuthorAndClassType(String searchTerm);
+
+    @Query("SELECT c FROM Course c WHERE (LOWER(c.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.author) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND c.classType = 'PREMIUM'")
+    Page<Course> findByClassNameOrAuthorAndClassTypepage(String searchTerm, Pageable pageable);
+
+    @Query("SELECT c FROM Course c WHERE (LOWER(c.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.author) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND c.classType = 'FREE'")
+    List<Course> findByClassNameOrAuthorAndClassTypeFree(String searchTerm);
+
+    @Query("SELECT c FROM Course c WHERE (LOWER(c.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.author) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND c.classType = 'FREE'")
+    Page<Course> findByClassNameOrAuthorAndClassTypeFreepage(String searchTerm, Pageable pageable);
+
     @Query("SELECT c FROM Course c WHERE c.classType = 'PREMIUM'")
     List<Course> findPremiumCourses();
 

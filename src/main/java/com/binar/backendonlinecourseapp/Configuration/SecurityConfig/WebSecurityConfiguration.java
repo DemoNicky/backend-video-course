@@ -42,6 +42,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.csrf().disable()
                 .authorizeRequests().antMatchers("/api/users/login").permitAll()
                 .antMatchers("/api/users/register").permitAll()
+                .antMatchers("/api/users/admin-login").permitAll()
                 .antMatchers("/api/users/otp/{code}").permitAll()
                 .antMatchers("/api/users/forgot-password").permitAll()
                 .antMatchers("/api/users/set-forgot-password").permitAll()
@@ -54,6 +55,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get/{course}").permitAll()
                 .antMatchers("/api/course/popular-course").permitAll()
                 .antMatchers("/api/category/get").permitAll()
+                .antMatchers("/api/course/search-premium/{course}").permitAll()
+                .antMatchers("/api/course/search-free/{course}").permitAll()
 
                 .antMatchers("/api/category").hasAuthority("ADMIN")
                 .antMatchers("/api/category/addpicture/**").hasAuthority("ADMIN")

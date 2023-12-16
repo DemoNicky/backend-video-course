@@ -76,6 +76,49 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final Cloudinary cloudinary;
 
+    @Override
+    public ResponseHandling<LoginResponse> adminLogin(LoginRequest loginRequest) {
+        ResponseHandling<LoginResponse> response = new ResponseHandling<>();
+        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user.isPresent() && user.get().getActive() == false){
+            response.setMessage("user account not activated yet");
+            response.setErrors(true);
+            return response;
+        }
+        try {
+            String username = loginRequest.getEmail();
+            String password = loginRequest.getPassword();
+
+            authenticate(username, password);
+
+            final UserDetails userDetails = loadUserByUsername(username);
+
+            String newToken = jwtUtil.generateToken(userDetails);
+
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+            Set<String> authorityStrings = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+
+            String authoritiesString = String.join(",", authorityStrings);
+
+            if (!"ADMIN".equals(authoritiesString)) {
+                response.setMessage("Authorization Failed >//<");
+                response.setErrors(true);
+                return response;
+            }
+
+            response.setData(new LoginResponse(newToken, authoritiesString));
+            response.setMessage("Authentication successful");
+            response.setErrors(false);
+        }catch (Exception e){
+            response.setErrors(true);
+            response.setMessage("Invalid Email and Password Combination");
+        }
+        return response;
+    }
+
     public ResponseHandling<LoginResponse> createJwtToken(LoginRequest jwtRequest) throws Exception {
         ResponseHandling<LoginResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(jwtRequest.getEmail());

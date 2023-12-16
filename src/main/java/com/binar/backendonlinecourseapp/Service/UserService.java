@@ -39,4 +39,6 @@ public interface UserService {
     ResponseHandling<GetUserProfilePicture> getPictureUser();
 
     String addUserBalance(BigDecimal balance, String cardnumber, CardType cardType);
+
+    ResponseHandling<LoginResponse> adminLogin(LoginRequest loginRequest);
 }
