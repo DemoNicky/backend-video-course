@@ -42,4 +42,6 @@ public interface CourseService {
     ResponseHandling<List<CourseGetResponse>> searchCoursePremium(String courseName, Integer page);
 
     ResponseHandling<List<CourseGetResponse>> searchCourseFree(String courseName, Integer page);
+
+    ResponseHandling<List<UserWatchProgressResponse>> getProgressAndFinished();
 }
