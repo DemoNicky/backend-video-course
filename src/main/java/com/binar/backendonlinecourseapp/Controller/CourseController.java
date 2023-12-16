@@ -167,6 +167,45 @@ public class CourseController {
     }
 
     @GetMapping(
+            path = "/search/search-progress/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>searchProgress(@PathVariable("course")String courseName,
+                                                                                           @RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.searchProgress(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/search/search-finished/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>searchFinished(@PathVariable("course")String courseName,
+                                                                                           @RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.searchFinished(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/search/search-progress-finish/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<UserWatchProgressResponse>>>searchProgressAndFinished(@PathVariable("course")String courseName,
+                                                                                           @RequestParam(required = false) Integer page){
+        ResponseHandling<List<UserWatchProgressResponse>> response = courseService.searchProgressAndFinished(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
             path = "/get/get-progress-finish",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
