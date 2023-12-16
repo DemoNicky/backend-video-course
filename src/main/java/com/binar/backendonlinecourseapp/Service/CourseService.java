@@ -2,6 +2,7 @@ package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +36,7 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 
-    ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, List<String> category, List<Level> level);
+    ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, ClassType classType, List<String> category, List<Level> level);
 //
 //    ResponseHandling<DashboardResponse> dashboard(Integer page);
 

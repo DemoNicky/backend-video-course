@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Repository.*;
 import com.binar.backendonlinecourseapp.Service.CourseService;
@@ -983,7 +984,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular,
+    public ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, ClassType classType,
                                                             List<String> category, List<Level> level){
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
 
@@ -1006,7 +1007,7 @@ public class CourseServiceImpl implements CourseService {
             courseList = courseRepository.findAll();
         }else {
             courseList = courseRepository.findFilteredCourses(categories, courseFilterRequest.getLevels(),
-                    courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
+                    classType, courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
         }
 
         List<CourseGetResponse> courseGetResponses = courseList.stream().map((p)->{
@@ -1047,9 +1048,6 @@ public class CourseServiceImpl implements CourseService {
 //            Page<Order> orderpage = orderRepository.findAll(pageable);
 //            orders = orderpage.getContent();
 //        }
-//
-//
-//
 //
 //        return null;
 //    }

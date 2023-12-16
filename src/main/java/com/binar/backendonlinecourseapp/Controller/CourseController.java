@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +46,11 @@ public class CourseController {
     )
     public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>filter(@RequestParam Boolean isNewest,
                                                                            @RequestParam Boolean isPopular,
+                                                                           @RequestParam ClassType classType,
                                                                            @RequestParam List<String> category,
                                                                            @RequestParam List<Level> level) throws IOException {
 
-        ResponseHandling<List<CourseGetResponse>> response = courseService.filter(isNewest, isPopular, category, level);
+        ResponseHandling<List<CourseGetResponse>> response = courseService.filter(isNewest, isPopular, classType, category, level);
         if (response.getData()==null || response.getErrors() == true){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -254,13 +256,14 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
+//
 //    @GetMapping(
 //            path = "/admin-dashboard",
 //            produces = MediaType.APPLICATION_JSON_VALUE
 //    )
 //    public ResponseEntity<ResponseHandling<DashboardResponse>>dashboard(@RequestParam(required = false) Integer page){
 //        ResponseHandling<DashboardResponse> response = courseService.dashboard(page);
+//
 //    }
 
 
