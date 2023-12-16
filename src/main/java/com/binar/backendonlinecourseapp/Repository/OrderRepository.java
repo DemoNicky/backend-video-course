@@ -24,6 +24,10 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o WHERE o.user = :user")
     Optional<List<Order>> findOrdersByUser(@Param("user") User user);
 
+    List<Order> findByUserAndCourseIn(User user, List<Course> courses);
+
+    Page<Order> findByUserAndCourseIn(User user, List<Course> courses, Pageable pageable);
+
     Page<Order> findAll(Pageable pageable);
 
 //    Optional<List<Course>> findCourseByUser(User user);
