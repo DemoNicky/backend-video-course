@@ -69,12 +69,10 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             "WHERE (COALESCE(:categoryList, NULL) IS NULL OR cat IN :categoryList) " +
             "AND (COALESCE(:paymentMethod, NULL) IS NULL OR o.paymentMethod IN :paymentMethod) " +
             "ORDER BY " +
-            "CASE WHEN :isAlreadyPaid = true THEN " +
-            "          CASE WHEN o.completePaid = true THEN 0 ELSE 1 END " +
-            "     WHEN :isNoPaid = true THEN " +
-            "          CASE WHEN o.completePaid = false THEN 0 ELSE 1 END " +
-            "     ELSE 1 END DESC, " +
-            "CASE WHEN :isOldest = true THEN o.orderDate END DESC")
+            "(CASE WHEN :isNoPaid = true AND o.completePaid = false THEN 0 " +
+            "      WHEN :isAlreadyPaid = true AND o.completePaid = true THEN 0 " +
+            "      ELSE 1 END) ASC, " +
+            "(CASE WHEN :isOldest = true THEN o.orderDate END) DESC")
     List<Order> findDashboardFilter(
             @Param("isOldest") Boolean isOldest,
             @Param("isAlreadyPaid") Boolean isAlreadyPaid,
@@ -87,10 +85,10 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             "WHERE (COALESCE(:categoryList, NULL) IS NULL OR cat IN :categoryList) " +
             "AND (COALESCE(:paymentMethod, NULL) IS NULL OR o.paymentMethod IN :paymentMethod) " +
             "ORDER BY " +
-            "CASE WHEN :isNoPaid = true AND o.completePaid = false THEN 0 " +
-            "     WHEN :isAlreadyPaid = true AND o.completePaid = true THEN 0 " +
-            "     ELSE 1 END DESC, " +
-            "CASE WHEN :isOldest = true THEN o.orderDate END DESC")
+            "(CASE WHEN :isNoPaid = true AND o.completePaid = false THEN 0 " +
+            "      WHEN :isAlreadyPaid = true AND o.completePaid = true THEN 0 " +
+            "      ELSE 1 END) ASC, " +
+            "(CASE WHEN :isOldest = true THEN o.orderDate END) DESC")
     Page<Order> findDashboardFilterPage(
             @Param("isOldest")Boolean isOldest,
             @Param("isAlreadyPaid")Boolean isAlreadyPaid,
