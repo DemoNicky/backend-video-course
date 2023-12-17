@@ -39,7 +39,7 @@ public interface CourseService {
 
     ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, ClassType classType, List<String> category, List<Level> level);
 //
-//    ResponseHandling<DashboardResponse> dashboard(Integer page);
+    ResponseHandling<DashboardResponse> dashboard(Integer page);
 
     ResponseHandling<List<CourseGetResponse>> searchCoursePremium(String courseName, Integer page);
 

@@ -273,15 +273,16 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-//
-//    @GetMapping(
-//            path = "/admin-dashboard",
-//            produces = MediaType.APPLICATION_JSON_VALUE
-//    )
-//    public ResponseEntity<ResponseHandling<DashboardResponse>>dashboard(@RequestParam(required = false) Integer page){
-//        ResponseHandling<DashboardResponse> response = courseService.dashboard(page);
-//
-//    }
+
+    @GetMapping(
+            path = "/admin-dashboard",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<DashboardResponse>>dashboard(@RequestParam(required = false) Integer page){
+        ResponseHandling<DashboardResponse> response = courseService.dashboard(page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
 
 
 }

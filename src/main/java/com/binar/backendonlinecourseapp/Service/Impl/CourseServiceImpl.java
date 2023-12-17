@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
@@ -1106,22 +1107,100 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
-//    @Override
-//    public ResponseHandling<DashboardResponse> dashboard(Integer page) {
-//        List<User> user = userRepository.findAll();
-//        List<Course> courses = courseRepository.findAll();
-//        List<Course> premiumCourse = courseRepository.findPremiumCourses();
-//        List<Order> orders;
-//        if (page == null) {
-//            orders = orderRepository.findAll();
-//        } else {
-//            Pageable pageable = PageRequest.of(page, 10);
-//            Page<Order> orderpage = orderRepository.findAll(pageable);
-//            orders = orderpage.getContent();
-//        }
+    @Override
+    public ResponseHandling<DashboardResponse> dashboard(Integer page) {
+        ResponseHandling<DashboardResponse> response = new ResponseHandling<>();
+        List<User> user = userRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
+        List<Course> premiumCourse = courseRepository.findPremiumCourses();
+        List<Order> orders;
+        if (page == null) {
+            orders = orderRepository.findAll();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Order> orderpage = orderRepository.findAll(pageable);
+            orders = orderpage.getContent();
+        }
+
+        DashboardResponse dashboardResponse = new DashboardResponse();
+        dashboardResponse.setActiveUser(user.size());
+        dashboardResponse.setActiveClass(courses.size());
+        dashboardResponse.setPremiumClass(premiumCourse.size());
+//        List<PaymentStatusResponse> paymentStatusResponses = orders.stream().map((p)->{
+//            PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
+//            paymentStatusResponse.setId(p.getUser().getNama());
+//            paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+//            if (p.getCompletePaid() == true){
+//                paymentStatusResponse.setStatus("SUDAH BAYAR");
+//            }else {
+//                paymentStatusResponse.setStatus("BELUM BAYAR");
+//            }
 //
-//        return null;
-//    }
+//            if (p.getPaymentMethod() != null) {
+//                if (CardType.BANK_TRANSFER.equals(p.getPaymentMethod())) {
+//                    paymentStatusResponse.setMetodePembayaran("Transfer bank");
+//                } else if (CardType.CREDIT_CARD.equals(p.getPaymentMethod())){
+//                    paymentStatusResponse.setMetodePembayaran("Credit card");
+//                } else {
+//                    paymentStatusResponse.setMetodePembayaran("-");
+//                }
+//            } else {
+//                paymentStatusResponse.setMetodePembayaran("-");
+//            }
+//
+//            SimpleDateFormat outputFormat = new SimpleDateFormat("d MMM, yyyy 'at' h:mm a", Locale.ENGLISH);
+//
+//            Date payTime = p.getPayTime();
+//            if (payTime != null) {
+//                String outputDate = outputFormat.format(payTime);
+//
+//                if (!outputDate.isEmpty()) {
+//                    paymentStatusResponse.setTanggalBayar(outputDate);
+//                } else {
+//                    paymentStatusResponse.setTanggalBayar("-");
+//                }
+//            } else {
+//                paymentStatusResponse.setTanggalBayar("-");
+//            }
+//            return paymentStatusResponse;
+//        }).collect(Collectors.toList());
+        List<PaymentStatusResponse> paymentStatusResponses = orders.parallelStream().map(p -> {
+            PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
+            paymentStatusResponse.setId(p.getUser().getNama());
+            paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            paymentStatusResponse.setStatus(p.getCompletePaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
+
+            if (p.getPaymentMethod() != null) {
+                if (CardType.BANK_TRANSFER.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Transfer bank");
+                } else if (CardType.CREDIT_CARD.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Credit card");
+                } else {
+                    paymentStatusResponse.setMetodePembayaran("-");
+                }
+            } else {
+                paymentStatusResponse.setMetodePembayaran("-");
+            }
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("d MMM, yyyy 'at' h:mm a", Locale.ENGLISH);
+            Date payTime = p.getPayTime();
+
+            if (payTime != null) {
+                String outputDate = outputFormat.format(payTime);
+                paymentStatusResponse.setTanggalBayar(outputDate.isEmpty() ? "-" : outputDate);
+            } else {
+                paymentStatusResponse.setTanggalBayar("-");
+            }
+
+            return paymentStatusResponse;
+        }).collect(Collectors.toList());
+        dashboardResponse.setPaymentStatusResponses(paymentStatusResponses);
+
+        response.setData(dashboardResponse);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+    }
 
 
     @Override
