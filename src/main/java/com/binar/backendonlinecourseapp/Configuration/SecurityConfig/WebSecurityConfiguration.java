@@ -63,6 +63,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/create").hasAuthority("ADMIN")
                 .antMatchers("/api/course/update").hasAuthority("ADMIN")
                 .antMatchers("/api/course/upload-image/{course}").hasAuthority("ADMIN")
+                .antMatchers("/api/course/admin-dashboard").hasAuthority("ADMIN")
 
 
                 .antMatchers("/api/users").hasAuthority("USER")

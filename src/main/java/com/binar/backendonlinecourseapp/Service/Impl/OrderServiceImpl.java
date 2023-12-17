@@ -122,13 +122,7 @@ public class OrderServiceImpl implements OrderService {
 
         Optional<UserWallet> userWallet = userWalletRepository.findByCardNumber(cardNumber);
 
-        if (!userWallet.isPresent()){
-            response.setMessage("Your payment has been declined due to an invalid card");
-            response.setErrors(true);
-            return response;
-        }
-
-        if (userWallet.get().getCardType() != cardType){
+        if (!userWallet.isPresent() || userWallet.get().getCardType() != cardType){
             response.setMessage("Your payment has been declined due to an invalid card");
             response.setErrors(true);
             return response;
