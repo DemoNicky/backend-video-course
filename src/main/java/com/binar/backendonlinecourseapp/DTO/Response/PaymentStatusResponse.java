@@ -13,6 +13,8 @@ public class PaymentStatusResponse {
 
     private String kategori;
 
+    private String kelas;
+
     private String status;
 
     private String metodePembayaran;

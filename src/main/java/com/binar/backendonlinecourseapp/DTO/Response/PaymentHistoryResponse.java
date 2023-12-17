@@ -22,6 +22,10 @@ public class PaymentHistoryResponse {
 
     private String author;
 
+    private Double rating;
+
+    private Integer modul;
+
     private Integer time;
 
     private Boolean completePaid;

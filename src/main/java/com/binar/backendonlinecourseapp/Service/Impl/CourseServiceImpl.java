@@ -476,6 +476,8 @@ public class CourseServiceImpl implements CourseService {
             paymentHistory.setImageUrl(p.getCourse().getPictureUrl());
             paymentHistory.setKategori(p.getCourse().getCategories().getCategoryName());
             paymentHistory.setLevel(p.getCourse().getLevel());
+            paymentHistory.setRating(p.getCourse().getRating());
+            paymentHistory.setModul(p.getCourse().getModul());
             paymentHistory.setAuthor(p.getCourse().getAuthor());
             paymentHistory.setTime(p.getCourse().getTime());
             paymentHistory.setCompletePaid(p.getCompletePaid());
@@ -1108,66 +1110,43 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ResponseHandling<DashboardResponse> dashboard(Integer page) {
-        ResponseHandling<DashboardResponse> response = new ResponseHandling<>();
-        List<User> user = userRepository.findAll();
-        List<Course> courses = courseRepository.findAll();
-        List<Course> premiumCourse = courseRepository.findPremiumCourses();
+    public ResponseHandling<List<PaymentStatusResponse>> dashboardFilter(Boolean isOldest, Boolean isAlreadyPaid, Boolean isNoPaid, List<CardType> paymentMethod, List<String> category, Integer page) {
+        ResponseHandling<List<PaymentStatusResponse>> response = new ResponseHandling<>();
+
         List<Order> orders;
-        if (page == null) {
-            orders = orderRepository.findAll();
-        } else {
+        if (isOldest == null || isOldest == false && isAlreadyPaid == null || isAlreadyPaid == false && isNoPaid == null ||
+                isNoPaid == false && paymentMethod == null && category == null){
+            if (page == null) {
+                orders = orderRepository.findAll();
+            } else {
+                Pageable pageable = PageRequest.of(page, 10);
+                Page<Order> orderpage = orderRepository.findAll(pageable);
+                orders = orderpage.getContent();
+            }
+        }else if (page != null){
+
+            List<Category> categories = category.stream()
+                    .map(categoryRepository::findByCategoryName)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
             Pageable pageable = PageRequest.of(page, 10);
-            Page<Order> orderpage = orderRepository.findAll(pageable);
+            Page<Order> orderpage = orderRepository.findDashboardFilterPage(isOldest, isAlreadyPaid, isNoPaid, paymentMethod, categories, pageable);
             orders = orderpage.getContent();
+        } else {
+            List<Category> categories = category.stream()
+                    .map(categoryRepository::findByCategoryName)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            orders = orderRepository.findDashboardFilter(isOldest, isAlreadyPaid, isNoPaid, paymentMethod, categories);
         }
 
-        DashboardResponse dashboardResponse = new DashboardResponse();
-        dashboardResponse.setActiveUser(user.size());
-        dashboardResponse.setActiveClass(courses.size());
-        dashboardResponse.setPremiumClass(premiumCourse.size());
-//        List<PaymentStatusResponse> paymentStatusResponses = orders.stream().map((p)->{
-//            PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
-//            paymentStatusResponse.setId(p.getUser().getNama());
-//            paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
-//            if (p.getCompletePaid() == true){
-//                paymentStatusResponse.setStatus("SUDAH BAYAR");
-//            }else {
-//                paymentStatusResponse.setStatus("BELUM BAYAR");
-//            }
-//
-//            if (p.getPaymentMethod() != null) {
-//                if (CardType.BANK_TRANSFER.equals(p.getPaymentMethod())) {
-//                    paymentStatusResponse.setMetodePembayaran("Transfer bank");
-//                } else if (CardType.CREDIT_CARD.equals(p.getPaymentMethod())){
-//                    paymentStatusResponse.setMetodePembayaran("Credit card");
-//                } else {
-//                    paymentStatusResponse.setMetodePembayaran("-");
-//                }
-//            } else {
-//                paymentStatusResponse.setMetodePembayaran("-");
-//            }
-//
-//            SimpleDateFormat outputFormat = new SimpleDateFormat("d MMM, yyyy 'at' h:mm a", Locale.ENGLISH);
-//
-//            Date payTime = p.getPayTime();
-//            if (payTime != null) {
-//                String outputDate = outputFormat.format(payTime);
-//
-//                if (!outputDate.isEmpty()) {
-//                    paymentStatusResponse.setTanggalBayar(outputDate);
-//                } else {
-//                    paymentStatusResponse.setTanggalBayar("-");
-//                }
-//            } else {
-//                paymentStatusResponse.setTanggalBayar("-");
-//            }
-//            return paymentStatusResponse;
-//        }).collect(Collectors.toList());
-        List<PaymentStatusResponse> paymentStatusResponses = orders.parallelStream().map(p -> {
+        List<PaymentStatusResponse> paymentStatusResponses = orders.stream().map(p -> {
             PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
             paymentStatusResponse.setId(p.getUser().getNama());
             paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            paymentStatusResponse.setKelas(p.getCourse().getClassName());
             paymentStatusResponse.setStatus(p.getCompletePaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
 
             if (p.getPaymentMethod() != null) {
@@ -1194,11 +1173,87 @@ public class CourseServiceImpl implements CourseService {
 
             return paymentStatusResponse;
         }).collect(Collectors.toList());
-        dashboardResponse.setPaymentStatusResponses(paymentStatusResponses);
+
+        if (paymentStatusResponses.isEmpty()){
+            response.setMessage("cant get data");
+            response.setErrors(true);
+            return response;
+        }
+
+        response.setData(paymentStatusResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<DashboardResponse> getActivedashboard() {
+        ResponseHandling<DashboardResponse> response = new ResponseHandling<>();
+        List<User> user = userRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
+        List<Course> premiumCourse = courseRepository.findPremiumCourses();
+        DashboardResponse dashboardResponse = new DashboardResponse();
+        dashboardResponse.setActiveUser(user.size());
+        dashboardResponse.setActiveClass(courses.size());
+        dashboardResponse.setPremiumClass(premiumCourse.size());
 
         response.setData(dashboardResponse);
         response.setMessage("success get data");
         response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<PaymentStatusResponse>> dashboard(Integer page) {
+        ResponseHandling<List<PaymentStatusResponse>> response = new ResponseHandling<>();
+        List<Order> orders;
+
+        if (page == null) {
+            orders = orderRepository.findAll();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Order> orderpage = orderRepository.findAll(pageable);
+            orders = orderpage.getContent();
+        }
+
+        List<PaymentStatusResponse> paymentStatusResponses = orders.parallelStream().map(p -> {
+            PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
+            paymentStatusResponse.setId(p.getUser().getNama());
+            paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            paymentStatusResponse.setKelas(p.getCourse().getClassName());
+            paymentStatusResponse.setStatus(p.getCompletePaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
+
+            if (p.getPaymentMethod() != null) {
+                if (CardType.BANK_TRANSFER.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Transfer bank");
+                } else if (CardType.CREDIT_CARD.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Credit card");
+                } else {
+                    paymentStatusResponse.setMetodePembayaran("-");
+                }
+            } else {
+                paymentStatusResponse.setMetodePembayaran("-");
+            }
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("d MMM, yyyy 'at' h:mm a", Locale.ENGLISH);
+            Date payTime = p.getPayTime();
+
+            if (payTime != null) {
+                String outputDate = outputFormat.format(payTime);
+                paymentStatusResponse.setTanggalBayar(outputDate.isEmpty() ? "-" : outputDate);
+            } else {
+                paymentStatusResponse.setTanggalBayar("-");
+            }
+
+            return paymentStatusResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(paymentStatusResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
         return response;
     }
 
