@@ -2,6 +2,7 @@ package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
@@ -38,8 +39,8 @@ public interface CourseService {
     ResponseHandling<List<CourseGetResponse>> getPopularClass(String category);
 
     ResponseHandling<List<CourseGetResponse>> filter(Boolean isNewest, Boolean isPopular, ClassType classType, List<String> category, List<Level> level);
-//
-    ResponseHandling<DashboardResponse> dashboard(Integer page);
+
+    ResponseHandling<List<PaymentStatusResponse>> dashboard(Integer page);
 
     ResponseHandling<List<CourseGetResponse>> searchCoursePremium(String courseName, Integer page);
 
@@ -54,4 +55,8 @@ public interface CourseService {
     ResponseHandling<List<UserWatchProgressResponse>> searchProgressAndFinished(String courseName, Integer page);
 
     ResponseHandling<List<UserWatchProgressResponse>> filterProgress(Boolean isNewest, Boolean isPopular, ProgressType progressType, List<String> category, List<Level> level);
+
+    ResponseHandling<List<PaymentStatusResponse>> dashboardFilter(Boolean isOldest, Boolean isAlreadyPaid, Boolean isNoPaid, List<CardType> paymentMethod, List<String> category, Integer page);
+
+    ResponseHandling<DashboardResponse> getActivedashboard();
 }

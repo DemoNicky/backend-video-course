@@ -15,6 +15,4 @@ public class DashboardResponse {
 
     private Integer premiumClass;
 
-    private List<PaymentStatusResponse> paymentStatusResponses;
-
 }

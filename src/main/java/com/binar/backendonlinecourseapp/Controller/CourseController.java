@@ -4,6 +4,7 @@ import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
+import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
@@ -275,14 +276,48 @@ public class CourseController {
     }
 
     @GetMapping(
-            path = "/admin-dashboard",
+            path = "/get-payment-status",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<DashboardResponse>>dashboard(@RequestParam(required = false) Integer page){
-        ResponseHandling<DashboardResponse> response = courseService.dashboard(page);
+    public ResponseEntity<ResponseHandling<List<PaymentStatusResponse>>>dashboard(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<PaymentStatusResponse>> response = courseService.dashboard(page);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
+    @GetMapping(
+            path = "/get-active",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<DashboardResponse>>getActivedashboard(){
+        ResponseHandling<DashboardResponse> response = courseService.getActivedashboard();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @GetMapping(
+            path = "/dashboard-filter",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<PaymentStatusResponse>>>dashboardFilter(@RequestParam Boolean isOldest,
+                                                                                    @RequestParam Boolean isAlreadyPaid,
+                                                                                    @RequestParam Boolean isNoPaid,
+                                                                                    @RequestParam List<CardType> paymentMethod,
+                                                                                    @RequestParam List<String> category,
+                                                                                    @RequestParam(required = false) Integer page) throws IOException {
+
+        ResponseHandling<List<PaymentStatusResponse>> response = courseService.dashboardFilter(isOldest, isAlreadyPaid, isNoPaid, paymentMethod, category, page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+//    @GetMapping(
+//            path = "/manage-class",
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public ResponseEntity<ResponseHandling<DashboardResponse>>manageClass(@RequestParam(required = false) Integer page){
+//        ResponseHandling<DashboardResponse> response = courseService.manageClass(page);
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//
+//    }
 
 }
