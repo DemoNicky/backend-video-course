@@ -310,14 +310,23 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @GetMapping(
-//            path = "/manage-class",
-//            produces = MediaType.APPLICATION_JSON_VALUE
-//    )
-//    public ResponseEntity<ResponseHandling<DashboardResponse>>manageClass(@RequestParam(required = false) Integer page){
-//        ResponseHandling<DashboardResponse> response = courseService.manageClass(page);
-//        return ResponseEntity.status(HttpStatus.OK).body(response);
-//
-//    }
+    @GetMapping(
+            path = "/search-dashboard",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<PaymentStatusResponse>>>searchDashboard(@RequestParam(required = false) String keyword,
+                                                                                        @RequestParam(required = false) Integer page){
+        ResponseHandling<List<PaymentStatusResponse>> response = courseService.searchDashboard(keyword, page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get-manage-class",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<ManageClassResponse>>>getManageClass(@RequestParam(required = false) Integer page){
+        ResponseHandling<List<ManageClassResponse>> response = courseService.getManageClass(page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

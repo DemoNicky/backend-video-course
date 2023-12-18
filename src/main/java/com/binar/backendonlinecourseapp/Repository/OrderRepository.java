@@ -37,19 +37,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     Page<Order> findAll(Pageable pageable);
 
-//    @Query("SELECT o FROM Order o " +
-//            "JOIN o.course c " +
-//            "WHERE (COALESCE(:categoryList, NULL) IS NULL OR c.categories IN :categoryList) " +
-//            "AND (COALESCE(:levelList, NULL) IS NULL OR c.level IN :levelList) " +
-//            "ORDER BY " +
-//            "CASE WHEN :orderByRating = true THEN c.rating END DESC, " +
-//            "CASE WHEN :orderByPublish = true THEN c.publish END DESC")
-//    List<Order> findFilteredOrders(
-//            @Param("categoryList") List<Category> categoryList,
-//            @Param("levelList") List<Level> levelList,
-//            @Param("orderByRating") boolean orderByRating,
-//            @Param("orderByPublish") boolean orderByPublish);
-
     @Query("SELECT o FROM Order o " +
             "WHERE o.user = :user " +
             "AND (COALESCE(:categoryList, NULL) IS NULL OR o.course.categories IN :categoryList) " +
@@ -96,5 +83,11 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             @Param("paymentMethod")List<CardType> paymentMethod,
             @Param("category")List<Category> categoryList,
             Pageable pageable);
+
+    @Query("SELECT c FROM Order c WHERE LOWER(c.course.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.user.nama) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Order> findByOrderAndClassname(@Param("searchTerm") String searchTerm);
+
+    @Query("SELECT c FROM Order c WHERE LOWER(c.course.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.user.nama) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    Page<Order> findByOrderAndClassname(@Param("searchTerm") String searchTerm, Pageable pageable);
 
 }

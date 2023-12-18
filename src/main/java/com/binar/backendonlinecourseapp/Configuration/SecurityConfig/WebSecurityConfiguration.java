@@ -66,6 +66,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get-payment-status").hasAuthority("ADMIN")
                 .antMatchers("/api/course/get-active").hasAuthority("ADMIN")
                 .antMatchers("/api/course/dashboard-filter").hasAuthority("ADMIN")
+                .antMatchers("/api/course/search-dashboard").hasAuthority("ADMIN")
+                .antMatchers("/api/course/get-manage-class").hasAuthority("ADMIN")
 
                 .antMatchers("/api/users").hasAuthority("USER")
                 .antMatchers("/api/course/get/{course}").hasAuthority("USER")

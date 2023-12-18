@@ -59,4 +59,8 @@ public interface CourseService {
     ResponseHandling<List<PaymentStatusResponse>> dashboardFilter(Boolean isOldest, Boolean isAlreadyPaid, Boolean isNoPaid, List<CardType> paymentMethod, List<String> category, Integer page);
 
     ResponseHandling<DashboardResponse> getActivedashboard();
+
+    ResponseHandling<List<PaymentStatusResponse>> searchDashboard(String keyword, Integer page);
+
+    ResponseHandling<List<ManageClassResponse>> getManageClass(Integer page);
 }
