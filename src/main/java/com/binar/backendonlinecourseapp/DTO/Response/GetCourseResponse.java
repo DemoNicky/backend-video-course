@@ -15,6 +15,8 @@ public class GetCourseResponse {
 
     private String namaKelas;
 
+    private String imageUrl;
+
     private String kategori;
 
     private Level level;

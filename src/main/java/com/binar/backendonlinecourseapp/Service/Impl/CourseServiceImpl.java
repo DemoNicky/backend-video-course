@@ -346,6 +346,7 @@ public class CourseServiceImpl implements CourseService {
             GetCourseResponse getCourseResponse = new GetCourseResponse();
             getCourseResponse.setKodeKelas(courseGet.getCourseCode());
             getCourseResponse.setNamaKelas(courseGet.getClassName());
+            getCourseResponse.setImageUrl(courseGet.getPictureUrl());
             getCourseResponse.setTime(courseGet.getTime());
             getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
             getCourseResponse.setLevel(courseGet.getLevel());
@@ -402,6 +403,7 @@ public class CourseServiceImpl implements CourseService {
         GetCourseResponse getCourseResponse = new GetCourseResponse();
         getCourseResponse.setKodeKelas(courseGet.getCourseCode());
         getCourseResponse.setNamaKelas(courseGet.getClassName());
+        getCourseResponse.setImageUrl(courseGet.getPictureUrl());
         getCourseResponse.setTime(courseGet.getTime());
         getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
         getCourseResponse.setLevel(courseGet.getLevel());
@@ -1202,6 +1204,98 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("success get data");
         response.setErrors(false);
 
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<PaymentStatusResponse>> searchDashboard(String keyword, Integer page) {
+        ResponseHandling<List<PaymentStatusResponse>> response = new ResponseHandling<>();
+
+        List<Order> orders;
+
+        if (page == null) {
+            orders = orderRepository.findByOrderAndClassname(keyword);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Order> orderpage = orderRepository.findByOrderAndClassname(keyword, pageable);
+            orders = orderpage.getContent();
+        }
+        List<PaymentStatusResponse> paymentStatusResponses = orders.parallelStream().map(p -> {
+            PaymentStatusResponse paymentStatusResponse = new PaymentStatusResponse();
+            paymentStatusResponse.setId(p.getUser().getNama());
+            paymentStatusResponse.setKategori(p.getCourse().getCategories().getCategoryName());
+            paymentStatusResponse.setKelas(p.getCourse().getClassName());
+            paymentStatusResponse.setStatus(p.getCompletePaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
+
+            if (p.getPaymentMethod() != null) {
+                if (CardType.BANK_TRANSFER.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Transfer bank");
+                } else if (CardType.CREDIT_CARD.equals(p.getPaymentMethod())) {
+                    paymentStatusResponse.setMetodePembayaran("Credit card");
+                } else {
+                    paymentStatusResponse.setMetodePembayaran("-");
+                }
+            } else {
+                paymentStatusResponse.setMetodePembayaran("-");
+            }
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("d MMM, yyyy 'at' h:mm a", Locale.ENGLISH);
+            Date payTime = p.getPayTime();
+
+            if (payTime != null) {
+                String outputDate = outputFormat.format(payTime);
+                paymentStatusResponse.setTanggalBayar(outputDate.isEmpty() ? "-" : outputDate);
+            } else {
+                paymentStatusResponse.setTanggalBayar("-");
+            }
+
+            return paymentStatusResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(paymentStatusResponses);
+        response.setMessage("success get data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<ManageClassResponse>> getManageClass(Integer page) {
+        ResponseHandling<List<ManageClassResponse>> response = new ResponseHandling<>();
+        List<Course> courses;
+        if (page == null) {
+            courses = courseRepository.findAll();
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findAll(pageable);
+            courses = coursePage.getContent();
+        }
+
+        List<ManageClassResponse> manageClassResponses = courses.stream().map((p)->{
+            ManageClassResponse manageClassResponse = new ManageClassResponse();
+            manageClassResponse.setKodeKelas(p.getClassName());
+            manageClassResponse.setKategori(p.getCategories().getCategoryName());
+            manageClassResponse.setNamaKelas(p.getClassName());
+            if (ClassType.PREMIUM.equals(p.getClassType())){
+                manageClassResponse.setTipeKelas("PREMIUM");
+            }else {
+                manageClassResponse.setTipeKelas("GRATIS");
+            }
+            if (Level.BEGINNER.equals(p.getLevel())){
+                manageClassResponse.setLevel("Beginner");
+            }else if (Level.ADVANCED.equals(p.getLevel())){
+                manageClassResponse.setLevel("Advanced");
+            }else {
+                manageClassResponse.setLevel("Intermediate");
+            }
+            manageClassResponse.setHarga(p.getPrice());
+
+            return manageClassResponse;
+        }).collect(Collectors.toList());
+
+        response.setData(manageClassResponses);
+        response.setMessage("get data success");
+        response.setErrors(false);
         return response;
     }
 
