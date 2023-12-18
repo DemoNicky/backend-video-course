@@ -125,6 +125,19 @@ public class CourseController {
 
     }
 
+    @GetMapping(path = "/search-all-course/{course}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchAllCourse(@PathVariable("course")String courseName,
+                                                                                    @RequestParam(required = false) Integer page){
+        ResponseHandling<List<CourseGetResponse>> response = courseService.getSearchAllCourse(courseName, page);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
     @GetMapping(path = "/search-premium/{course}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
