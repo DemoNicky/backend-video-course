@@ -52,7 +52,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/get-free").permitAll()
                 .antMatchers("/api/course/search/{course}").permitAll()
                 .antMatchers("/api/course/filter").permitAll()
-                .antMatchers("/api/course/get/{course}").permitAll()
+                .antMatchers("/api/course/search-all-course/{course}").permitAll()
                 .antMatchers("/api/course/popular-course").permitAll()
                 .antMatchers("/api/category/get").permitAll()
                 .antMatchers("/api/course/search-premium/{course}").permitAll()

@@ -63,4 +63,6 @@ public interface CourseService {
     ResponseHandling<List<PaymentStatusResponse>> searchDashboard(String keyword, Integer page);
 
     ResponseHandling<List<ManageClassResponse>> getManageClass(Integer page);
+
+    ResponseHandling<List<CourseGetResponse>> getSearchAllCourse(String courseName, Integer page);
 }
