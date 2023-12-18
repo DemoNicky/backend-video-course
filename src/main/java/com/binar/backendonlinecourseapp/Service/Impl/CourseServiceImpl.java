@@ -346,6 +346,7 @@ public class CourseServiceImpl implements CourseService {
             GetCourseResponse getCourseResponse = new GetCourseResponse();
             getCourseResponse.setKodeKelas(courseGet.getCourseCode());
             getCourseResponse.setNamaKelas(courseGet.getClassName());
+            getCourseResponse.setImageUrl(courseGet.getPictureUrl());
             getCourseResponse.setTime(courseGet.getTime());
             getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
             getCourseResponse.setLevel(courseGet.getLevel());
@@ -402,6 +403,7 @@ public class CourseServiceImpl implements CourseService {
         GetCourseResponse getCourseResponse = new GetCourseResponse();
         getCourseResponse.setKodeKelas(courseGet.getCourseCode());
         getCourseResponse.setNamaKelas(courseGet.getClassName());
+        getCourseResponse.setImageUrl(courseGet.getPictureUrl());
         getCourseResponse.setTime(courseGet.getTime());
         getCourseResponse.setKategori(courseGet.getCategories().getCategoryName());
         getCourseResponse.setLevel(courseGet.getLevel());
