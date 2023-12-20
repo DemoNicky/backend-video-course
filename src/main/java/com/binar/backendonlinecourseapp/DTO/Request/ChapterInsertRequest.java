@@ -8,8 +8,6 @@ import java.util.List;
 @Setter
 public class ChapterInsertRequest {
 
-    private String chapterNumber;
-
     private String chaptertitle;
 
     private List<InsertVideoRequest> insertVideoRequests;

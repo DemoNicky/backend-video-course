@@ -1,4 +1,2 @@
 runtime: java11
-manual_scaling:
-  instances: 1
-instance_class: B1
+instance_class: F1

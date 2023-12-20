@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
@@ -41,6 +42,33 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping(
+            path = "/get-class-data/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<GetClassDataResponse>>getClassData(@PathVariable("kodekelas")String kodekelas){
+        ResponseHandling<GetClassDataResponse> response = courseService.getClassData(kodekelas);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            path = "/update-class/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<UpdateClassResponse>>updateClassData(@PathVariable("kodekelas")String kodekelas,
+                                                                                @RequestPart("file") MultipartFile file,
+                                                                                @RequestPart("course") CourseUpdateRequest courseCreateRequest) throws IOException {
+        ResponseHandling<UpdateClassResponse> response = courseService.updateClassData(kodekelas, file, courseCreateRequest);
+        if (response.getData()==null || response.getErrors() == true){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
     @GetMapping(
             path = "/filter",

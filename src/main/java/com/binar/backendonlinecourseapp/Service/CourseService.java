@@ -1,12 +1,12 @@
 package com.binar.backendonlinecourseapp.Service;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -65,4 +65,8 @@ public interface CourseService {
     ResponseHandling<List<ManageClassResponse>> getManageClass(Integer page);
 
     ResponseHandling<List<CourseGetResponse>> getSearchAllCourse(String courseName, Integer page);
+
+    ResponseHandling<GetClassDataResponse> getClassData(String kodekelas);
+
+    ResponseHandling<UpdateClassResponse> updateClassData(String kodekelas, MultipartFile file, CourseUpdateRequest courseCreateRequest) throws IOException;
 }

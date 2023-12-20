@@ -1,6 +1,6 @@
-package com.binar.backendonlinecourseapp.DTO.Request;
+package com.binar.backendonlinecourseapp.DTO.Response;
 
-import com.binar.backendonlinecourseapp.DTO.Response.ChapterUpdateRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.ChapterInsertRequest;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CourseUpdateRequest {
+public class GetClassDataResponse {
 
     private String namaKelas;
 
@@ -25,6 +25,6 @@ public class CourseUpdateRequest {
 
     private String materi;
 
-    private List<ChapterUpdateRequest> chapterUpdateRequests;
+    private List<ChapterResponse> chapterResponses;
 
 }
