@@ -1,9 +1,7 @@
-package com.binar.backendonlinecourseapp.DTO.Response;
+package com.binar.backendonlinecourseapp.DTO.Request;
 
-import com.binar.backendonlinecourseapp.DTO.Request.InsertVideoRequest;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter

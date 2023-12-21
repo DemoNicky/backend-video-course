@@ -1,11 +1,9 @@
 package com.binar.backendonlinecourseapp.DTO.Request;
 
-import com.binar.backendonlinecourseapp.DTO.Response.ChapterUpdateRequest;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.List;
 

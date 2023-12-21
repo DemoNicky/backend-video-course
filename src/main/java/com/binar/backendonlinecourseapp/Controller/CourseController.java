@@ -1,7 +1,6 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
@@ -10,16 +9,12 @@ import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
 
@@ -54,6 +49,28 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping(
+            path = "/search-manage-class",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<ManageClassResponse>>>searchManageClass(@RequestParam("keyword")String keyword,
+                                                                                        @RequestParam(required = false) Integer page){
+        ResponseHandling<List<ManageClassResponse>> response = courseService.searchManageClass(keyword, page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping(
+            path = "/delete-course/{coursecode}"
+    )
+    public ResponseEntity<ResponseHandling<DeleteCourseResponse>>deleteData(@PathVariable("coursecode")String coursecode){
+        ResponseHandling<DeleteCourseResponse> response = courseService.deleteUserData(coursecode);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
     @PutMapping(
             path = "/update-class/{kodekelas}",

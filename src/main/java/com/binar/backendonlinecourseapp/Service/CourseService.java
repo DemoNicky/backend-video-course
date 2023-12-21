@@ -69,4 +69,8 @@ public interface CourseService {
     ResponseHandling<GetClassDataResponse> getClassData(String kodekelas);
 
     ResponseHandling<UpdateClassResponse> updateClassData(String kodekelas, MultipartFile file, CourseUpdateRequest courseCreateRequest) throws IOException;
+
+    ResponseHandling<List<ManageClassResponse>> searchManageClass(String keyword, Integer page);
+
+    ResponseHandling<DeleteCourseResponse> deleteUserData(String coursecode);
 }

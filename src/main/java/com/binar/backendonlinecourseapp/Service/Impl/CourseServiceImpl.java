@@ -144,14 +144,6 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
-    /**
-     * MASIH TESTING
-     * @param kodekelas
-     * @param file
-     * @param courseUpdateRequest
-     * @return
-     * @throws IOException
-     */
     @Transactional
     @Override
     public ResponseHandling<UpdateClassResponse> updateClassData(String kodekelas, MultipartFile file, CourseUpdateRequest courseUpdateRequest) throws IOException {
@@ -238,7 +230,6 @@ public class CourseServiceImpl implements CourseService {
         return response;
 
     }
-
 
     private int getRandomNumberrr() {
         Random random1 = new Random();
@@ -1432,6 +1423,73 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("success get data");
         response.setErrors(false);
 
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<List<ManageClassResponse>> searchManageClass(String keyword, Integer page) {
+        ResponseHandling<List<ManageClassResponse>> response = new ResponseHandling<>();
+        List<Course> course;
+
+        if (page == null) {
+            course = courseRepository.findByClassNameOrTeacherJPQL(keyword);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findByClassNameOrTeacherJPQLPage(keyword, pageable);
+            course = coursePage.getContent();
+        }
+
+        List<ManageClassResponse> manageClassResponse = course.stream().map((p)->{
+            ManageClassResponse manageClassResponse1 = new ManageClassResponse();
+            manageClassResponse1.setKodeKelas(p.getCourseCode());
+            manageClassResponse1.setKategori(p.getCategories().getCategoryName());
+            manageClassResponse1.setNamaKelas(p.getClassName());
+            if (ClassType.PREMIUM.equals(p.getClassType())){
+                manageClassResponse1.setTipeKelas("PREMIUM");
+            }else {
+                manageClassResponse1.setTipeKelas("GRATIS");
+            }
+            if (Level.BEGINNER.equals(p.getLevel())){
+                manageClassResponse1.setLevel("Beginner");
+            }else if (Level.ADVANCED.equals(p.getLevel())){
+                manageClassResponse1.setLevel("Advanced");
+            }else {
+                manageClassResponse1.setLevel("Intermediate");
+            }
+            manageClassResponse1.setHarga(p.getPrice());
+
+            return manageClassResponse1;
+
+        }).collect(Collectors.toList());
+
+        response.setData(manageClassResponse);
+        response.setMessage("get data success");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<DeleteCourseResponse> deleteUserData(String coursecode) {
+        ResponseHandling<DeleteCourseResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(coursecode);
+        if (!course.isPresent()){
+            response.setMessage("Course not found with code " + coursecode);
+            response.setErrors(true);
+            return response;
+        }
+
+        course.get().getChapters().forEach(chapter -> {
+            chapter.getVideos().forEach(video -> videoRepository.deleteById(video.getId()));
+        });
+
+        course.get().getChapters().forEach(chapter -> chapterRepository.deleteById(chapter.getId()));
+
+        courseRepository.deleteById(course.get().getId());
+        DeleteCourseResponse deleteCourseResponse = new DeleteCourseResponse();
+        deleteCourseResponse.setCourseCode(coursecode);
+        response.setData(deleteCourseResponse);
+        response.setMessage("Success delete data");
+        response.setErrors(false);
         return response;
     }
 

@@ -1,4 +1,4 @@
-package com.binar.backendonlinecourseapp.DTO.Response;
+package com.binar.backendonlinecourseapp.DTO.Request;
 
 import lombok.Getter;
 import lombok.Setter;

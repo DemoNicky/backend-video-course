@@ -36,7 +36,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<RegisterResponse>>register(@RequestBody RegisterRequest registerRequest) throws Exception {
+    public ResponseEntity<ResponseHandling<RegisterResponse>>register(@Valid @RequestBody RegisterRequest registerRequest) throws Exception {
         ResponseHandling<RegisterResponse> response = userService.register(registerRequest);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -70,7 +70,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<LoginResponse>> login(@RequestBody LoginRequest jwtRequest) throws Exception {
+    public ResponseEntity<ResponseHandling<LoginResponse>> login(@Valid @RequestBody LoginRequest jwtRequest) throws Exception {
         ResponseHandling<LoginResponse> response = userService.createJwtToken(jwtRequest);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -88,7 +88,6 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 
     @GetMapping
     public ResponseEntity<ResponseGetUser> getData(){

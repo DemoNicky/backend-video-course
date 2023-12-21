@@ -9,16 +9,17 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class RegisterRequest {
 
-    @NotBlank(message = "name cant be null!!!")
+    @NotBlank(message = "Nama tidak boleh kosong")
     private String nama;
 
-    @NotBlank(message = "email cant be null!!!")
+    @NotBlank(message = "Email tidak boleh kosong")
     private String email;
 
-    @NotBlank(message = "telp cant be null!!!")
+    @NotBlank(message = "Nomor telepon tidak boleh kosong")
     private String telp;
 
-    @NotBlank(message = "password cant be null!!!")
+    @NotBlank(message = "Password tidak boleh kosong")
     private String password;
+
 
 }
