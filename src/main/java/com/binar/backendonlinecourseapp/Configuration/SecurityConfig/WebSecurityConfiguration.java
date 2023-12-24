@@ -72,6 +72,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/course/update-class/{kodekelas}").hasAuthority("ADMIN")
                 .antMatchers("/api/course/search-manage-class").hasAuthority("ADMIN")
                 .antMatchers("/api/course/delete-course/{coursecode}").hasAuthority("ADMIN")
+                .antMatchers("/api/course/v2/create-course").hasAuthority("ADMIN")
+                .antMatchers("/api/course/v2/update-class-new/{kodekelas}").hasAuthority("ADMIN")
 
                 .antMatchers("/api/users").hasAuthority("USER")
                 .antMatchers("/api/course/get/{course}").hasAuthority("USER")

@@ -57,6 +57,92 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional
     @Override
+    public ResponseHandling<CourseCreateResponse> createCourseNew(CourseCreateRequest courseRequest) {
+        ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
+        Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<Course> courseCodeCheck = courseRepository.findByCourseCode(courseRequest.getKodeKelas());
+        Optional<Course> courseNameCheck = courseRepository.findByClassName(courseRequest.getNamaKelas());
+        if (courseCodeCheck.isPresent()){
+            response.setMessage("course code already exists");
+            response.setErrors(true);
+            return response;
+        }else if (courseNameCheck.isPresent()){
+            response.setMessage("course name already exists");
+            response.setErrors(true);
+            return response;
+        }else if (!category.isPresent()){
+            response.setMessage("category not found");
+            response.setErrors(true);
+            return response;
+        }
+        Category category1 = category.get();
+        Course course = new Course();
+        course.setCourseCode(courseRequest.getKodeKelas());
+        course.setClassName(courseRequest.getNamaKelas());
+        course.setPictureUrl(category1.getPictureUrl());
+        course.setLevel(courseRequest.getLevel());
+        course.setPrice(courseRequest.getHarga());
+        course.setAuthor(user.get().getNama());
+        course.setMateri(courseRequest.getMateri());
+        course.setPublish(new Date());
+        course.setClassType(courseRequest.getTipeKelas());
+        course.setCategories(category1);
+
+        int randomNumber1 = getRandomNumberrr();
+
+        course.setTime(randomNumber1);
+
+        Random random = new Random();
+
+        double randomNumber = 1.0 + new Random().nextDouble() * (5.0 - 1.0);
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        double formattedNumber = Double.parseDouble(decimalFormat.format(randomNumber));
+
+        course.setRating(formattedNumber);
+
+        course.setModul(new Random().nextInt(10) + 1);
+
+        courseRepository.save(course);
+
+        courseRequest.getChapterInsertRequests().stream().map((p) -> {
+            Chapter chapter = new Chapter();
+            chapter.setChaptertitle(p.getChaptertitle());
+            int chapterTime = new Random().nextInt(51) + 10;
+            chapter.setChapterTime(chapterTime);
+            chapter.setCourse(course);
+
+            p.getInsertVideoRequests().stream().map((x) -> {
+                Video video = new Video();
+                video.setVideoCode(getUUIDCode());
+                video.setVideoTitle(x.getJudulVideo());
+                video.setVideoLink(x.getLinkVideo());
+                video.setPremium(x.getIsPremium());
+                video.setChapter(chapter);
+                videoRepository.save(video);
+                return video;
+            }).collect(Collectors.toList());
+
+            chapterRepository.save(chapter);
+
+            return chapter;
+        }).collect(Collectors.toList());
+
+
+        CourseCreateResponse courseCreateResponse = new CourseCreateResponse();
+        courseCreateResponse.setNamaKelas(courseRequest.getNamaKelas());
+        courseCreateResponse.setKodeKelas(courseRequest.getKodeKelas());
+        courseCreateResponse.setKategori(courseRequest.getKategori());
+        courseCreateResponse.setHarga(courseRequest.getHarga());
+        courseCreateResponse.setMateri(courseRequest.getMateri());
+        response.setData(courseCreateResponse);
+        response.setMessage("sucess create new course");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Transactional
+    @Override
     public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest, MultipartFile file) throws IOException {
         ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
         Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
@@ -141,6 +227,90 @@ public class CourseServiceImpl implements CourseService {
         response.setData(courseCreateResponse);
         response.setMessage("sucess create new course");
         response.setErrors(false);
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<UpdateClassResponse> updateClassDataNew(String kodekelas, CourseUpdateRequest courseUpdateRequest) {
+        ResponseHandling<UpdateClassResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(kodekelas);
+        Optional<Category> category = categoryRepository.findByCategoryName(courseUpdateRequest.getKategori());
+        if (!course.isPresent()){
+            response.setMessage("Cant get data, class code invalid");
+            response.setErrors(true);
+            return response;
+        }
+
+        Course courseGet = course.get();
+        courseGet.setPictureUrl(category.get().getPictureUrl());
+        courseGet.setClassName(courseUpdateRequest.getNamaKelas());
+        courseGet.setCategories(category.get());
+        courseGet.setClassType(courseUpdateRequest.getTipeKelas());
+        courseGet.setLevel(courseUpdateRequest.getLevel());
+        courseGet.setPrice(courseUpdateRequest.getHarga());
+        courseGet.setMateri(courseUpdateRequest.getMateri());
+        courseUpdateRequest.getChapterUpdateRequests().stream().map((p)->{
+
+            Chapter chapter = new Chapter();
+
+            if (p.getChapterCode().isEmpty() || p.getChapterCode()==null){
+                chapter.setChaptertitle(p.getChaptertitle());
+                int chapterTime = new Random().nextInt(51) + 10;
+                chapter.setChapterTime(chapterTime);
+                chapter.setCourse(courseGet);
+            }else {
+                Optional<Chapter> chapterOptional = chapterRepository.findById(p.getChapterCode());
+                if (chapterOptional.isPresent()){
+                    Chapter chapterGet = chapterOptional.get();
+                    chapterGet.setChaptertitle(p.getChaptertitle());
+                    chapter = chapterGet;
+                }else {
+                    response.setMessage("Chapter Code tidak di temukan");
+                    response.setErrors(true);
+                    return response;
+                }
+            }
+            chapterRepository.save(chapter);
+
+            p.getUpdateVideoRequests().stream().map((x)->{
+                Video video = new Video();
+                if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
+                    video.setVideoCode(getUUIDCode());
+                    video.setVideoTitle(x.getJudulVideo());
+                    video.setVideoLink(x.getLinkVideo());
+                    video.setPremium(x.getIsPremium());
+                    Optional<Chapter> chapterrr = chapterRepository.findByChaptertitle(p.getChaptertitle());
+                    video.setChapter(chapterrr.get());
+                    videoRepository.save(video);
+                }else {
+                    Optional<Video> videogett = videoRepository.findByVideoCode(x.getVideoCode());
+                    if (videogett.isPresent()){
+                        Video videoGet = videogett.get();
+                        videoGet.setVideoTitle(x.getJudulVideo());
+                        videoGet.setVideoLink(x.getLinkVideo());
+                        videoGet.setPremium(x.getIsPremium());
+                        videoRepository.save(videoGet);
+                    }else {
+                        response.setMessage("Video Code tidak di temukan");
+                        response.setErrors(true);
+                        return response;
+                    }
+                }
+                return video;
+            }).collect(Collectors.toList());
+            return chapter;
+        }).collect(Collectors.toList());
+
+        courseRepository.save(courseGet);
+
+        UpdateClassResponse updateClassResponse = new UpdateClassResponse();
+        updateClassResponse.setCourseCode(courseGet.getCourseCode());
+
+        response.setData(updateClassResponse);
+        response.setMessage("suksess update data");
+        response.setErrors(false);
+
         return response;
     }
 
@@ -1479,12 +1649,25 @@ public class CourseServiceImpl implements CourseService {
         }
 
         course.get().getChapters().forEach(chapter -> {
-            chapter.getVideos().forEach(video -> videoRepository.deleteById(video.getId()));
+            chapter.getVideos().forEach(video -> {
+                Optional<UserVideo> userVideo = userVideoRepository.findByVideo(video);
+                userVideo.ifPresent(v -> userVideoRepository.deleteById(v.getId()));
+            });
         });
 
-        course.get().getChapters().forEach(chapter -> chapterRepository.deleteById(chapter.getId()));
+        course.get().getChapters().forEach(chapter -> {
+            chapter.getVideos().forEach(video -> {
+                Optional<Video> existingVideo = videoRepository.findByVideoCode(video.getVideoCode());
+                existingVideo.ifPresent(v -> videoRepository.deleteById(v.getId()));
+            });
+        });
 
+        course.get().getChapters().forEach(chapter -> {
+            Optional<Chapter> existingChapter = chapterRepository.findById(chapter.getId());
+            existingChapter.ifPresent(c -> chapterRepository.deleteById(c.getId()));
+        });
         courseRepository.deleteById(course.get().getId());
+
         DeleteCourseResponse deleteCourseResponse = new DeleteCourseResponse();
         deleteCourseResponse.setCourseCode(coursecode);
         response.setData(deleteCourseResponse);

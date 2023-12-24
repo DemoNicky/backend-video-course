@@ -73,4 +73,8 @@ public interface CourseService {
     ResponseHandling<List<ManageClassResponse>> searchManageClass(String keyword, Integer page);
 
     ResponseHandling<DeleteCourseResponse> deleteUserData(String coursecode);
+
+    ResponseHandling<CourseCreateResponse> createCourseNew(CourseCreateRequest courseRequest);
+
+    ResponseHandling<UpdateClassResponse> updateClassDataNew(String kodekelas, CourseUpdateRequest courseUpdateRequest);
 }

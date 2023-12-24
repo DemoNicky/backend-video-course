@@ -26,6 +26,18 @@ public class CourseController {
     private CourseService courseService;
 
     @PostMapping(
+            path = "/v2/create-course",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestBody CourseCreateRequest courseRequest) throws IOException {
+        ResponseHandling<CourseCreateResponse> response = courseService.createCourseNew(courseRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(
             path = "/create",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -71,6 +83,18 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PutMapping(
+            path = "/v2/update-class-new/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<UpdateClassResponse>>updateClassDataNew(@PathVariable("kodekelas")String kodekelas,
+                                                                                @RequestBody CourseUpdateRequest courseUpdateRequest) throws IOException {
+        ResponseHandling<UpdateClassResponse> response = courseService.updateClassDataNew(kodekelas, courseUpdateRequest);
+        if (response.getData()==null || response.getErrors() == true){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @PutMapping(
             path = "/update-class/{kodekelas}",
@@ -85,7 +109,6 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 
     @GetMapping(
             path = "/filter",
