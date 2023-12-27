@@ -250,7 +250,7 @@ public class CourseServiceImpl implements CourseService {
         courseGet.setLevel(courseUpdateRequest.getLevel());
         courseGet.setPrice(courseUpdateRequest.getHarga());
         courseGet.setMateri(courseUpdateRequest.getMateri());
-        courseUpdateRequest.getChapterUpdateRequests().stream().map((p)->{
+        courseUpdateRequest.getChapterResponses().stream().map((p)->{
 
             Chapter chapter = new Chapter();
 
@@ -273,7 +273,7 @@ public class CourseServiceImpl implements CourseService {
             }
             chapterRepository.save(chapter);
 
-            p.getUpdateVideoRequests().stream().map((x)->{
+            p.getVideoResponseData().stream().map((x)->{
                 Video video = new Video();
                 if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
                     video.setVideoCode(getUUIDCode());
@@ -338,7 +338,7 @@ public class CourseServiceImpl implements CourseService {
         courseGet.setPrice(courseUpdateRequest.getHarga());
         courseGet.setMateri(courseUpdateRequest.getMateri());
 
-        courseUpdateRequest.getChapterUpdateRequests().stream().map((p)->{
+        courseUpdateRequest.getChapterResponses().stream().map((p)->{
             Chapter chapter = new Chapter();
             if (p.getChapterCode().isEmpty() || p.getChapterCode()==null){
                 chapter.setChaptertitle(p.getChaptertitle());
@@ -359,7 +359,7 @@ public class CourseServiceImpl implements CourseService {
             }
             chapterRepository.save(chapter);
 
-            p.getUpdateVideoRequests().stream().map((x)->{
+            p.getVideoResponseData().stream().map((x)->{
                 Video video = new Video();
                 if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
                     video.setVideoCode(getUUIDCode());

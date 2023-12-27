@@ -1,5 +1,6 @@
 package com.binar.backendonlinecourseapp.DTO.Request;
 
+import com.binar.backendonlinecourseapp.DTO.Response.ChapterResponse;
 import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
@@ -23,6 +24,6 @@ public class CourseUpdateRequest {
 
     private String materi;
 
-    private List<ChapterUpdateRequest> chapterUpdateRequests;
+    private List<ChapterResponse> chapterResponses;
 
 }
