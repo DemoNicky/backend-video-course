@@ -1,7 +1,6 @@
 package com.binar.backendonlinecourseapp.Service.Impl;
 
-import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
+import com.binar.backendonlinecourseapp.DTO.Request.*;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
@@ -58,6 +57,92 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional
     @Override
+    public ResponseHandling<CourseCreateResponse> createCourseNew(CourseCreateRequest courseRequest) {
+        ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
+        Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
+        Optional<User> user = userRepository.findByEmail(getAuth());
+        Optional<Course> courseCodeCheck = courseRepository.findByCourseCode(courseRequest.getKodeKelas());
+        Optional<Course> courseNameCheck = courseRepository.findByClassName(courseRequest.getNamaKelas());
+        if (courseCodeCheck.isPresent()){
+            response.setMessage("course code already exists");
+            response.setErrors(true);
+            return response;
+        }else if (courseNameCheck.isPresent()){
+            response.setMessage("course name already exists");
+            response.setErrors(true);
+            return response;
+        }else if (!category.isPresent()){
+            response.setMessage("category not found");
+            response.setErrors(true);
+            return response;
+        }
+        Category category1 = category.get();
+        Course course = new Course();
+        course.setCourseCode(courseRequest.getKodeKelas());
+        course.setClassName(courseRequest.getNamaKelas());
+        course.setPictureUrl(category1.getPictureUrl());
+        course.setLevel(courseRequest.getLevel());
+        course.setPrice(courseRequest.getHarga());
+        course.setAuthor(user.get().getNama());
+        course.setMateri(courseRequest.getMateri());
+        course.setPublish(new Date());
+        course.setClassType(courseRequest.getTipeKelas());
+        course.setCategories(category1);
+
+        int randomNumber1 = getRandomNumberrr();
+
+        course.setTime(randomNumber1);
+
+        Random random = new Random();
+
+        double randomNumber = 1.0 + new Random().nextDouble() * (5.0 - 1.0);
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        double formattedNumber = Double.parseDouble(decimalFormat.format(randomNumber));
+
+        course.setRating(formattedNumber);
+
+        course.setModul(new Random().nextInt(10) + 1);
+
+        courseRepository.save(course);
+
+        courseRequest.getChapterInsertRequests().stream().map((p) -> {
+            Chapter chapter = new Chapter();
+            chapter.setChaptertitle(p.getChaptertitle());
+            int chapterTime = new Random().nextInt(51) + 10;
+            chapter.setChapterTime(chapterTime);
+            chapter.setCourse(course);
+
+            p.getInsertVideoRequests().stream().map((x) -> {
+                Video video = new Video();
+                video.setVideoCode(getUUIDCode());
+                video.setVideoTitle(x.getJudulVideo());
+                video.setVideoLink(x.getLinkVideo());
+                video.setPremium(x.getIsPremium());
+                video.setChapter(chapter);
+                videoRepository.save(video);
+                return video;
+            }).collect(Collectors.toList());
+
+            chapterRepository.save(chapter);
+
+            return chapter;
+        }).collect(Collectors.toList());
+
+
+        CourseCreateResponse courseCreateResponse = new CourseCreateResponse();
+        courseCreateResponse.setNamaKelas(courseRequest.getNamaKelas());
+        courseCreateResponse.setKodeKelas(courseRequest.getKodeKelas());
+        courseCreateResponse.setKategori(courseRequest.getKategori());
+        courseCreateResponse.setHarga(courseRequest.getHarga());
+        courseCreateResponse.setMateri(courseRequest.getMateri());
+        response.setData(courseCreateResponse);
+        response.setMessage("sucess create new course");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Transactional
+    @Override
     public ResponseHandling<CourseCreateResponse> createCourse(CourseCreateRequest courseRequest, MultipartFile file) throws IOException {
         ResponseHandling<CourseCreateResponse> response = new ResponseHandling<>();
         Optional<Category> category = categoryRepository.findByCategoryName(courseRequest.getKategori());
@@ -111,13 +196,12 @@ public class CourseServiceImpl implements CourseService {
 
         courseRequest.getChapterInsertRequests().stream().map((p) -> {
             Chapter chapter = new Chapter();
-            chapter.setChapterNumber(p.getChapterNumber());
             chapter.setChaptertitle(p.getChaptertitle());
             int chapterTime = new Random().nextInt(51) + 10;
             chapter.setChapterTime(chapterTime);
             chapter.setCourse(course);
 
-            List<Video> videos = p.getInsertVideoRequests().stream().map((x) -> {
+            p.getInsertVideoRequests().stream().map((x) -> {
                     Video video = new Video();
                     video.setVideoCode(getUUIDCode());
                     video.setVideoTitle(x.getJudulVideo());
@@ -144,6 +228,177 @@ public class CourseServiceImpl implements CourseService {
         response.setMessage("sucess create new course");
         response.setErrors(false);
         return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<UpdateClassResponse> updateClassDataNew(String kodekelas, CourseUpdateRequest courseUpdateRequest) {
+        ResponseHandling<UpdateClassResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(kodekelas);
+        Optional<Category> category = categoryRepository.findByCategoryName(courseUpdateRequest.getKategori());
+        if (!course.isPresent()){
+            response.setMessage("Cant get data, class code invalid");
+            response.setErrors(true);
+            return response;
+        }
+
+        Course courseGet = course.get();
+        courseGet.setPictureUrl(category.get().getPictureUrl());
+        courseGet.setClassName(courseUpdateRequest.getNamaKelas());
+        courseGet.setCategories(category.get());
+        courseGet.setClassType(courseUpdateRequest.getTipeKelas());
+        courseGet.setLevel(courseUpdateRequest.getLevel());
+        courseGet.setPrice(courseUpdateRequest.getHarga());
+        courseGet.setMateri(courseUpdateRequest.getMateri());
+        courseUpdateRequest.getChapterResponses().stream().map((p)->{
+
+            Chapter chapter = new Chapter();
+
+            if (p.getChapterCode().isEmpty() || p.getChapterCode()==null){
+                chapter.setChaptertitle(p.getChaptertitle());
+                int chapterTime = new Random().nextInt(51) + 10;
+                chapter.setChapterTime(chapterTime);
+                chapter.setCourse(courseGet);
+            }else {
+                Optional<Chapter> chapterOptional = chapterRepository.findById(p.getChapterCode());
+                if (chapterOptional.isPresent()){
+                    Chapter chapterGet = chapterOptional.get();
+                    chapterGet.setChaptertitle(p.getChaptertitle());
+                    chapter = chapterGet;
+                }else {
+                    response.setMessage("Chapter Code tidak di temukan");
+                    response.setErrors(true);
+                    return response;
+                }
+            }
+            chapterRepository.save(chapter);
+
+            p.getVideoResponseData().stream().map((x)->{
+                Video video = new Video();
+                if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
+                    video.setVideoCode(getUUIDCode());
+                    video.setVideoTitle(x.getJudulVideo());
+                    video.setVideoLink(x.getLinkVideo());
+                    video.setPremium(x.getIsPremium());
+                    Optional<Chapter> chapterrr = chapterRepository.findByChaptertitle(p.getChaptertitle());
+                    video.setChapter(chapterrr.get());
+                    videoRepository.save(video);
+                }else {
+                    Optional<Video> videogett = videoRepository.findByVideoCode(x.getVideoCode());
+                    if (videogett.isPresent()){
+                        Video videoGet = videogett.get();
+                        videoGet.setVideoTitle(x.getJudulVideo());
+                        videoGet.setVideoLink(x.getLinkVideo());
+                        videoGet.setPremium(x.getIsPremium());
+                        videoRepository.save(videoGet);
+                    }else {
+                        response.setMessage("Video Code tidak di temukan");
+                        response.setErrors(true);
+                        return response;
+                    }
+                }
+                return video;
+            }).collect(Collectors.toList());
+            return chapter;
+        }).collect(Collectors.toList());
+
+        courseRepository.save(courseGet);
+
+        UpdateClassResponse updateClassResponse = new UpdateClassResponse();
+        updateClassResponse.setCourseCode(courseGet.getCourseCode());
+
+        response.setData(updateClassResponse);
+        response.setMessage("suksess update data");
+        response.setErrors(false);
+
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseHandling<UpdateClassResponse> updateClassData(String kodekelas, MultipartFile file, CourseUpdateRequest courseUpdateRequest) throws IOException {
+        ResponseHandling<UpdateClassResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(kodekelas);
+        Optional<Category> category = categoryRepository.findByCategoryName(courseUpdateRequest.getKategori());
+        if (!course.isPresent()){
+            response.setMessage("Cant get data, class code invalid");
+            response.setErrors(true);
+            return response;
+        }
+
+        Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = result.get("url").toString();
+
+        Course courseGet = course.get();
+        courseGet.setPictureUrl(imageUrl);
+        courseGet.setClassName(courseUpdateRequest.getNamaKelas());
+        courseGet.setCategories(category.get());
+        courseGet.setClassType(courseUpdateRequest.getTipeKelas());
+        courseGet.setLevel(courseUpdateRequest.getLevel());
+        courseGet.setPrice(courseUpdateRequest.getHarga());
+        courseGet.setMateri(courseUpdateRequest.getMateri());
+
+        courseUpdateRequest.getChapterResponses().stream().map((p)->{
+            Chapter chapter = new Chapter();
+            if (p.getChapterCode().isEmpty() || p.getChapterCode()==null){
+                chapter.setChaptertitle(p.getChaptertitle());
+                int chapterTime = new Random().nextInt(51) + 10;
+                chapter.setChapterTime(chapterTime);
+                chapter.setCourse(courseGet);
+            }else {
+                Optional<Chapter> chapterOptional = chapterRepository.findById(p.getChapterCode());
+                if (chapterOptional.isPresent()){
+                    Chapter chapterGet = chapterOptional.get();
+                    chapterGet.setChaptertitle(p.getChaptertitle());
+                    chapter = chapterGet;
+                }else {
+                    response.setMessage("Chapter Code tidak di temukan");
+                    response.setErrors(true);
+                    return response;
+                }
+            }
+            chapterRepository.save(chapter);
+
+            p.getVideoResponseData().stream().map((x)->{
+                Video video = new Video();
+                if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
+                    video.setVideoCode(getUUIDCode());
+                    video.setVideoTitle(x.getJudulVideo());
+                    video.setVideoLink(x.getLinkVideo());
+                    video.setPremium(x.getIsPremium());
+                    Optional<Chapter> chapterrr = chapterRepository.findByChaptertitle(p.getChaptertitle());
+                    video.setChapter(chapterrr.get());
+                    videoRepository.save(video);
+                }else {
+                    Optional<Video> videogett = videoRepository.findByVideoCode(x.getVideoCode());
+                    if (videogett.isPresent()){
+                        Video videoGet = videogett.get();
+                        videoGet.setVideoTitle(x.getJudulVideo());
+                        videoGet.setVideoLink(x.getLinkVideo());
+                        videoGet.setPremium(x.getIsPremium());
+                        videoRepository.save(videoGet);
+                    }else {
+                        response.setMessage("Video Code tidak di temukan");
+                        response.setErrors(true);
+                        return response;
+                    }
+                }
+                return video;
+            }).collect(Collectors.toList());
+            return chapter;
+        }).collect(Collectors.toList());
+
+        courseRepository.save(courseGet);
+
+        UpdateClassResponse updateClassResponse = new UpdateClassResponse();
+        updateClassResponse.setCourseCode(courseGet.getCourseCode());
+
+        response.setData(updateClassResponse);
+        response.setMessage("suksess update data");
+        response.setErrors(false);
+
+        return response;
+
     }
 
     private int getRandomNumberrr() {
@@ -238,6 +493,46 @@ public class CourseServiceImpl implements CourseService {
         response.setErrors(false);
 
         return response;
+    }
+
+    @Override
+    public ResponseHandling<GetClassDataResponse> getClassData(String kodekelas) {
+        ResponseHandling<GetClassDataResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(kodekelas);
+        if (!course.isPresent()){
+            response.setMessage("Cant get data, class code invalid");
+            response.setErrors(true);
+            return response;
+        }
+        Course courseGet = course.get();
+        GetClassDataResponse getClassDataResponse = new GetClassDataResponse();
+        getClassDataResponse.setNamaKelas(courseGet.getClassName());
+        getClassDataResponse.setKategori(courseGet.getCategories().getCategoryName());
+        getClassDataResponse.setTipeKelas(courseGet.getClassType());
+        getClassDataResponse.setLevel(courseGet.getLevel());
+        getClassDataResponse.setHarga(courseGet.getPrice());
+        getClassDataResponse.setMateri(courseGet.getMateri());
+        List<ChapterResponse> chapterInsertRequests = courseGet.getChapters().stream().map((p)->{
+            ChapterResponse chapterInsertRequest = new ChapterResponse();
+            chapterInsertRequest.setChapterCode(p.getId());
+            chapterInsertRequest.setChaptertitle(p.getChaptertitle());
+            List<VideoResponseData> insertVideoRequests = p.getVideos().stream().map((x)->{
+                VideoResponseData insertVideoRequest = new VideoResponseData();
+                insertVideoRequest.setVideoCode(x.getVideoCode());
+                insertVideoRequest.setJudulVideo(x.getVideoTitle());
+                insertVideoRequest.setLinkVideo(x.getVideoLink());
+                insertVideoRequest.setIsPremium(x.getPremium());
+                return insertVideoRequest;
+            }).collect(Collectors.toList());
+            chapterInsertRequest.setVideoResponseData(insertVideoRequests);
+            return chapterInsertRequest;
+        }).collect(Collectors.toList());
+        getClassDataResponse.setChapterResponses(chapterInsertRequests);
+        response.setData(getClassDataResponse);
+        response.setMessage("success get data");
+        response.setErrors(false);
+        return response;
+
     }
 
     @Override
@@ -415,7 +710,6 @@ public class CourseServiceImpl implements CourseService {
             getCourseResponse.setProgress(progressTotal);
             List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
                 GetChapterResponse getChapterResponse = new GetChapterResponse();
-                getChapterResponse.setNoChapter(p.getChapterNumber());
                 getChapterResponse.setJudulChapter(p.getChaptertitle());
                 getChapterResponse.setTime(p.getChapterTime());
                 List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
@@ -472,7 +766,6 @@ public class CourseServiceImpl implements CourseService {
         getCourseResponse.setProgress(progressTotal);
         List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
             GetChapterResponse getChapterResponse = new GetChapterResponse();
-            getChapterResponse.setNoChapter(p.getChapterNumber());
             getChapterResponse.setJudulChapter(p.getChaptertitle());
             getChapterResponse.setTime(p.getChapterTime());
             List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
@@ -1304,6 +1597,86 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public ResponseHandling<List<ManageClassResponse>> searchManageClass(String keyword, Integer page) {
+        ResponseHandling<List<ManageClassResponse>> response = new ResponseHandling<>();
+        List<Course> course;
+
+        if (page == null) {
+            course = courseRepository.findByClassNameOrTeacherJPQL(keyword);
+        } else {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<Course> coursePage = courseRepository.findByClassNameOrTeacherJPQLPage(keyword, pageable);
+            course = coursePage.getContent();
+        }
+
+        List<ManageClassResponse> manageClassResponse = course.stream().map((p)->{
+            ManageClassResponse manageClassResponse1 = new ManageClassResponse();
+            manageClassResponse1.setKodeKelas(p.getCourseCode());
+            manageClassResponse1.setKategori(p.getCategories().getCategoryName());
+            manageClassResponse1.setNamaKelas(p.getClassName());
+            if (ClassType.PREMIUM.equals(p.getClassType())){
+                manageClassResponse1.setTipeKelas("PREMIUM");
+            }else {
+                manageClassResponse1.setTipeKelas("GRATIS");
+            }
+            if (Level.BEGINNER.equals(p.getLevel())){
+                manageClassResponse1.setLevel("Beginner");
+            }else if (Level.ADVANCED.equals(p.getLevel())){
+                manageClassResponse1.setLevel("Advanced");
+            }else {
+                manageClassResponse1.setLevel("Intermediate");
+            }
+            manageClassResponse1.setHarga(p.getPrice());
+
+            return manageClassResponse1;
+
+        }).collect(Collectors.toList());
+
+        response.setData(manageClassResponse);
+        response.setMessage("get data success");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
+    public ResponseHandling<DeleteCourseResponse> deleteUserData(String coursecode) {
+        ResponseHandling<DeleteCourseResponse> response = new ResponseHandling<>();
+        Optional<Course> course = courseRepository.findByCourseCode(coursecode);
+        if (!course.isPresent()){
+            response.setMessage("Course not found with code " + coursecode);
+            response.setErrors(true);
+            return response;
+        }
+
+        course.get().getChapters().forEach(chapter -> {
+            chapter.getVideos().forEach(video -> {
+                Optional<UserVideo> userVideo = userVideoRepository.findByVideo(video);
+                userVideo.ifPresent(v -> userVideoRepository.deleteById(v.getId()));
+            });
+        });
+
+        course.get().getChapters().forEach(chapter -> {
+            chapter.getVideos().forEach(video -> {
+                Optional<Video> existingVideo = videoRepository.findByVideoCode(video.getVideoCode());
+                existingVideo.ifPresent(v -> videoRepository.deleteById(v.getId()));
+            });
+        });
+
+        course.get().getChapters().forEach(chapter -> {
+            Optional<Chapter> existingChapter = chapterRepository.findById(chapter.getId());
+            existingChapter.ifPresent(c -> chapterRepository.deleteById(c.getId()));
+        });
+        courseRepository.deleteById(course.get().getId());
+
+        DeleteCourseResponse deleteCourseResponse = new DeleteCourseResponse();
+        deleteCourseResponse.setCourseCode(coursecode);
+        response.setData(deleteCourseResponse);
+        response.setMessage("Success delete data");
+        response.setErrors(false);
+        return response;
+    }
+
+    @Override
     public ResponseHandling<List<ManageClassResponse>> getManageClass(Integer page) {
         ResponseHandling<List<ManageClassResponse>> response = new ResponseHandling<>();
         List<Course> courses;
@@ -1317,7 +1690,7 @@ public class CourseServiceImpl implements CourseService {
 
         List<ManageClassResponse> manageClassResponses = courses.stream().map((p)->{
             ManageClassResponse manageClassResponse = new ManageClassResponse();
-            manageClassResponse.setKodeKelas(p.getClassName());
+            manageClassResponse.setKodeKelas(p.getCourseCode());
             manageClassResponse.setKategori(p.getCategories().getCategoryName());
             manageClassResponse.setNamaKelas(p.getClassName());
             if (ClassType.PREMIUM.equals(p.getClassType())){

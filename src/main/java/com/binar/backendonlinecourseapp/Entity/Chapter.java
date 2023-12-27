@@ -16,9 +16,6 @@ public class Chapter {
     @GeneratedValue(generator = "uuid")
     private String id;
 
-    @Column(nullable = false)
-    private String chapterNumber;
-
     @Column(length = 30, nullable = false)
     private String chaptertitle;
 

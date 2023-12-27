@@ -9,8 +9,6 @@ import java.util.List;
 @Setter
 public class GetChapterResponse {
 
-    private String noChapter;
-
     private String judulChapter;
 
     private Integer time;

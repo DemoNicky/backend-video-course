@@ -16,4 +16,5 @@ public interface UserVideoRepository extends JpaRepository<UserVideo, String> {
 
     Optional<UserVideo> findByUserAndVideo(User user, Video video);
 
+    Optional<UserVideo> findByVideo(Video video);
 }

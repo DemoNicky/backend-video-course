@@ -264,11 +264,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         try {
             Optional<User> isUserByEmailExists = userRepository.findByEmail(registerRequest.getEmail());
             Optional<User> isUserByTelpExists = userRepository.findByTelp(registerRequest.getTelp());
+
             if (isUserByEmailExists.isPresent() || isUserByTelpExists.isPresent()) {
                 response.setMessage("email/telp number already exists");    
                 response.setErrors(true);
                 return response;
             }
+
 
             final String url = "http://res.cloudinary.com/duzctbrt5/image/upload/v1701317552/ittcwcftomal7kgpspg7.jpg";
 

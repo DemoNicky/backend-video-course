@@ -6,10 +6,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ChapterInsertRequest {
+public class ChapterUpdateRequest {
+
+    private String chapterCode;
 
     private String chaptertitle;
 
-    private List<InsertVideoRequest> insertVideoRequests;
+    private List<UpdateVideoRequest> updateVideoRequests;
 
 }

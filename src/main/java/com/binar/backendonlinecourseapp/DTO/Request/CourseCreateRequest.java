@@ -4,7 +4,6 @@ import com.binar.backendonlinecourseapp.Entity.Enum.ClassType;
 import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.List;
 

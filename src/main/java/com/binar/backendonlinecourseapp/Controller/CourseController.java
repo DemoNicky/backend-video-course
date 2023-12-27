@@ -1,7 +1,6 @@
 package com.binar.backendonlinecourseapp.Controller;
 
 import com.binar.backendonlinecourseapp.DTO.Request.CourseCreateRequest;
-import com.binar.backendonlinecourseapp.DTO.Request.CourseFilterRequest;
 import com.binar.backendonlinecourseapp.DTO.Request.CourseUpdateRequest;
 import com.binar.backendonlinecourseapp.DTO.Response.*;
 import com.binar.backendonlinecourseapp.Entity.Enum.CardType;
@@ -10,15 +9,12 @@ import com.binar.backendonlinecourseapp.Entity.Enum.Level;
 import com.binar.backendonlinecourseapp.Entity.Enum.ProgressType;
 import com.binar.backendonlinecourseapp.Service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,6 +26,18 @@ public class CourseController {
     private CourseService courseService;
 
     @PostMapping(
+            path = "/v2/create-course",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestBody CourseCreateRequest courseRequest) throws IOException {
+        ResponseHandling<CourseCreateResponse> response = courseService.createCourseNew(courseRequest);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(
             path = "/create",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -37,6 +45,66 @@ public class CourseController {
                                                                               @RequestPart("course") CourseCreateRequest courseCreateRequest) throws IOException {
         ResponseHandling<CourseCreateResponse> response = courseService.createCourse(courseCreateRequest, file);
         if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/get-class-data/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<GetClassDataResponse>>getClassData(@PathVariable("kodekelas")String kodekelas){
+        ResponseHandling<GetClassDataResponse> response = courseService.getClassData(kodekelas);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(
+            path = "/search-manage-class",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<List<ManageClassResponse>>>searchManageClass(@RequestParam("keyword")String keyword,
+                                                                                        @RequestParam(required = false) Integer page){
+        ResponseHandling<List<ManageClassResponse>> response = courseService.searchManageClass(keyword, page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping(
+            path = "/delete-course/{coursecode}"
+    )
+    public ResponseEntity<ResponseHandling<DeleteCourseResponse>>deleteData(@PathVariable("coursecode")String coursecode){
+        ResponseHandling<DeleteCourseResponse> response = courseService.deleteUserData(coursecode);
+        if (response.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            path = "/v2/update-class-new/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<UpdateClassResponse>>updateClassDataNew(@PathVariable("kodekelas")String kodekelas,
+                                                                                @RequestBody CourseUpdateRequest courseUpdateRequest) throws IOException {
+        ResponseHandling<UpdateClassResponse> response = courseService.updateClassDataNew(kodekelas, courseUpdateRequest);
+        if (response.getData()==null || response.getErrors() == true){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping(
+            path = "/update-class/{kodekelas}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ResponseHandling<UpdateClassResponse>>updateClassData(@PathVariable("kodekelas")String kodekelas,
+                                                                                @RequestPart("file") MultipartFile file,
+                                                                                @RequestPart("course") CourseUpdateRequest courseCreateRequest) throws IOException {
+        ResponseHandling<UpdateClassResponse> response = courseService.updateClassData(kodekelas, file, courseCreateRequest);
+        if (response.getData()==null || response.getErrors() == true){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
