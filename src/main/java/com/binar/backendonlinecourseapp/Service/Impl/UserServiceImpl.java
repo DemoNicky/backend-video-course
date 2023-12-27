@@ -322,13 +322,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         ResponseHandling<TokenResponse> response = new ResponseHandling<>();
 
         Optional<Token> token1 = tokenRepository.findByToken(code);
-        Optional<User> user = userRepository.findByEmail(token1.get().getUser().getEmail());
 
         if (!token1.isPresent()){
             response.setMessage("token is invalid");
             response.setErrors(true);
             return response;
         }else {
+            Optional<User> user = userRepository.findByEmail(token1.get().getUser().getEmail());
             if (!token1.get().getExpired().before(new Date())){
                 User user1 = user.get();
 
