@@ -1424,6 +1424,12 @@ public class CourseServiceImpl implements CourseService {
                     classType, courseFilterRequest.getIsPopular(), courseFilterRequest.getIsNewest());
         }
 
+        if (courseList.isEmpty() || courseList == null){
+            response.setMessage("Data course null");
+            response.setErrors(false);
+            return response;
+        }
+
         List<CourseGetResponse> courseGetResponses = courseList.stream().map((p)->{
             CourseGetResponse courseGetResponse = new CourseGetResponse();
             courseGetResponse.setKodeKelas(p.getCourseCode());

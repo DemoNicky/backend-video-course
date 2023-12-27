@@ -139,9 +139,6 @@ public class CourseController {
                                                                                    @RequestParam List<Level> level) throws IOException {
 
         ResponseHandling<List<UserWatchProgressResponse>> response = courseService.filterProgress(isNewest, isPopular, progressType, category, level);
-        if (response.getData()==null || response.getErrors() == true){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
