@@ -79,7 +79,9 @@ public class UserController {
     }
 
     @PostMapping(
-            path = "/admin-login"
+            path = "/admin-login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<ResponseHandling<LoginResponse>> adminLogin(@RequestBody LoginRequest loginRequest){
         ResponseHandling<LoginResponse> response = userService.adminLogin(loginRequest);
