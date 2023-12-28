@@ -183,9 +183,6 @@ public class CourseController {
     public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourse(@PathVariable("course")String courseName,
                                                                                     @RequestParam(required = false) Integer page){
         ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourse(courseName, page);
-        if (response.getData() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
@@ -209,9 +206,6 @@ public class CourseController {
     public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCoursePremium(@PathVariable("course")String courseName,
                                                                                     @RequestParam(required = false) Integer page){
         ResponseHandling<List<CourseGetResponse>> response = courseService.searchCoursePremium(courseName, page);
-        if (response.getData() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -221,9 +215,6 @@ public class CourseController {
     public ResponseEntity<ResponseHandling<List<CourseGetResponse>>>getSearchCourseFree(@PathVariable("course")String courseName,
                                                                                            @RequestParam(required = false) Integer page){
         ResponseHandling<List<CourseGetResponse>> response = courseService.searchCourseFree(courseName, page);
-        if (response.getData() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

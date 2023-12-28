@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -15,6 +16,9 @@ public class Chapter {
     @GenericGenerator(strategy = "uuid2", name = "uuid")
     @GeneratedValue(generator = "uuid")
     private String id;
+
+    @Column(unique = true)
+    private Integer number;
 
     @Column(length = 30, nullable = false)
     private String chaptertitle;
