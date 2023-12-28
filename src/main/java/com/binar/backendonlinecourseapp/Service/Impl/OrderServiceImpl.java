@@ -43,20 +43,50 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserWalletRepository userWalletRepository;
 
+    @Transactional
     @Override
     public ResponseHandling<OrderResponse> createOrder(OrderRequest orderRequest) throws ParseException {
         ResponseHandling<OrderResponse> response = new ResponseHandling<>();
         Optional<User> user = userRepository.findByEmail(getAuth());
         Optional<Course> course = courseRepository.findByCourseCode(orderRequest.getCourseCode());
+        if (!course.isPresent()){
+            response.setMessage("cant create order because order code invalid");
+            response.setErrors(true);
+            return response;
+        }
         Optional<Order> order1 = orderRepository.findOrdersByUserAndCourse(user.get(), course.get());
 
         if (order1.isPresent() && order1.get().getCompletePaid() == false && order1.get().getExpired().before(new Date())){
-            orderRepository.deleteById(order1.get().getId());
-        }
 
-        if (!course.isPresent()){
-            response.setMessage("cant create order because order code is invalid man!!!");
-            response.setErrors(true);
+            orderRepository.deleteById(order1.get().getId());
+            Order order = new Order();
+            order.setOrderCode(getUUIDCode());
+
+            order.setOrderDate(new Date());
+
+            order.setExpired(Date.from(Instant.now().plusSeconds(24 * 60 * 60)));
+
+            order.setCompletePaid(false);
+            order.setCourse(course.get());
+            order.setUser(user.get());
+            orderRepository.save(order);
+
+            OrderResponse orderResponse = new OrderResponse();
+            orderResponse.setCourseCode(course.get().getCourseCode());
+            orderResponse.setOrderCode(order.getOrderCode());
+            orderResponse.setHarga(course.get().getPrice());
+            BigDecimal ppn = course.get().getPrice().multiply(BigDecimal.valueOf(0.11));
+            orderResponse.setPpn(ppn);
+            orderResponse.setTotalBayar(course.get().getPrice().add(ppn));
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
+            orderResponse.setExpiredDate(outputFormat.format(order.getExpired()));
+
+
+            response.setData(orderResponse);
+            response.setMessage("success create order");
+            response.setErrors(false);
+
             return response;
         }else if (orderRepository.findOrdersByUserAndCourse(user.get(), course.get()).isPresent() && order1.get().getCompletePaid() == true){
             response.setMessage("cant create order because you already order it bro!!!");
