@@ -850,46 +850,6 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
-//    @Override
-//    public ResponseHandling<CourseUpdateResponse> updateCourse(CourseUpdateRequest courseUpdateRequest) {
-//        ResponseHandling<CourseUpdateResponse> response = new ResponseHandling<>();
-//        Optional<Course> course = courseRepository.findByCourseCode(courseUpdateRequest.getKodeKelas());
-//        if (!course.isPresent()){
-//            response.setMessage("course not found");
-//            response.setErrors(true);
-//            return response;
-//        }
-//
-//        Course course1 = course.get();
-//
-//        course1.setClassType(courseUpdateRequest.getTipeKelas());
-//        course1.setLevel(courseUpdateRequest.getLevel());
-//        course1.setPrice(courseUpdateRequest.getHarga());
-//        course1.setMateri(courseUpdateRequest.getMateri());
-//
-//        Video video = new Video();
-//        video.setVideoCode(getUUIDCode());
-//        video.setVideoTitle(courseUpdateRequest.getJudulVideo());
-//        video.setVideoLink(courseUpdateRequest.getLinkVideo());
-//        video.setPremium(courseUpdateRequest.getIsPremium());
-//        video.setChapter(courseUpdateRequest.getChapter());
-//        video.setCourse(course1);
-//        videoRepository.save(video);
-//
-//        courseRepository.save(course1);
-//
-//        CourseUpdateResponse courseUpdateResponse = new CourseUpdateResponse();
-//        courseUpdateResponse.setNamaKelas(course1.getClassName());
-//        courseUpdateResponse.setKategori(course1.getCategories().getCategoryName());
-//        courseUpdateResponse.setKodeKelas(course1.getCourseCode());
-//        courseUpdateResponse.setHarga(course1.getPrice());
-//        courseUpdateResponse.setMateri(course1.getMateri());
-//        response.setData(courseUpdateResponse);
-//        response.setMessage("success update course");
-//        response.setErrors(false);
-//        return response;
-//    }
-
     @Override
     public ResponseHandling<List<CourseGetResponse>> getPremiumClass(Integer page) {
         ResponseHandling<List<CourseGetResponse>> response = new ResponseHandling<>();
