@@ -281,6 +281,7 @@ public class CourseServiceImpl implements CourseService {
             chapterRepository.save(chapter);
 
             AtomicInteger counterVideo = new AtomicInteger(videoRepository.findAll().size() + 1);
+            Chapter finalChapter = chapter;
             p.getVideoResponseData().stream().map((x)->{
                 Video video = new Video();
                 if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
@@ -289,8 +290,8 @@ public class CourseServiceImpl implements CourseService {
                     video.setNumber(counterVideo.incrementAndGet());
                     video.setVideoLink(x.getLinkVideo());
                     video.setPremium(x.getIsPremium());
-                    Optional<Chapter> chapterrr = chapterRepository.findByChaptertitle(p.getChaptertitle());
-                    video.setChapter(chapterrr.get());
+
+                    video.setChapter(finalChapter);
                     videoRepository.save(video);
                 }else {
                     Optional<Video> videogett = videoRepository.findByVideoCode(x.getVideoCode());
