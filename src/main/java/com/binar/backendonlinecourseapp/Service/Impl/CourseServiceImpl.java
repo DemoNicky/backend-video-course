@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,16 +106,22 @@ public class CourseServiceImpl implements CourseService {
 
         courseRepository.save(course);
 
+        AtomicInteger counter = new AtomicInteger(chapterRepository.findAll().size() + 1);
         courseRequest.getChapterInsertRequests().stream().map((p) -> {
             Chapter chapter = new Chapter();
             chapter.setChaptertitle(p.getChaptertitle());
+            chapter.setNumber(counter.incrementAndGet());
             int chapterTime = new Random().nextInt(51) + 10;
             chapter.setChapterTime(chapterTime);
             chapter.setCourse(course);
 
+
+            chapterRepository.save(chapter);
+            AtomicInteger counterVideo = new AtomicInteger(videoRepository.findAll().size() + 1);
             p.getInsertVideoRequests().stream().map((x) -> {
                 Video video = new Video();
                 video.setVideoCode(getUUIDCode());
+                video.setNumber(counterVideo.incrementAndGet());
                 video.setVideoTitle(x.getJudulVideo());
                 video.setVideoLink(x.getLinkVideo());
                 video.setPremium(x.getIsPremium());
@@ -123,11 +130,8 @@ public class CourseServiceImpl implements CourseService {
                 return video;
             }).collect(Collectors.toList());
 
-            chapterRepository.save(chapter);
-
             return chapter;
         }).collect(Collectors.toList());
-
 
         CourseCreateResponse courseCreateResponse = new CourseCreateResponse();
         courseCreateResponse.setNamaKelas(courseRequest.getNamaKelas());
@@ -250,12 +254,15 @@ public class CourseServiceImpl implements CourseService {
         courseGet.setLevel(courseUpdateRequest.getLevel());
         courseGet.setPrice(courseUpdateRequest.getHarga());
         courseGet.setMateri(courseUpdateRequest.getMateri());
+
+        AtomicInteger counter = new AtomicInteger(chapterRepository.findAll().size() + 1);
         courseUpdateRequest.getChapterResponses().stream().map((p)->{
 
             Chapter chapter = new Chapter();
 
             if (p.getChapterCode().isEmpty() || p.getChapterCode()==null){
                 chapter.setChaptertitle(p.getChaptertitle());
+                chapter.setNumber(counter.incrementAndGet());
                 int chapterTime = new Random().nextInt(51) + 10;
                 chapter.setChapterTime(chapterTime);
                 chapter.setCourse(courseGet);
@@ -273,11 +280,13 @@ public class CourseServiceImpl implements CourseService {
             }
             chapterRepository.save(chapter);
 
+            AtomicInteger counterVideo = new AtomicInteger(videoRepository.findAll().size() + 1);
             p.getVideoResponseData().stream().map((x)->{
                 Video video = new Video();
                 if (x.getVideoCode().isEmpty() || x.getVideoCode() == null){
                     video.setVideoCode(getUUIDCode());
                     video.setVideoTitle(x.getJudulVideo());
+                    video.setNumber(counterVideo.incrementAndGet());
                     video.setVideoLink(x.getLinkVideo());
                     video.setPremium(x.getIsPremium());
                     Optional<Chapter> chapterrr = chapterRepository.findByChaptertitle(p.getChaptertitle());
@@ -512,11 +521,15 @@ public class CourseServiceImpl implements CourseService {
         getClassDataResponse.setLevel(courseGet.getLevel());
         getClassDataResponse.setHarga(courseGet.getPrice());
         getClassDataResponse.setMateri(courseGet.getMateri());
-        List<ChapterResponse> chapterInsertRequests = courseGet.getChapters().stream().map((p)->{
+
+        List<Chapter> chapters = chapterRepository.findByCourseOrderByNumberAsc(courseGet);
+        List<ChapterResponse> chapterInsertRequests = chapters.stream().map((p)->{
             ChapterResponse chapterInsertRequest = new ChapterResponse();
             chapterInsertRequest.setChapterCode(p.getId());
             chapterInsertRequest.setChaptertitle(p.getChaptertitle());
-            List<VideoResponseData> insertVideoRequests = p.getVideos().stream().map((x)->{
+
+            List<Video> videos = videoRepository.findByChapterOrderByNumberVideo(p.getId());
+            List<VideoResponseData> insertVideoRequests = videos.stream().map((x)->{
                 VideoResponseData insertVideoRequest = new VideoResponseData();
                 insertVideoRequest.setVideoCode(x.getVideoCode());
                 insertVideoRequest.setJudulVideo(x.getVideoTitle());
@@ -708,11 +721,15 @@ public class CourseServiceImpl implements CourseService {
                     .sum();
             int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
             getCourseResponse.setProgress(progressTotal);
-            List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
+
+            List<Chapter> chapters = chapterRepository.findByCourseOrderByNumberAsc(courseGet);
+            List<GetChapterResponse> getChapterResponses = chapters.stream().map((p)->{
                 GetChapterResponse getChapterResponse = new GetChapterResponse();
                 getChapterResponse.setJudulChapter(p.getChaptertitle());
                 getChapterResponse.setTime(p.getChapterTime());
-                List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
+
+                List<Video> videos = videoRepository.findByChapterOrderByNumberVideo(p.getId());
+                List<GetVideoResponse> getVideoResponses = videos.stream().map((x)->{
                     GetVideoResponse getVideoResponse = new GetVideoResponse();
                     getVideoResponse.setVideoCode(x.getVideoCode());
                     getVideoResponse.setJudulVideo(x.getVideoTitle());
@@ -764,11 +781,15 @@ public class CourseServiceImpl implements CourseService {
                 .sum();
         int progressTotal = videoSize > 0 ? (count * 100) / videoSize : 0;
         getCourseResponse.setProgress(progressTotal);
-        List<GetChapterResponse> getChapterResponses = courseGet.getChapters().stream().map((p)->{
+
+        List<Chapter> chapters = chapterRepository.findByCourseOrderByNumberAsc(courseGet);
+        List<GetChapterResponse> getChapterResponses = chapters.stream().map((p)->{
             GetChapterResponse getChapterResponse = new GetChapterResponse();
             getChapterResponse.setJudulChapter(p.getChaptertitle());
             getChapterResponse.setTime(p.getChapterTime());
-            List<GetVideoResponse> getVideoResponses = p.getVideos().stream().map((x)->{
+
+            List<Video> videos = videoRepository.findByChapterOrderByNumberVideo(p.getId());
+            List<GetVideoResponse> getVideoResponses = videos.stream().map((x)->{
                 GetVideoResponse getVideoResponse = new GetVideoResponse();
                 getVideoResponse.setVideoCode(x.getVideoCode());
                 getVideoResponse.setJudulVideo(x.getVideoTitle());

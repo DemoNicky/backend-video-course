@@ -15,6 +15,9 @@ public class Video {
     @GeneratedValue(generator = "uuid")
     private String id;
 
+    @Column(unique = true)
+    private Integer number;
+
     @Column(name = "video_code", length = 10, nullable = false, unique = true)
     private String videoCode;
 
