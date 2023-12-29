@@ -18,7 +18,7 @@ public class BackendOnlineCourseAppApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:5173")
+				registry.addMapping("/**").allowedOrigins("https://learnx5.vercel.app")
 						.allowedMethods("GET", "POST", "PUT", "DELETE").allowedHeaders("*").allowCredentials(true);
 			}
 		};

@@ -488,7 +488,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         message.setText(String.format(
                 "Someone requested that the password be reset for the following account\n" +
                         "To reset your password, visit the following address: \n\n" +
-                        "http://localhost:5173/reset-password?email=%s&code=%s", toEmail, code) +
+                        "https://learnx5.vercel.app/reset-password?email=%s&code=%s", toEmail, code) +
                 "\n\n Do not share this link with anyone."
         );
         message.setSubject("Binar Course Reset Password!!!");
