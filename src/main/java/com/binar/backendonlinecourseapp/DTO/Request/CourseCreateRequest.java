@@ -25,10 +25,8 @@ public class CourseCreateRequest {
     @NotBlank(message = "Kode kelas tidak boleh kosong")
     private String kodeKelas;
 
-    @NotNull(message = "Tipe kelas tidak boleh kosong")
     private ClassType tipeKelas;
 
-    @NotNull(message = "Level tidak boleh kosong")
     private Level level;
 
     private BigDecimal harga;
