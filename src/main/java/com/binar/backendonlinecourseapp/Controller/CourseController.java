@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class CourseController {
             path = "/v2/create-course",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@RequestBody CourseCreateRequest courseRequest) throws IOException {
+    public ResponseEntity<ResponseHandling<CourseCreateResponse>>createCourse(@Valid @RequestBody CourseCreateRequest courseRequest) throws IOException {
         ResponseHandling<CourseCreateResponse> response = courseService.createCourseNew(courseRequest);
         if (response.getData() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -221,7 +222,7 @@ public class CourseController {
     public ResponseEntity<ResponseHandling<List<PaymentHistoryResponse>>>getPaymentHistory(@RequestParam(required = false) Integer page){
         ResponseHandling<List<PaymentHistoryResponse>> response = courseService.getPaymentHistory(page);
         if (response.getData()==null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
